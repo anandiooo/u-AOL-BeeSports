@@ -1,0 +1,39 @@
+name: beesports
+description: "A sports matchmaking application for BINUS students."
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.3
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Epic 1: Auth (Microsoft/BINUS SSO)
+  aad_oauth: ^0.4.0
+
+  # Epic 4 & 7: State Management & Logic
+  flutter_bloc: ^8.1.6
+  get_it: ^7.7.0
+
+  # Epic 6: Maps & Geolocation
+  google_maps_flutter: ^2.5.3
+  geolocator: ^10.1.0
+
+  # Epic 4: Payment
+  midtrans_sdk: ^1.1.0
+
+  # Utils & Backend Connection
+  dio: ^5.4.0
+  supabase_flutter: ^2.0.2
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
