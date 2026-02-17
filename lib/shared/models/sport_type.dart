@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Supported sport types in BeeSports.
 enum SportType {
   futsal('Futsal', Icons.sports_soccer, Color(0xFF66BB6A)),
   basketball('Basketball', Icons.sports_basketball, Color(0xFFEF5350)),
@@ -15,7 +14,6 @@ enum SportType {
 
   const SportType(this.label, this.icon, this.color);
 
-  /// Convert from string stored in database.
   static SportType? fromString(String value) {
     try {
       return SportType.values.firstWhere(

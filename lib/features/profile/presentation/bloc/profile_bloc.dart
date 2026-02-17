@@ -3,8 +3,6 @@ import 'package:beesports/features/profile/domain/repositories/profile_repositor
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-// ─── Events ───────────────────────────────────────────────────────────────
-
 abstract class ProfileEvent extends Equatable {
   const ProfileEvent();
   @override
@@ -24,8 +22,6 @@ class ProfileUpdateRequested extends ProfileEvent {
   @override
   List<Object?> get props => [profile];
 }
-
-// ─── States ───────────────────────────────────────────────────────────────
 
 abstract class ProfileState extends Equatable {
   const ProfileState();
@@ -57,8 +53,6 @@ class ProfileUpdateSuccess extends ProfileState {
   @override
   List<Object?> get props => [profile];
 }
-
-// ─── BLoC ─────────────────────────────────────────────────────────────────
 
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final ProfileRepository _profileRepository;

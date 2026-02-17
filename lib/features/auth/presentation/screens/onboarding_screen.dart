@@ -9,7 +9,6 @@ import 'package:beesports/shared/models/sport_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Onboarding screen: NIM, sport selection, skill self-declaration.
 class OnboardingScreen extends StatefulWidget {
   final UserEntity user;
 
@@ -44,7 +43,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _nextPage() {
     if (_currentPage == 0) {
-      // Validate NIM
       if (_nimController.text.trim().length < 10) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please enter a valid 10-digit NIM')),
@@ -74,7 +72,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _onSubmit() async {
-    // Validate all sports have skill levels
     for (final sport in _selectedSports) {
       if (!_skillLevels.containsKey(sport)) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -125,7 +122,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // ── Progress Indicator ──
             Padding(
               padding: const EdgeInsets.all(24),
               child: Row(
@@ -145,8 +141,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 }),
               ),
             ),
-
-            // ── Pages ──
             Expanded(
               child: PageView(
                 controller: _pageController,
@@ -164,8 +158,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
     );
   }
-
-  // ─── Page 1: NIM Entry ──────────────────────────────────────────────────
 
   Widget _buildNimPage() {
     return Padding(
@@ -203,7 +195,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             onChanged: _onNimChanged,
           ),
           const SizedBox(height: 16),
-          // Campus detection chip
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: _detectedCampus != Campus.unknown
@@ -254,8 +245,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
     );
   }
-
-  // ─── Page 2: Sport Selection ────────────────────────────────────────────
 
   Widget _buildSportPage() {
     return Padding(
@@ -357,8 +346,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
     );
   }
-
-  // ─── Page 3: Skill Declaration ──────────────────────────────────────────
 
   Widget _buildSkillPage() {
     final sports = _selectedSports.toList();

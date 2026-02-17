@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-/// Profile edit screen — bio, sport preferences, skill levels.
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({super.key});
 
@@ -86,7 +85,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Bio ──
                 const Text(
                   'Bio',
                   style: TextStyle(
@@ -104,8 +102,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-
-                // ── Sport Preferences ──
                 const Text(
                   'Sport Preferences',
                   style: TextStyle(
@@ -141,8 +137,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   }).toList(),
                 ),
                 const SizedBox(height: 24),
-
-                // ── Skill Levels ──
                 if (_selectedSports.isNotEmpty) ...[
                   const Text(
                     'Skill Levels',
@@ -225,8 +219,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   }),
                 ],
                 const SizedBox(height: 16),
-
-                // ── Save Button ──
                 SizedBox(
                   width: double.infinity,
                   height: 52,

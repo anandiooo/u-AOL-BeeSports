@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// OTP verification screen – shown after registration.
 class OtpScreen extends StatefulWidget {
   final String email;
 
@@ -52,7 +51,6 @@ class _OtpScreenState extends State<OtpScreen> {
     if (value.isEmpty && index > 0) {
       _focusNodes[index - 1].requestFocus();
     }
-    // Auto-submit when all 6 digits entered
     if (_otpCode.length == 6) {
       _onVerify();
     }
@@ -78,7 +76,6 @@ class _OtpScreenState extends State<OtpScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // ── Header ──
                 Container(
                   width: 64,
                   height: 64,
@@ -116,8 +113,6 @@ class _OtpScreenState extends State<OtpScreen> {
                   ),
                 ),
                 const SizedBox(height: 36),
-
-                // ── OTP Fields ──
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(6, (i) {
@@ -147,8 +142,6 @@ class _OtpScreenState extends State<OtpScreen> {
                   }),
                 ),
                 const SizedBox(height: 32),
-
-                // ── Verify Button ──
                 BlocBuilder<AuthBloc, AuthState>(
                   builder: (context, state) {
                     final isLoading = state is AuthLoading;

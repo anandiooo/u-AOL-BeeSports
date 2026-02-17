@@ -9,14 +9,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 final sl = GetIt.instance;
 
-/// Initialize all dependency injection bindings.
 Future<void> initDependencies() async {
-  // ── External ───────────────────────────────────────────────────────────
   sl.registerLazySingleton<SupabaseClient>(
     () => Supabase.instance.client,
   );
 
-  // ── Repositories ───────────────────────────────────────────────────────
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(sl<SupabaseClient>()),
   );
@@ -25,7 +22,6 @@ Future<void> initDependencies() async {
     () => ProfileRepositoryImpl(sl<SupabaseClient>()),
   );
 
-  // ── BLoCs ──────────────────────────────────────────────────────────────
   sl.registerFactory<AuthBloc>(
     () => AuthBloc(sl<AuthRepository>()),
   );

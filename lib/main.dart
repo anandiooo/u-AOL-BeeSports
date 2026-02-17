@@ -10,13 +10,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load environment variables
   await dotenv.load(fileName: '.env');
 
-  // Initialize Supabase
   await SupabaseConfig.initialize();
 
-  // Initialize dependency injection
   await initDependencies();
 
   runApp(const BeeSportsApp());

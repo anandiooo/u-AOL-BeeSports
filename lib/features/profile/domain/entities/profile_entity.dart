@@ -2,7 +2,6 @@ import 'package:beesports/shared/models/skill_level.dart';
 import 'package:beesports/shared/models/sport_type.dart';
 import 'package:equatable/equatable.dart';
 
-/// Extended profile entity with sports data and stats.
 class ProfileEntity extends Equatable {
   final String id;
   final String email;
@@ -92,16 +91,13 @@ class ProfileEntity extends Equatable {
     );
   }
 
-  /// Create from Supabase row.
   factory ProfileEntity.fromMap(Map<String, dynamic> map) {
-    // Parse sport preferences from string list
     final sportPrefs = (map['sport_preferences'] as List<dynamic>?)
             ?.map((s) => SportType.fromString(s as String))
             .whereType<SportType>()
             .toList() ??
         [];
 
-    // Parse skill levels from JSONB
     final skillMap = <SportType, SkillLevel>{};
     final rawSkills = map['skill_levels'] as Map<String, dynamic>?;
     if (rawSkills != null) {
@@ -142,7 +138,6 @@ class ProfileEntity extends Equatable {
     );
   }
 
-  /// Convert to map for Supabase upsert.
   Map<String, dynamic> toMap() {
     return {
       'id': id,

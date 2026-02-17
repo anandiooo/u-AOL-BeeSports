@@ -1,7 +1,3 @@
-/// BINUS campus enum with NIM prefix mapping.
-///
-/// BINUS NIM format: typically 10 digits, e.g. 2502012345
-/// The campus is often encoded in the NIM prefix.
 enum Campus {
   kemanggisan('Kemanggisan', 'Jakarta Barat'),
   alamSutera('Alam Sutera', 'Tangerang'),
@@ -17,12 +13,9 @@ enum Campus {
 
   const Campus(this.label, this.city);
 
-  /// Attempt to detect campus from NIM.
-  /// Falls back to [Campus.unknown] if not recognized.
   static Campus fromNim(String nim) {
     if (nim.length < 4) return Campus.unknown;
 
-    // Common BINUS NIM patterns (adjust as needed)
     final prefix = nim.substring(0, 4);
     switch (prefix) {
       case '2501':

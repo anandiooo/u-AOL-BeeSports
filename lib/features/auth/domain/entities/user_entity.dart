@@ -1,13 +1,12 @@
 import 'package:equatable/equatable.dart';
 
-/// Core user entity returned after authentication.
 class UserEntity extends Equatable {
   final String id;
   final String email;
   final String? fullName;
   final String? nim;
   final String? campus;
-  final String role; // 'player' or 'host'
+  final String role;
   final String? avatarUrl;
   final bool isOnboarded;
   final DateTime? createdAt;
@@ -48,7 +47,6 @@ class UserEntity extends Equatable {
     );
   }
 
-  /// Create from Supabase profiles row.
   factory UserEntity.fromMap(Map<String, dynamic> map) {
     return UserEntity(
       id: map['id'] as String,
@@ -65,7 +63,6 @@ class UserEntity extends Equatable {
     );
   }
 
-  /// Convert to map for Supabase upsert.
   Map<String, dynamic> toMap() {
     return {
       'id': id,

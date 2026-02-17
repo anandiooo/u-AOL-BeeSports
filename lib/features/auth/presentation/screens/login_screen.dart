@@ -3,7 +3,6 @@ import 'package:beesports/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// BeeSports branded login screen.
 class LoginScreen extends StatefulWidget {
   final VoidCallback onNavigateToRegister;
 
@@ -75,11 +74,8 @@ class _LoginScreenState extends State<LoginScreen>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // ── Logo & Title ──
                     _buildLogo(),
                     const SizedBox(height: 48),
-
-                    // ── Form ──
                     Form(
                       key: _formKey,
                       child: Column(

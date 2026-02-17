@@ -3,7 +3,6 @@ import 'package:beesports/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Registration screen for new BINUS students.
 class RegisterScreen extends StatefulWidget {
   final VoidCallback onNavigateToLogin;
 
@@ -61,7 +60,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // ── Header ──
                   const Icon(
                     Icons.person_add_alt_1_rounded,
                     size: 56,
@@ -83,8 +81,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 36),
-
-                  // ── Form ──
                   Form(
                     key: _formKey,
                     child: Column(

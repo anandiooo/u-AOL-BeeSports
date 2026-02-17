@@ -2,7 +2,6 @@ import 'package:beesports/features/profile/domain/entities/profile_entity.dart';
 import 'package:beesports/features/profile/domain/repositories/profile_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Supabase implementation of [ProfileRepository].
 class ProfileRepositoryImpl implements ProfileRepository {
   final SupabaseClient _client;
 

@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-/// Profile view screen showing user stats and info.
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -69,7 +68,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          // ── Avatar + Name ──
           Container(
             width: 80,
             height: 80,
@@ -117,8 +115,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ],
           const SizedBox(height: 24),
-
-          // ── Info Chips ──
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -139,8 +135,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
           const SizedBox(height: 24),
-
-          // ── Stats Grid ──
           Row(
             children: [
               _StatCard(
@@ -177,8 +171,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
           const SizedBox(height: 24),
-
-          // ── Sport Preferences ──
           if (profile.sportPreferences.isNotEmpty) ...[
             const Align(
               alignment: Alignment.centerLeft,

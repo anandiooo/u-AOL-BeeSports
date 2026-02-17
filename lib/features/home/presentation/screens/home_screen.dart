@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-/// Home screen with bottom navigation placeholder.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -21,7 +20,6 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Greeting ──
               Row(
                 children: [
                   Expanded(
@@ -67,8 +65,6 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 32),
-
-              // ── Quick Actions ──
               const Text(
                 'Quick Actions',
                 style: TextStyle(
@@ -102,8 +98,6 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 32),
-
-              // ── Upcoming section placeholder ──
               const Text(
                 'Upcoming Matches',
                 style: TextStyle(

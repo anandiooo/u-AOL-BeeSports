@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-/// App router configuration using GoRouter.
 class AppRouter {
   final AuthBloc authBloc;
 
@@ -27,22 +26,18 @@ class AppRouter {
           state.matchedLocation == '/register' ||
           state.matchedLocation == '/otp';
 
-      // If unauthenticated or error, go to login
       if (authState is Unauthenticated || authState is AuthError) {
         return isOnAuthRoute ? null : '/login';
       }
 
-      // If needs OTP verification
       if (authState is NeedsOtpVerification) {
         return '/otp';
       }
 
-      // If needs onboarding
       if (authState is NeedsOnboarding) {
         return state.matchedLocation == '/onboarding' ? null : '/onboarding';
       }
 
-      // If authenticated, don't stay on auth screens
       if (authState is Authenticated && isOnAuthRoute) {
         return '/home';
       }
@@ -103,7 +98,6 @@ class AppRouter {
   );
 }
 
-/// Converts BLoC stream to ChangeNotifier for GoRouter refresh.
 class _AuthNotifier extends ChangeNotifier {
   _AuthNotifier(AuthBloc bloc) {
     bloc.stream.listen((_) => notifyListeners());

@@ -1,4 +1,3 @@
-/// Skill level for sport self-declaration.
 enum SkillLevel {
   beginner('Beginner', '🟢', 'Just starting out'),
   intermediate('Intermediate', '🟡', 'Play regularly'),

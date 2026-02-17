@@ -4,16 +4,13 @@ import 'package:beesports/features/auth/domain/entities/user_entity.dart';
 import 'package:beesports/features/auth/domain/repositories/auth_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Supabase implementation of [AuthRepository].
 class AuthRepositoryImpl implements AuthRepository {
   final SupabaseClient _client;
 
-  /// Allowed email domain.
   static const _allowedDomain = 'binus.ac.id';
 
   AuthRepositoryImpl(this._client);
 
-  /// Validates that email ends with @binus.ac.id.
   void _validateDomain(String email) {
     final domain = email.split('@').last.toLowerCase();
     if (domain != _allowedDomain) {
@@ -35,15 +32,7 @@ class AuthRepositoryImpl implements AuthRepository {
         data: {'full_name': fullName},
       );
     } catch (e, st) {
-      // Surface detailed server error in logs for debugging
-      // and rethrow a domain-specific exception with the message.
-      // The bloc will convert this to a user-friendly message.
-      // Example server error: AuthRetryableFetchException(message: {"code":"unexpected_failure","message":"Database error saving new user"}, statusCode: 500)
-      // Log full details so developer can inspect the cause.
-      // Using debugPrint keeps logs visible in Flutter run terminal.
-      // ignore: avoid_print
       print('AuthRepositoryImpl.signUp error: $e');
-      // ignore: avoid_print
       print('$st');
       throw AuthException(e.toString());
     }
@@ -65,7 +54,6 @@ class AuthRepositoryImpl implements AuthRepository {
       throw const AuthException('OTP verification failed.');
     }
 
-    // Create initial profile row
     final userEntity = UserEntity(
       id: user.id,
       email: user.email ?? email,
@@ -127,7 +115,6 @@ class AuthRepositoryImpl implements AuthRepository {
     });
   }
 
-  /// Fetch profile from profiles table.
   Future<UserEntity?> _fetchProfile(String userId) async {
     try {
       final data = await _client
@@ -143,7 +130,6 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
-  /// Upsert profile row.
   Future<void> _upsertProfile(UserEntity user) async {
     await _client.from('profiles').upsert(user.toMap());
   }

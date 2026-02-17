@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
 
-/// BeeSports theme configuration.
 class AppTheme {
   AppTheme._();
 

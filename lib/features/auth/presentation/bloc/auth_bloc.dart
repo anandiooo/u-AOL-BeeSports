@@ -4,8 +4,6 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-// ─── Events ───────────────────────────────────────────────────────────────
-
 abstract class AuthEvent extends Equatable {
   const AuthEvent();
   @override
@@ -52,8 +50,6 @@ class OnboardingCompleted extends AuthEvent {
   List<Object?> get props => [user];
 }
 
-// ─── States ───────────────────────────────────────────────────────────────
-
 abstract class AuthState extends Equatable {
   const AuthState();
   @override
@@ -93,8 +89,6 @@ class AuthError extends AuthState {
   @override
   List<Object?> get props => [message];
 }
-
-// ─── BLoC ─────────────────────────────────────────────────────────────────
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
@@ -160,7 +154,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         password: event.password,
         fullName: event.fullName,
       );
-      // After signup, user needs OTP verification
       emit(NeedsOtpVerification(event.email));
     } catch (e, st) {
       debugPrint('AuthBloc._onSignUp error: $e');
