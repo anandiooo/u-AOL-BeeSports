@@ -1,9 +1,9 @@
-import 'package:beesports/core/config/supabase_config.dart';
-import 'package:beesports/core/di/injection_container.dart';
-import 'package:beesports/core/router/app_router.dart';
-import 'package:beesports/core/theme/app_theme.dart';
-import 'package:beesports/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:beesports/features/notifications/presentation/bloc/notification_bloc.dart';
+import 'package:beesports/app/supabase_config.dart';
+import 'package:beesports/app/di.dart';
+import 'package:beesports/app/router.dart';
+import 'package:beesports/app/app_theme.dart';
+import 'package:beesports/blocs/auth_bloc.dart';
+import 'package:beesports/blocs/notification_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
