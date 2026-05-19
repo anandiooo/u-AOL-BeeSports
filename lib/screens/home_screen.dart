@@ -48,7 +48,6 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // header & profile card
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -83,7 +82,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(width: 16),
                   Row(
                     children: [
-                      // notification bell
                       GestureDetector(
                         onTap: () => context.push('/notifications'),
                         child: Container(
@@ -133,7 +131,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      // profile avatar
                       GestureDetector(
                         onTap: () => context.push('/profile'),
                         child: Hero(
@@ -175,8 +172,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               const SizedBox(height: 32),
-
-              // search bar
               GestureDetector(
                 onTap: () => context.push('/lobbies'),
                 child: Container(
@@ -208,8 +203,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 36),
-
-              // categories header
               const Text(
                 'Explore Sports',
                 style: TextStyle(
@@ -220,8 +213,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-
-              // horizontal sports list
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
@@ -255,8 +246,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 36),
-
-              // quick actions header
               const Text(
                 'Quick Actions',
                 style: TextStyle(
@@ -267,8 +256,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-
-              // hero action - create lobby
               GestureDetector(
                 onTap: () => context.push('/lobbies/create'),
                 child: Container(
@@ -291,7 +278,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   child: Stack(
                     children: [
-                      // decorative background icon
                       Positioned(
                         right: -20,
                         bottom: -20,
@@ -349,8 +335,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-
-              // secondary actions row
               Row(
                 children: [
                   Expanded(
@@ -399,8 +383,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               const SizedBox(height: 36),
-
-              // upcoming matches header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -424,8 +406,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               const SizedBox(height: 12),
-
-              // upcoming matches empty state
               Container(
                 width: double.infinity,
                 padding:

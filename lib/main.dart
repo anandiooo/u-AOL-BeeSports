@@ -2,9 +2,9 @@ import 'package:beesports/app/supabase_config.dart';
 import 'package:beesports/app/di.dart';
 import 'package:beesports/app/router.dart';
 import 'package:beesports/app/app_theme.dart';
-import 'package:beesports/blocs/auth_bloc.dart';
-import 'package:beesports/blocs/notification_bloc.dart';
+import 'package:beesports/blocs/blocs.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -44,6 +44,17 @@ class BeeSportsApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             theme: AppTheme.darkTheme,
             routerConfig: appRouter.router,
+            builder: (context, child) {
+              return Container(
+                color: Colors.white, // Blank background becomes white
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 400),
+                    child: child,
+                  ),
+                ),
+              );
+            },
           );
         },
       ),

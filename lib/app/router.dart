@@ -1,35 +1,6 @@
 import 'package:beesports/app/di.dart';
-import 'package:beesports/blocs/auth_bloc.dart';
-import 'package:beesports/screens/login_screen.dart';
-import 'package:beesports/screens/onboarding_screen.dart';
-import 'package:beesports/screens/otp_screen.dart';
-import 'package:beesports/screens/register_screen.dart';
-import 'package:beesports/blocs/chat_bloc.dart';
-import 'package:beesports/screens/lobby_chat_screen.dart';
-import 'package:beesports/screens/home_screen.dart';
-import 'package:beesports/blocs/leaderboard_bloc.dart';
-import 'package:beesports/screens/leaderboard_screen.dart';
-import 'package:beesports/blocs/create_lobby_bloc.dart';
-import 'package:beesports/blocs/lobby_detail_bloc.dart';
-import 'package:beesports/blocs/lobby_list_bloc.dart';
-import 'package:beesports/screens/create_lobby_screen.dart';
-import 'package:beesports/screens/lobby_detail_screen.dart';
-import 'package:beesports/screens/lobby_list_screen.dart';
-import 'package:beesports/blocs/match_bloc.dart';
-import 'package:beesports/screens/match_history_screen.dart';
-import 'package:beesports/screens/match_result_screen.dart';
-import 'package:beesports/blocs/notification_bloc.dart';
-import 'package:beesports/screens/notification_screen.dart';
-import 'package:beesports/blocs/profile_bloc.dart';
-import 'package:beesports/screens/profile_edit_screen.dart';
-import 'package:beesports/screens/profile_screen.dart';
-import 'package:beesports/blocs/social_bloc.dart';
-import 'package:beesports/screens/friends_screen.dart';
-import 'package:beesports/screens/user_search_screen.dart';
-import 'package:beesports/blocs/wallet_bloc.dart';
-import 'package:beesports/screens/top_up_screen.dart';
-import 'package:beesports/screens/wallet_screen.dart';
-import 'package:beesports/screens/withdraw_screen.dart';
+import 'package:beesports/blocs/blocs.dart';
+import 'package:beesports/screens/screens.dart';
 import 'package:beesports/widgets/main_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -75,7 +46,6 @@ class AppRouter {
       return null;
     },
     routes: [
-      // auth routes
       GoRoute(
         path: '/login',
         builder: (context, state) => LoginScreen(
@@ -107,8 +77,6 @@ class AppRouter {
           return const SizedBox.shrink();
         },
       ),
-
-      // profile routes
       GoRoute(
         path: '/profile',
         builder: (context, state) => BlocProvider(
@@ -127,8 +95,6 @@ class AppRouter {
           );
         },
       ),
-
-      // main application routes
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
         builder: (context, state, child) {

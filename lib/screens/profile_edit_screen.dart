@@ -99,7 +99,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // avatar header
                 Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
@@ -142,8 +141,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-
-                // form section
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -185,7 +182,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -260,7 +256,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     );
                   }).toList(),
                 ),
-
                 if (_selectedSports.isNotEmpty) ...[
                   const SizedBox(height: 32),
                   const Align(
