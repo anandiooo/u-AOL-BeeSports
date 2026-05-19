@@ -193,6 +193,7 @@ class LobbyRepositoryImpl implements LobbyRepository {
         .from('lobbies')
         .select('*, host:profiles!lobbies_host_id_fkey(full_name, avatar_url)')
         .inFilter('id', lobbyIds)
+        .inFilter('status', ['open', 'confirmed'])
         .order('scheduled_at', ascending: true);
 
     return (data as List).map((e) => LobbyEntity.fromMap(e)).toList();

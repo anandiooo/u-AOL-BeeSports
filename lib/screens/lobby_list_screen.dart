@@ -1,4 +1,5 @@
 import 'package:beesports/app/app_colors.dart';
+import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:beesports/models/lobby_entity.dart';
 import 'package:beesports/blocs/lobby_list_bloc.dart';
 import 'package:beesports/models/sport_type.dart';
@@ -16,6 +17,7 @@ class LobbyListScreen extends StatefulWidget {
 class _LobbyListScreenState extends State<LobbyListScreen> {
   SportType? _selectedSport;
   String _sortBy = 'time';
+  bool _showMyEvents = false;
 
   @override
   void initState() {
@@ -24,10 +26,30 @@ class _LobbyListScreenState extends State<LobbyListScreen> {
   }
 
   void _onSportFilter(SportType? sport) {
-    setState(() => _selectedSport = sport);
+    setState(() {
+      _selectedSport = sport;
+      _showMyEvents = false; // deactivate My Events when sport changes
+    });
     context
         .read<LobbyListBloc>()
         .add(LoadLobbies(sport: sport, sortBy: _sortBy));
+  }
+
+  void _onMyEventsFilter() {
+    final authState = context.read<AuthBloc>().state;
+    if (authState is! Authenticated) return;
+    final newVal = !_showMyEvents;
+    setState(() {
+      _showMyEvents = newVal;
+      if (newVal) _selectedSport = null; // clear sport filter
+    });
+    if (newVal) {
+      context.read<LobbyListBloc>().add(LoadMyLobbies(authState.user.id));
+    } else {
+      context
+          .read<LobbyListBloc>()
+          .add(LoadLobbies(sport: _selectedSport, sortBy: _sortBy));
+    }
   }
 
   void _onSortChanged(String? value) {
@@ -135,7 +157,7 @@ class _LobbyListScreenState extends State<LobbyListScreen> {
               ),
             ),
 
-            // sports filter
+            // ── Sports & Events filter row ─────────────────────────────
             Container(
               height: 48,
               margin: const EdgeInsets.only(bottom: 12),
@@ -144,10 +166,18 @@ class _LobbyListScreenState extends State<LobbyListScreen> {
                 physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 children: [
+                  _EventChip(
+                    label: 'My Events',
+                    icon: Icons.bookmark_rounded,
+                    selected: _showMyEvents,
+                    onTap: _onMyEventsFilter,
+                    activeColor: AppColors.primary,
+                  ),
+                  const SizedBox(width: 8),
                   _SportChip(
                     label: 'All Sports',
                     icon: Icons.apps_rounded,
-                    selected: _selectedSport == null,
+                    selected: _selectedSport == null && !_showMyEvents,
                     onTap: () => _onSportFilter(null),
                   ),
                   const SizedBox(width: 8),
@@ -156,7 +186,8 @@ class _LobbyListScreenState extends State<LobbyListScreen> {
                         child: _SportChip(
                           label: sport.label,
                           icon: sport.icon,
-                          selected: _selectedSport == sport,
+                          selected:
+                              _selectedSport == sport && !_showMyEvents,
                           onTap: () => _onSportFilter(sport),
                         ),
                       )),
@@ -557,6 +588,88 @@ class _InfoChip extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// A distinctly-styled chip for the "My Events" toggle filter.
+class _EventChip extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+  final Color activeColor;
+
+  const _EventChip({
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+    required this.activeColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          gradient: selected
+              ? LinearGradient(
+                  colors: [
+                    activeColor,
+                    activeColor.withValues(alpha: 0.75),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
+          color: selected ? null : AppColors.cardDark,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: selected
+                ? activeColor
+                : AppColors.textPrimaryDark.withValues(alpha: 0.1),
+            width: selected ? 1.5 : 1.0,
+          ),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: activeColor.withValues(alpha: 0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: selected
+                  ? AppColors.backgroundDark
+                  : AppColors.textPrimaryDark.withValues(alpha: 0.6),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: selected
+                    ? AppColors.backgroundDark
+                    : AppColors.textPrimaryDark.withValues(alpha: 0.6),
+                letterSpacing: -0.2,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

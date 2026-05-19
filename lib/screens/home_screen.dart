@@ -2,7 +2,10 @@ import 'dart:math' as math;
 
 import 'package:beesports/app/app_colors.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
+import 'package:beesports/blocs/lobby_list_bloc.dart';
 import 'package:beesports/blocs/notification_bloc.dart';
+import 'package:beesports/models/lobby_entity.dart';
+import 'package:beesports/models/lobby_status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -23,6 +26,10 @@ class _HomeScreenState extends State<HomeScreen> {
       context
           .read<NotificationBloc>()
           .add(LoadNotifications(authState.user.id));
+      // Load the user's upcoming lobbies for the Upcoming Matches section
+      context
+          .read<LobbyListBloc>()
+          .add(LoadMyLobbies(authState.user.id));
     }
   }
 
@@ -425,64 +432,98 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 12),
 
-              // upcoming matches empty state
-              Container(
-                width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 36, horizontal: 24),
-                decoration: BoxDecoration(
-                  color: AppColors.cardDark,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                      color: AppColors.textPrimaryDark.withValues(alpha: 0.05)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.2),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(20),
+              // upcoming matches section
+              BlocBuilder<LobbyListBloc, LobbyListState>(
+                builder: (context, state) {
+                  if (state is LobbyListLoading) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 40),
+                        child: CircularProgressIndicator(
+                            color: AppColors.primary),
+                      ),
+                    );
+                  }
+
+                  final lobbies = state is LobbyListLoaded
+                      ? state.lobbies
+                          .where((l) =>
+                              l.status == LobbyStatus.open ||
+                              l.status == LobbyStatus.confirmed)
+                          .toList()
+                      : <LobbyEntity>[];
+
+                  if (lobbies.isEmpty) {
+                    return Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 36, horizontal: 24),
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceDark,
-                        shape: BoxShape.circle,
+                        color: AppColors.cardDark,
+                        borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color:
-                              AppColors.textPrimaryDark.withValues(alpha: 0.1),
-                        ),
+                            color: AppColors.textPrimaryDark
+                                .withValues(alpha: 0.05)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      child: const Icon(
-                        Icons.sports_esports_rounded,
-                        size: 48,
-                        color: AppColors.primaryLight,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceDark,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppColors.textPrimaryDark
+                                    .withValues(alpha: 0.1),
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.sports_esports_rounded,
+                              size: 48,
+                              color: AppColors.primaryLight,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          const Text(
+                            'No matches soon',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimaryDark,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Hop into a lobby or create one to start playing!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppColors.textPrimaryDark
+                                  .withValues(alpha: 0.5),
+                              height: 1.4,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'No matches soon',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimaryDark,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Hop into a lobby or create one to start playing!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.textPrimaryDark.withValues(alpha: 0.5),
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
-                ),
+                    );
+                  }
+
+                  // Show up to 3 upcoming match cards
+                  final preview = lobbies.take(3).toList();
+                  return Column(
+                    children: preview
+                        .map((lobby) => _UpcomingMatchCard(lobby: lobby))
+                        .toList(),
+                  );
+                },
               ),
               const SizedBox(height: 32),
             ],
@@ -609,6 +650,121 @@ class _BentoCard extends StatelessWidget {
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: AppColors.textPrimaryDark.withValues(alpha: 0.5),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _UpcomingMatchCard extends StatelessWidget {
+  final LobbyEntity lobby;
+
+  const _UpcomingMatchCard({required this.lobby});
+
+  @override
+  Widget build(BuildContext context) {
+    final sport = lobby.sport;
+    final now = DateTime.now();
+    final diff = lobby.scheduledAt.difference(now);
+    final String dateLabel;
+    if (diff.inDays == 0 && lobby.scheduledAt.day == now.day) {
+      dateLabel = 'Today';
+    } else if (diff.inDays <= 1 &&
+        lobby.scheduledAt.day == now.day + 1) {
+      dateLabel = 'Tomorrow';
+    } else {
+      dateLabel =
+          '${lobby.scheduledAt.day}/${lobby.scheduledAt.month}';
+    }
+    final timeLabel =
+        '${lobby.scheduledAt.hour.toString().padLeft(2, '0')}:${lobby.scheduledAt.minute.toString().padLeft(2, '0')}';
+
+    return GestureDetector(
+      onTap: () => context.push('/lobbies/${lobby.id}'),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.cardDark,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+              color: AppColors.textPrimaryDark.withValues(alpha: 0.05)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.15),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // sport icon bubble
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: sport.color.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(sport.icon, color: sport.color, size: 22),
+            ),
+            const SizedBox(width: 14),
+            // lobby info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    lobby.title,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimaryDark,
+                      letterSpacing: -0.3,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_today_rounded,
+                          size: 12,
+                          color: AppColors.textPrimaryDark
+                              .withValues(alpha: 0.5)),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$dateLabel • $timeLabel',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textPrimaryDark
+                              .withValues(alpha: 0.5),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // status badge
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: lobby.status.color.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                lobby.status.label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: lobby.status.color,
+                ),
               ),
             ),
           ],

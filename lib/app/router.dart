@@ -137,7 +137,10 @@ class AppRouter {
         routes: [
           GoRoute(
             path: '/home',
-            builder: (context, state) => const HomeScreen(),
+            builder: (context, state) => BlocProvider(
+              create: (_) => sl<LobbyListBloc>(),
+              child: const HomeScreen(),
+            ),
           ),
           GoRoute(
             path: '/lobbies',
