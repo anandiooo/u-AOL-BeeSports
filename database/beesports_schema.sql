@@ -1,4 +1,5 @@
-﻿CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+﻿-- commit
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 CREATE TYPE sport_type AS ENUM (
