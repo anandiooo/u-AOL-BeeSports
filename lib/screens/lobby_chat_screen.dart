@@ -4,11 +4,11 @@ import 'package:beesports/models/chat_message_entity.dart';
 import 'package:beesports/blocs/chat_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LobbyChatScreen extends StatefulWidget {
   final String lobbyId;
   const LobbyChatScreen({super.key, required this.lobbyId});
-
   @override
   State<LobbyChatScreen> createState() => _LobbyChatScreenState();
 }
@@ -22,9 +22,7 @@ class _LobbyChatScreenState extends State<LobbyChatScreen> {
   void initState() {
     super.initState();
     final authState = context.read<AuthBloc>().state;
-    if (authState is Authenticated) {
-      _currentUserId = authState.user.id;
-    }
+    if (authState is Authenticated) _currentUserId = authState.user.id;
     context.read<ChatBloc>().add(LoadMessages(widget.lobbyId));
   }
 
@@ -38,9 +36,9 @@ class _LobbyChatScreenState extends State<LobbyChatScreen> {
   void _send() {
     final text = _controller.text.trim();
     if (text.isEmpty || _currentUserId == null) return;
-    context.read<ChatBloc>().add(
-          SendMessage(widget.lobbyId, _currentUserId!, text),
-        );
+    context
+        .read<ChatBloc>()
+        .add(SendMessage(widget.lobbyId, _currentUserId!, text));
     _controller.clear();
   }
 
@@ -48,10 +46,9 @@ class _LobbyChatScreenState extends State<LobbyChatScreen> {
     if (_scrollController.hasClients) {
       Future.delayed(const Duration(milliseconds: 100), () {
         _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-        );
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut);
       });
     }
   }
@@ -59,71 +56,63 @@ class _LobbyChatScreenState extends State<LobbyChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Lobby Chat')),
-      body: Column(
-        children: [
-          Expanded(
-            child: BlocConsumer<ChatBloc, ChatState>(
-              listener: (context, state) {
-                if (state is ChatLoaded) {
-                  _scrollToBottom();
-                }
-              },
-              builder: (context, state) {
-                if (state is ChatLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (state is ChatError) {
-                  return Center(
-                    child: Text(state.message,
-                        style: const TextStyle(color: AppColors.error)),
-                  );
-                }
-                if (state is ChatLoaded) {
-                  if (state.messages.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'No messages yet. Say hi! 👋',
-                        style: TextStyle(
-                          color: AppColors.textSecondaryDark
-                              .withValues(alpha: 0.5),
-                        ),
-                      ),
-                    );
-                  }
-                  return ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.all(16),
-                    itemCount: state.messages.length,
-                    itemBuilder: (context, index) => _MessageBubble(
-                      message: state.messages[index],
-                      isOwnMessage:
-                          state.messages[index].senderId == _currentUserId,
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-          ),
-          _InputBar(
-            controller: _controller,
-            onSend: _send,
-          ),
-        ],
+      backgroundColor: AppColors.foursier,
+      appBar: AppBar(
+        title: Text('Lobby Chat',
+            style: GoogleFonts.inter(
+                fontWeight: FontWeight.w500, color: AppColors.primary)),
+        backgroundColor: AppColors.foursier,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        iconTheme: const IconThemeData(color: AppColors.primary),
       ),
+      body: Column(children: [
+        Expanded(
+          child: BlocConsumer<ChatBloc, ChatState>(
+            listener: (context, state) {
+              if (state is ChatLoaded) _scrollToBottom();
+            },
+            builder: (context, state) {
+              if (state is ChatLoading) {
+                return const Center(
+                    child: CircularProgressIndicator(color: AppColors.primary));
+              }
+              if (state is ChatError) {
+                return Center(
+                    child: Text(state.message,
+                        style: GoogleFonts.inter(color: AppColors.tersierDark)));
+              }
+              if (state is ChatLoaded) {
+                if (state.messages.isEmpty) {
+                  return Center(
+                    child: Text('No messages yet. Say hi! 👋',
+                        style: GoogleFonts.inter(color: AppColors.primaryLight)),
+                  );
+                }
+                return ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(16),
+                  itemCount: state.messages.length,
+                  itemBuilder: (context, index) => _MessageBubble(
+                    message: state.messages[index],
+                    isOwn: state.messages[index].senderId == _currentUserId,
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+        _InputBar(controller: _controller, onSend: _send),
+      ]),
     );
   }
 }
 
 class _MessageBubble extends StatelessWidget {
   final ChatMessageEntity message;
-  final bool isOwnMessage;
-
-  const _MessageBubble({
-    required this.message,
-    required this.isOwnMessage,
-  });
+  final bool isOwn;
+  const _MessageBubble({required this.message, required this.isOwn});
 
   @override
   Widget build(BuildContext context) {
@@ -133,82 +122,83 @@ class _MessageBubble extends StatelessWidget {
         child: Center(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              message.content,
-              style: TextStyle(
-                fontSize: 12,
-                color: AppColors.textSecondaryDark.withValues(alpha: 0.5),
-                fontStyle: FontStyle.italic,
-              ),
-            ),
+            color: AppColors.secondaryLight,
+            child: Text(message.content,
+                style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: AppColors.primaryLight,
+                    fontStyle: FontStyle.italic)),
           ),
         ),
       );
     }
-
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         mainAxisAlignment:
-            isOwnMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
+            isOwn ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (!isOwnMessage)
-            CircleAvatar(
-              radius: 14,
-              backgroundColor: AppColors.primary.withValues(alpha: 0.2),
-              child: Text(
-                (message.senderName ?? '?')[0].toUpperCase(),
-                style: const TextStyle(fontSize: 12, color: AppColors.primary),
+          if (!isOwn) ...[
+            Container(
+              width: 28,
+              height: 28,
+              decoration: const BoxDecoration(
+                  color: AppColors.primary, shape: BoxShape.circle),
+              child: Center(
+                child: Text(
+                    (message.senderName ?? '?')[0].toUpperCase(),
+                    style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: AppColors.foursierLight,
+                        fontWeight: FontWeight.w500)),
               ),
             ),
-          if (!isOwnMessage) const SizedBox(width: 8),
+            const SizedBox(width: 8),
+          ],
           Flexible(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: isOwnMessage
-                    ? AppColors.primary.withValues(alpha: 0.15)
-                    : AppColors.surfaceDark,
+                color: isOwn ? AppColors.primary : AppColors.secondaryLight,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
-                  bottomLeft:
-                      isOwnMessage ? const Radius.circular(16) : Radius.zero,
-                  bottomRight:
-                      isOwnMessage ? Radius.zero : const Radius.circular(16),
+                  bottomLeft: isOwn
+                      ? const Radius.circular(16)
+                      : Radius.zero,
+                  bottomRight: isOwn
+                      ? Radius.zero
+                      : const Radius.circular(16),
                 ),
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (!isOwnMessage)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: Text(
-                        message.senderName ?? 'Unknown',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primary.withValues(alpha: 0.8),
-                        ),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (!isOwn)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Text(message.senderName ?? 'Unknown',
+                            style: GoogleFonts.inter(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.primary)),
                       ),
-                    ),
-                  Text(message.content),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${message.createdAt.hour.toString().padLeft(2, '0')}:${message.createdAt.minute.toString().padLeft(2, '0')}',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: AppColors.textSecondaryDark.withValues(alpha: 0.4),
-                    ),
-                  ),
-                ],
-              ),
+                    Text(message.content,
+                        style: GoogleFonts.inter(
+                            color: isOwn
+                                ? AppColors.foursierLight
+                                : AppColors.primary)),
+                    const SizedBox(height: 4),
+                    Text(
+                        '${message.createdAt.hour.toString().padLeft(2, '0')}:${message.createdAt.minute.toString().padLeft(2, '0')}',
+                        style: GoogleFonts.inter(
+                            fontSize: 10,
+                            color: isOwn
+                                ? AppColors.foursierLight.withValues(alpha: 0.6)
+                                : AppColors.primaryLight)),
+                  ]),
             ),
           ),
         ],
@@ -220,59 +210,49 @@ class _MessageBubble extends StatelessWidget {
 class _InputBar extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onSend;
-
   const _InputBar({required this.controller, required this.onSend});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 8, 16),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceDark,
-        border: Border(
-          top: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
-        ),
+      decoration: const BoxDecoration(
+        color: AppColors.foursier,
+        border: Border(top: BorderSide(color: AppColors.tersierLight)),
       ),
       child: SafeArea(
         top: false,
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: controller,
-                decoration: InputDecoration(
-                  hintText: 'Type a message...',
-                  hintStyle: TextStyle(
-                    color: AppColors.textSecondaryDark.withValues(alpha: 0.4),
-                  ),
-                  filled: true,
-                  fillColor: Colors.white.withValues(alpha: 0.05),
-                  border: OutlineInputBorder(
+        child: Row(children: [
+          Expanded(
+            child: TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                hintText: 'Type a message...',
+                hintStyle: GoogleFonts.inter(color: AppColors.primaryLight),
+                filled: true,
+                fillColor: AppColors.secondaryLight,
+                border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                ),
-                textInputAction: TextInputAction.send,
-                onSubmitted: (_) => onSend(),
+                    borderSide: BorderSide.none),
+                contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 10),
               ),
+              style: GoogleFonts.inter(color: AppColors.primary),
+              textInputAction: TextInputAction.send,
+              onSubmitted: (_) => onSend(),
             ),
-            const SizedBox(width: 8),
-            Container(
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.send, color: Colors.black, size: 20),
-                onPressed: onSend,
-              ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            decoration: const BoxDecoration(
+                color: AppColors.primary, shape: BoxShape.circle),
+            child: IconButton(
+              icon: const Icon(Icons.send,
+                  color: AppColors.foursierLight, size: 20),
+              onPressed: onSend,
             ),
-          ],
-        ),
+          ),
+        ]),
       ),
     );
   }

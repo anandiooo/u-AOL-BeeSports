@@ -5,6 +5,7 @@ import 'package:beesports/blocs/notification_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class NotificationScreen extends StatelessWidget {
   const NotificationScreen({super.key});
@@ -13,28 +14,35 @@ class NotificationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final authState = context.read<AuthBloc>().state;
     if (authState is Authenticated) {
-      context
-          .read<NotificationBloc>()
-          .add(LoadNotifications(authState.user.id));
+      context.read<NotificationBloc>().add(LoadNotifications(authState.user.id));
     }
-
     return Scaffold(
+      backgroundColor: AppColors.foursier,
       appBar: AppBar(
-        title: const Text('Notifications'),
+        title: Text('Notifications',
+            style: GoogleFonts.inter(
+                fontWeight: FontWeight.w500, color: AppColors.primary)),
+        backgroundColor: AppColors.foursier,
+        elevation: 0,
+        scrolledUnderElevation: 0,
         actions: [
           BlocBuilder<NotificationBloc, NotificationState>(
             builder: (context, state) {
               if (state is NotificationLoaded && state.unreadCount > 0) {
                 return TextButton(
                   onPressed: () {
-                    final authState = context.read<AuthBloc>().state;
-                    if (authState is Authenticated) {
+                    final a = context.read<AuthBloc>().state;
+                    if (a is Authenticated) {
                       context
                           .read<NotificationBloc>()
-                          .add(MarkAllAsRead(authState.user.id));
+                          .add(MarkAllAsRead(a.user.id));
                     }
                   },
-                  child: const Text('Mark All Read'),
+                  child: Text('Mark All Read',
+                      style: GoogleFonts.inter(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w500,
+                          decoration: TextDecoration.underline)),
                 );
               }
               return const SizedBox.shrink();
@@ -45,91 +53,82 @@ class NotificationScreen extends StatelessWidget {
       body: BlocBuilder<NotificationBloc, NotificationState>(
         builder: (context, state) {
           if (state is NotificationLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+                child: CircularProgressIndicator(color: AppColors.primary));
           }
-
           if (state is NotificationError) {
             return Center(
-              child: Text(state.message,
-                  style: const TextStyle(color: AppColors.error)),
-            );
+                child: Text(state.message,
+                    style: GoogleFonts.inter(color: AppColors.tersierDark)));
           }
-
           if (state is NotificationLoaded) {
             if (state.notifications.isEmpty) {
-              return RefreshIndicator(
-                color: AppColors.primary,
-                backgroundColor: AppColors.cardDark,
-                onRefresh: () async {
-                  final authState = context.read<AuthBloc>().state;
-                  if (authState is Authenticated) {
-                    context
-                        .read<NotificationBloc>()
-                        .add(LoadNotifications(authState.user.id));
-                  }
-                },
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  child: SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.7,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.notifications_none,
-                              size: 64,
-                              color: Colors.white.withValues(alpha: 0.1)),
-                          const SizedBox(height: 12),
-                          Text(
-                            'No notifications yet',
-                            style: TextStyle(
-                              color: AppColors.textSecondaryDark
-                                  .withValues(alpha: 0.5),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              );
+              return _buildEmpty(context);
             }
-
             return RefreshIndicator(
               color: AppColors.primary,
-              backgroundColor: AppColors.cardDark,
+              backgroundColor: AppColors.foursier,
               onRefresh: () async {
-                final authState = context.read<AuthBloc>().state;
-                if (authState is Authenticated) {
+                final a = context.read<AuthBloc>().state;
+                if (a is Authenticated) {
                   context
                       .read<NotificationBloc>()
-                      .add(LoadNotifications(authState.user.id));
+                      .add(LoadNotifications(a.user.id));
                 }
               },
               child: ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 itemCount: state.notifications.length,
                 itemBuilder: (context, index) {
-                  final notification = state.notifications[index];
+                  final n = state.notifications[index];
                   return _NotificationTile(
-                    notification: notification,
+                    notification: n,
                     onTap: () {
-                      if (!notification.isRead) {
+                      if (!n.isRead) {
                         context
                             .read<NotificationBloc>()
-                            .add(MarkAsRead(notification.id));
+                            .add(MarkAsRead(n.id));
                       }
-                      _navigateToTarget(context, notification);
+                      _navigateToTarget(context, n);
                     },
                   );
                 },
               ),
             );
           }
-
           return const SizedBox.shrink();
         },
+      ),
+    );
+  }
+
+  Widget _buildEmpty(BuildContext context) {
+    return RefreshIndicator(
+      color: AppColors.primary,
+      backgroundColor: AppColors.foursier,
+      onRefresh: () async {
+        final a = context.read<AuthBloc>().state;
+        if (a is Authenticated) {
+          context.read<NotificationBloc>().add(LoadNotifications(a.user.id));
+        }
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height * 0.7,
+          child: Center(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.notifications_none,
+                      size: 64, color: AppColors.tersierLight),
+                  const SizedBox(height: 12),
+                  Text('No notifications yet',
+                      style: GoogleFonts.inter(color: AppColors.primaryLight)),
+                ]),
+          ),
+        ),
       ),
     );
   }
@@ -138,18 +137,14 @@ class NotificationScreen extends StatelessWidget {
       BuildContext context, NotificationEntity notification) {
     final data = notification.data;
     if (data == null) return;
-
     final lobbyId = data['lobby_id'] as String?;
-    if (lobbyId != null) {
-      context.push('/lobbies/$lobbyId');
-    }
+    if (lobbyId != null) context.push('/lobbies/$lobbyId');
   }
 }
 
 class _NotificationTile extends StatelessWidget {
   final NotificationEntity notification;
   final VoidCallback onTap;
-
   const _NotificationTile({required this.notification, required this.onTap});
 
   IconData get _icon {
@@ -167,65 +162,59 @@ class _NotificationTile extends StatelessWidget {
     }
   }
 
-  Color get _iconColor {
-    switch (notification.type) {
-      case 'lobby_join':
-        return AppColors.primary;
-      case 'lobby_leave':
-        return AppColors.warning;
-      case 'match_result':
-        return AppColors.accent;
-      case 'friend_request':
-        return const Color(0xFF42A5F5);
-      default:
-        return AppColors.textSecondaryDark;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      color: notification.isRead
-          ? null
-          : AppColors.primary.withValues(alpha: 0.05),
-      child: ListTile(
-        onTap: onTap,
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: _iconColor.withValues(alpha: 0.15),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(_icon, color: _iconColor, size: 20),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: AppColors.tersierLight)),
         ),
-        title: Text(
-          notification.title,
-          style: TextStyle(
-            fontWeight: notification.isRead ? FontWeight.w400 : FontWeight.w700,
-            fontSize: 14,
+        child: Row(children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: notification.isRead
+                  ? AppColors.secondaryLight
+                  : AppColors.primary,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(_icon,
+                size: 20,
+                color: notification.isRead
+                    ? AppColors.primaryLight
+                    : AppColors.foursierLight),
           ),
-        ),
-        subtitle: Text(
-          notification.body,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 12,
-            color: AppColors.textSecondaryDark.withValues(alpha: 0.5),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(notification.title,
+                      style: GoogleFonts.inter(
+                          fontWeight: notification.isRead
+                              ? FontWeight.w400
+                              : FontWeight.w500,
+                          fontSize: 14,
+                          color: AppColors.primary)),
+                  const SizedBox(height: 2),
+                  Text(notification.body,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(
+                          fontSize: 12, color: AppColors.primaryLight)),
+                ]),
           ),
-        ),
-        trailing: !notification.isRead
-            ? Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
-                ),
-              )
-            : null,
+          if (!notification.isRead)
+            Container(
+              width: 8,
+              height: 8,
+              decoration: const BoxDecoration(
+                  color: AppColors.primary, shape: BoxShape.circle),
+            ),
+        ]),
       ),
     );
   }

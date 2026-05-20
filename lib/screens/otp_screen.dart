@@ -3,6 +3,7 @@ import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class OtpScreen extends StatefulWidget {
   final String email;
@@ -59,13 +60,14 @@ class _OtpScreenState extends State<OtpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.foursier,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
-                backgroundColor: AppColors.error,
+                backgroundColor: AppColors.tersierDark,
               ),
             );
           }
@@ -79,9 +81,8 @@ class _OtpScreenState extends State<OtpScreen> {
                 Container(
                   width: 64,
                   height: 64,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(16),
+                  decoration: const BoxDecoration(
+                    color: AppColors.secondaryLight,
                   ),
                   child: const Icon(
                     Icons.mark_email_read_outlined,
@@ -90,26 +91,30 @@ class _OtpScreenState extends State<OtpScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  'Verify Your Email',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
+                Text(
+                  'VERIFY EMAIL',
+                  style: GoogleFonts.bebasNeue(
+                    fontSize: 40,
+                    fontWeight: FontWeight.w400,
+                    height: 0.9,
+                    color: AppColors.primary,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 Text(
                   'Enter the 6-digit code sent to',
-                  style: TextStyle(
-                    color: AppColors.textSecondaryDark.withValues(alpha: 0.7),
+                  style: GoogleFonts.inter(
+                    color: AppColors.primaryLight,
+                    fontSize: 14,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   widget.email,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w500,
                     color: AppColors.primary,
+                    fontSize: 14,
                   ),
                 ),
                 const SizedBox(height: 36),
@@ -117,21 +122,33 @@ class _OtpScreenState extends State<OtpScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(6, (i) {
                     return SizedBox(
-                      width: 48,
-                      height: 56,
+                      width: 44,
+                      height: 52,
                       child: TextFormField(
                         controller: _controllers[i],
                         focusNode: _focusNodes[i],
                         keyboardType: TextInputType.number,
                         textAlign: TextAlign.center,
                         maxLength: 1,
-                        style: const TextStyle(
+                        style: GoogleFonts.inter(
                           fontSize: 22,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.primary,
                         ),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           counterText: '',
                           contentPadding: EdgeInsets.zero,
+                          filled: true,
+                          fillColor: AppColors.secondaryLight,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(0),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(0),
+                            borderSide: const BorderSide(
+                                color: AppColors.primary, width: 2),
+                          ),
                         ),
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
@@ -147,7 +164,7 @@ class _OtpScreenState extends State<OtpScreen> {
                     final isLoading = state is AuthLoading;
                     return SizedBox(
                       width: double.infinity,
-                      height: 52,
+                      height: 48,
                       child: ElevatedButton(
                         onPressed: isLoading ? null : _onVerify,
                         child: isLoading
@@ -156,7 +173,7 @@ class _OtpScreenState extends State<OtpScreen> {
                                 height: 24,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: Colors.black,
+                                  color: AppColors.foursierLight,
                                 ),
                               )
                             : const Text('Verify'),
@@ -167,9 +184,9 @@ class _OtpScreenState extends State<OtpScreen> {
                 const SizedBox(height: 16),
                 Text(
                   'Check your inbox and spam folder',
-                  style: TextStyle(
+                  style: GoogleFonts.inter(
                     fontSize: 12,
-                    color: AppColors.textSecondaryDark.withValues(alpha: 0.5),
+                    color: AppColors.primaryLight,
                   ),
                 ),
               ],

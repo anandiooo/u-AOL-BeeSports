@@ -6,10 +6,10 @@ import 'package:beesports/models/sport_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({super.key});
-
   @override
   State<ProfileEditScreen> createState() => _ProfileEditScreenState();
 }
@@ -47,321 +47,259 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: AppColors.foursier,
       appBar: AppBar(
-        title: const Text(
-          'Edit Profile',
-          style: TextStyle(
-            color: AppColors.textPrimaryDark,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        backgroundColor: AppColors.backgroundDark,
+        title: Text('Edit Profile',
+            style: GoogleFonts.inter(
+                fontWeight: FontWeight.w500, color: AppColors.primary)),
+        backgroundColor: AppColors.foursier,
         elevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.textPrimaryDark),
+        scrolledUnderElevation: 0,
+        iconTheme: const IconThemeData(color: AppColors.primary),
       ),
       body: BlocConsumer<ProfileBloc, ProfileState>(
         listener: (context, state) {
           if (state is ProfileUpdateSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Profile updated!'),
-                backgroundColor: AppColors.success,
-              ),
-            );
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text('Profile updated successfully'),
+                backgroundColor: AppColors.secondary));
             context.pop();
           }
           if (state is ProfileError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text(state.message),
-                backgroundColor: AppColors.error,
-              ),
-            );
+                backgroundColor: AppColors.tersierDark));
           }
         },
         builder: (context, state) {
           final isLoading = state is ProfileLoading;
-
           if (state is ProfileLoaded) _currentProfile = state.profile;
           if (state is ProfileUpdateSuccess) _currentProfile = state.profile;
-
           if (_currentProfile == null) {
             return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
-            );
+                child: CircularProgressIndicator(color: AppColors.primary));
           }
-
           _initFromProfile(_currentProfile!);
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.primary, width: 2),
-                  ),
-                  child: Container(
-                    width: 90,
-                    height: 90,
-                    decoration: const BoxDecoration(
-                      color: AppColors.cardDark,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        (_currentProfile!.fullName ?? 'U')[0].toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  _currentProfile!.fullName ?? 'Unknown',
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimaryDark,
-                  ),
-                ),
-                Text(
-                  _currentProfile!.email,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.textPrimaryDark.withValues(alpha: 0.6),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Bio',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimaryDark,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.cardDark,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: AppColors.textPrimaryDark.withValues(alpha: 0.05),
-                    ),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: TextFormField(
-                    controller: _bioController,
-                    maxLines: 4,
-                    maxLength: 150,
-                    style: const TextStyle(color: AppColors.textPrimaryDark),
-                    decoration: InputDecoration(
-                      hintText:
-                          'Tell others about yourself and your play style...',
-                      hintStyle: TextStyle(
-                        color: AppColors.textPrimaryDark.withValues(alpha: 0.3),
-                      ),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.all(16),
-                      counterStyle: TextStyle(
-                        color: AppColors.textPrimaryDark.withValues(alpha: 0.5),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Sport Preferences',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimaryDark,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: SportType.values.map((sport) {
-                    final isSelected = _selectedSports.contains(sport);
-                    return ChoiceChip(
-                      selected: isSelected,
-                      showCheckmark: false,
-                      label: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            sport.icon,
-                            size: 18,
-                            color: isSelected
-                                ? AppColors.textPrimaryDark
-                                : AppColors.textPrimaryDark
-                                    .withValues(alpha: 0.5),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            sport.label,
-                            style: TextStyle(
-                              color: isSelected
-                                  ? AppColors.textPrimaryDark
-                                  : AppColors.textPrimaryDark
-                                      .withValues(alpha: 0.6),
-                              fontWeight: isSelected
-                                  ? FontWeight.w600
-                                  : FontWeight.w500,
+          return Column(children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 24, vertical: 12),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Avatar & name
+                      Center(
+                        child: Column(children: [
+                          Container(
+                            width: 80,
+                            height: 80,
+                            decoration: const BoxDecoration(
+                                color: AppColors.primary,
+                                shape: BoxShape.circle),
+                            child: Center(
+                              child: Text(
+                                  (_currentProfile!.fullName ?? 'U')[0]
+                                      .toUpperCase(),
+                                  style: GoogleFonts.bebasNeue(
+                                      fontSize: 32,
+                                      color: AppColors.foursierLight)),
                             ),
                           ),
-                        ],
+                          const SizedBox(height: 12),
+                          Text(_currentProfile!.fullName ?? 'Anonymous',
+                              style: GoogleFonts.inter(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.primary)),
+                          const SizedBox(height: 2),
+                          Text(_currentProfile!.email,
+                              style: GoogleFonts.inter(
+                                  fontSize: 12, color: AppColors.primaryLight)),
+                        ]),
                       ),
-                      backgroundColor: AppColors.cardDark,
-                      selectedColor: sport.color,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(
-                          color: isSelected
-                              ? sport.color
-                              : AppColors.textPrimaryDark
-                                  .withValues(alpha: 0.05),
+                      const SizedBox(height: 32),
+
+                      // Bio section
+                      Text('Bio',
+                          style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.primaryLight)),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _bioController,
+                        maxLines: 3,
+                        maxLength: 150,
+                        style: GoogleFonts.inter(
+                            color: AppColors.primary, fontSize: 14),
+                        decoration: InputDecoration(
+                          hintText: 'Write a short bio here',
+                          counterStyle: GoogleFonts.inter(
+                              color: AppColors.primaryLight, fontSize: 10),
                         ),
                       ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      onSelected: (selected) {
-                        setState(() {
-                          if (selected) {
-                            _selectedSports.add(sport);
-                          } else {
-                            _selectedSports.remove(sport);
-                            _skillLevels.remove(sport);
-                          }
-                        });
-                      },
-                    );
-                  }).toList(),
-                ),
-                if (_selectedSports.isNotEmpty) ...[
-                  const SizedBox(height: 32),
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Skill Levels',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimaryDark,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ..._selectedSports.map((sport) {
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: AppColors.cardDark,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color:
-                              AppColors.textPrimaryDark.withValues(alpha: 0.05),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: sport.color.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Icon(sport.icon,
-                                    color: sport.color, size: 20),
+                      const SizedBox(height: 48),
+
+                      // Sports preferences
+                      Text('Sports Preferences',
+                          style: GoogleFonts.inter(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.primary)),
+                      const SizedBox(height: 8),
+                      Text('Select the sports you want to play',
+                          style: GoogleFonts.inter(
+                              fontSize: 14, color: AppColors.primaryLight)),
+                      const SizedBox(height: 18),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: SportType.values.map((sport) {
+                          final sel = _selectedSports.contains(sport);
+                          return GestureDetector(
+                            onTap: () => setState(() {
+                              if (sel) {
+                                _selectedSports.remove(sport);
+                                _skillLevels.remove(sport);
+                              } else {
+                                _selectedSports.add(sport);
+                              }
+                            }),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: sel
+                                    ? AppColors.primary
+                                    : AppColors.foursier,
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(
+                                    color: sel
+                                        ? AppColors.primary
+                                        : AppColors.foursierDark),
                               ),
-                              const SizedBox(width: 12),
-                              Text(
-                                sport.label,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                  color: AppColors.textPrimaryDark,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            children: SkillLevel.values.map((level) {
-                              final isActive = _skillLevels[sport] == level;
-                              return Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    setState(() => _skillLevels[sport] = level);
-                                  },
-                                  child: Container(
-                                    margin: const EdgeInsets.symmetric(
-                                        horizontal: 4),
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 12),
-                                    decoration: BoxDecoration(
-                                      color: isActive
-                                          ? sport.color
-                                          : AppColors.surfaceDark,
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: isActive
-                                            ? sport.color
-                                            : AppColors.textPrimaryDark
-                                                .withValues(alpha: 0.05),
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        '${level.emoji} ${level.label}',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: isActive
-                                              ? FontWeight.w700
-                                              : FontWeight.w500,
-                                          color: isActive
-                                              ? AppColors.backgroundDark
-                                              : AppColors.textPrimaryDark
-                                                  .withValues(alpha: 0.6),
+                              child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(sport.icon,
+                                        size: 14,
+                                        color: sel
+                                            ? AppColors.foursierLight
+                                            : AppColors.primary),
+                                    const SizedBox(width: 6),
+                                    Text(sport.label,
+                                        style: GoogleFonts.inter(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                            color: sel
+                                                ? AppColors.foursierLight
+                                                : AppColors.primary)),
+                                  ]),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 48),
+
+                      // Skill levels
+                      if (_selectedSports.isNotEmpty) ...[
+                        Text('Skill Levels',
+                            style: GoogleFonts.inter(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.primary)),
+                        const SizedBox(height: 8),
+                        Text('Set your experience level for each sport',
+                            style: GoogleFonts.inter(
+                                fontSize: 14, color: AppColors.primaryLight)),
+                        const SizedBox(height: 18),
+                        ..._selectedSports.map((sport) {
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.all(16),
+                            color: AppColors.secondaryLight,
+                            child: Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                children: [
+                                  Row(children: [
+                                    Icon(sport.icon,
+                                        color: AppColors.primary, size: 18),
+                                    const SizedBox(width: 8),
+                                    Text(sport.label,
+                                        style: GoogleFonts.inter(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14,
+                                            color: AppColors.primary)),
+                                  ]),
+                                  const SizedBox(height: 12),
+                                  Row(
+                                      children:
+                                          SkillLevel.values.map((level) {
+                                    final active =
+                                        _skillLevels[sport] == level;
+                                    return Expanded(
+                                      child: GestureDetector(
+                                        onTap: () => setState(() =>
+                                            _skillLevels[sport] = level),
+                                        child: AnimatedContainer(
+                                          duration: const Duration(
+                                              milliseconds: 200),
+                                          margin: const EdgeInsets
+                                              .symmetric(horizontal: 3),
+                                          padding: const EdgeInsets
+                                              .symmetric(vertical: 8),
+                                          decoration: BoxDecoration(
+                                            color: active
+                                                ? AppColors.primary
+                                                : AppColors.foursier,
+                                            borderRadius:
+                                                BorderRadius.circular(30),
+                                            border: Border.all(
+                                                color: active
+                                                    ? AppColors.primary
+                                                    : AppColors.foursierDark),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                                '${level.emoji} ${level.label.substring(0, 3)}.',
+                                                style: GoogleFonts.inter(
+                                                    fontSize: 10,
+                                                    fontWeight: active
+                                                        ? FontWeight.w500
+                                                        : FontWeight.w400,
+                                                    color: active
+                                                        ? AppColors
+                                                            .onPrimary
+                                                        : AppColors.primaryLight)),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-                ],
-                const SizedBox(height: 40),
-                SizedBox(
+                                    );
+                                  }).toList()),
+                                ]),
+                          );
+                        }),
+                      ],
+                    ]),
+              ),
+            ),
+            // Sticky bottom save
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
+                color: AppColors.foursier,
+                border: Border(
+                    top: BorderSide(color: AppColors.tersierLight)),
+              ),
+              child: SafeArea(
+                top: false,
+                child: SizedBox(
                   width: double.infinity,
-                  height: 56,
+                  height: 48,
                   child: ElevatedButton(
                     onPressed: isLoading
                         ? null
@@ -370,36 +308,19 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                               _onSave(_currentProfile!);
                             }
                           },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.backgroundDark,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 0,
-                    ),
                     child: isLoading
                         ? const SizedBox(
-                            height: 24,
-                            width: 24,
+                            height: 18,
+                            width: 18,
                             child: CircularProgressIndicator(
-                              strokeWidth: 3,
-                              color: AppColors.backgroundDark,
-                            ),
-                          )
-                        : const Text(
-                            'Save Changes',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                                strokeWidth: 2,
+                                color: AppColors.foursierLight))
+                        : const Text('Save Changes'),
                   ),
                 ),
-                const SizedBox(height: 24),
-              ],
+              ),
             ),
-          );
+          ]);
         },
       ),
     );

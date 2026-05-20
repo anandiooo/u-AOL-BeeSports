@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:beesports/app/app_colors.dart';
 
 enum LobbyStatus {
-  open('Open', Color(0xFF4CAF50)),
-  confirmed('Confirmed', Color(0xFF42A5F5)),
-  inProgress('In Progress', Color(0xFFFF9800)),
-  finished('Finished', Color(0xFF9E9E9E)),
-  settled('Settled', Color(0xFF78909C)),
-  cancelled('Cancelled', Color(0xFFEF5350));
+  open('Open', AppColors.success),
+  confirmed('Confirmed', AppColors.info),
+  inProgress('In Progress', AppColors.accentTeal),
+  finished('Finished', AppColors.stone),
+  settled('Settled', AppColors.mute),
+  cancelled('Cancelled', AppColors.sale);
 
   final String label;
   final Color color;

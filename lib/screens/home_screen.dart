@@ -1,11 +1,10 @@
-import 'dart:math' as math;
-
 import 'package:beesports/app/app_colors.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:beesports/blocs/notification_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,9 +27,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good Morning,';
-    if (hour < 17) return 'Good Afternoon,';
-    return 'Good Evening,';
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
   }
 
   @override
@@ -40,431 +39,415 @@ class _HomeScreenState extends State<HomeScreen> {
         state is Authenticated ? (state.user.fullName ?? 'Player') : 'Player';
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: AppColors.foursier,
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              // Top bar with profile and notifications
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _getGreeting(),
+                            style: const TextStyle(
+                              color: AppColors.primaryLight,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            userName,
+                            style: GoogleFonts.inter(
+                              color: AppColors.primary,
+                              fontSize: 28,
+                              fontWeight: FontWeight.w500,
+                              height: 1.2,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Row(
                       children: [
-                        Text(
-                          _getGreeting(),
-                          style: TextStyle(
-                            color: AppColors.textPrimaryDark
-                                .withValues(alpha: 0.6),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                        GestureDetector(
+                          onTap: () => context.push('/notifications'),
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: const BoxDecoration(
+                              color: AppColors.secondaryLight,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.notifications_outlined,
+                                  color: AppColors.primary,
+                                  size: 22,
+                                ),
+                                BlocBuilder<NotificationBloc, NotificationState>(
+                                  builder: (context, nState) {
+                                    final count = nState is NotificationLoaded
+                                        ? nState.unreadCount
+                                        : 0;
+                                    if (count == 0) {
+                                      return const SizedBox.shrink();
+                                    }
+                                    return Positioned(
+                                      top: 8,
+                                      right: 8,
+                                      child: Container(
+                                        width: 10,
+                                        height: 10,
+                                        decoration: const BoxDecoration(
+                                          color: AppColors.secondaryDark,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          userName,
-                          style: const TextStyle(
-                            color: AppColors.textPrimaryDark,
-                            fontSize: 28,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.5,
+                        const SizedBox(width: 12),
+                        GestureDetector(
+                          onTap: () => context.push('/profile'),
+                          child: Hero(
+                            tag: 'profile_avatar',
+                            child: Container(
+                              width: 40,
+                              height: 40,
+                              decoration: const BoxDecoration(
+                                color: AppColors.primary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.person_outline,
+                                  color: AppColors.foursierLight,
+                                  size: 22,
+                                ),
+                              ),
+                            ),
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Search pill
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: GestureDetector(
+                  onTap: () => context.push('/lobbies'),
+                  child: Container(
+                    height: 40,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: AppColors.secondaryLight,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.search,
+                            color: AppColors.primary.withValues(alpha: 0.4),
+                            size: 20),
+                        const SizedBox(width: 12),
+                        Text(
+                          'Find matches, players, or lobbies...',
+                          style: TextStyle(
+                            color: AppColors.primary.withValues(alpha: 0.35),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () => context.push('/notifications'),
-                        child: Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: AppColors.cardDark,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppColors.textPrimaryDark
-                                  .withValues(alpha: 0.05),
+                ),
+              ),
+
+              const SizedBox(height: 48),
+
+              // Hero campaign tile — Host a Match
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: GestureDetector(
+                  onTap: () => context.push('/lobbies/create'),
+                  child: Container(
+                    width: double.infinity,
+                    height: 200,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.zero,
+                    ),
+                    child: Stack(
+                      children: [
+                        // Large display headline
+                        Positioned(
+                          left: 24,
+                          top: 24,
+                          right: 80,
+                          child: Text(
+                            'HOST A\nMATCH',
+                            style: GoogleFonts.bebasNeue(
+                              fontSize: 56,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.foursierLight,
+                              height: 0.9,
                             ),
                           ),
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Icon(
-                                Icons.notifications_outlined,
-                                color: AppColors.textPrimaryDark
-                                    .withValues(alpha: 0.7),
-                                size: 22,
-                              ),
-                              BlocBuilder<NotificationBloc, NotificationState>(
-                                builder: (context, nState) {
-                                  final count = nState is NotificationLoaded
-                                      ? nState.unreadCount
-                                      : 0;
-                                  if (count == 0) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  return Positioned(
-                                    top: 8,
-                                    right: 8,
-                                    child: Container(
-                                      width: 10,
-                                      height: 10,
-                                      decoration: const BoxDecoration(
-                                        color: AppColors.error,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      GestureDetector(
-                        onTap: () => context.push('/profile'),
-                        child: Hero(
-                          tag: 'profile_avatar',
+                        // Pill CTA at bottom-left
+                        Positioned(
+                          left: 24,
+                          bottom: 24,
                           child: Container(
-                            width: 52,
-                            height: 52,
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [
-                                  AppColors.primary,
-                                  AppColors.primaryDark,
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color:
-                                      AppColors.primary.withValues(alpha: 0.3),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 12,
                             ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.person_outline,
-                                color: AppColors.textPrimaryDark,
-                                size: 26,
+                            decoration: BoxDecoration(
+                              color: AppColors.foursier,
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Text(
+                              'Create Lobby',
+                              style: GoogleFonts.inter(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.primary,
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
-              GestureDetector(
-                onTap: () => context.push('/lobbies'),
-                child: Container(
-                  height: 56,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: AppColors.cardDark,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                        color:
-                            AppColors.textPrimaryDark.withValues(alpha: 0.05)),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.search,
-                          color:
-                              AppColors.textPrimaryDark.withValues(alpha: 0.5)),
-                      const SizedBox(width: 12),
-                      Text(
-                        'Find matches, players, or lobbies...',
-                        style: TextStyle(
-                          color:
-                              AppColors.textPrimaryDark.withValues(alpha: 0.4),
-                          fontSize: 15,
+                        // Decorative icon
+                        Positioned(
+                          right: 16,
+                          top: 16,
+                          child: Icon(
+                            Icons.add_circle_outline,
+                            size: 80,
+                            color: AppColors.foursierLight.withValues(alpha: 0.08),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 36),
-              const Text(
-                'Explore Sports',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimaryDark,
-                  letterSpacing: -0.5,
+
+              const SizedBox(height: 48),
+
+              // Section: Explore Sports
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  'Explore Sports',
+                  style: GoogleFonts.inter(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.primary,
+                    height: 1.2,
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
                 clipBehavior: Clip.none,
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Row(
                   children: [
                     _SportCard(
                         title: 'Futsal',
                         icon: Icons.sports_soccer,
-                        color: AppColors.futsal,
                         onTap: () => context.push('/lobbies')),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 8),
                     _SportCard(
                         title: 'Basketball',
                         icon: Icons.sports_basketball,
-                        color: AppColors.basketball,
                         onTap: () => context.push('/lobbies')),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 8),
                     _SportCard(
                         title: 'Badminton',
                         icon: Icons.sports_tennis,
-                        color: AppColors.badminton,
                         onTap: () => context.push('/lobbies')),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 8),
                     _SportCard(
                         title: 'Volleyball',
                         icon: Icons.sports_volleyball,
-                        color: AppColors.volleyball,
                         onTap: () => context.push('/lobbies')),
                   ],
                 ),
               ),
-              const SizedBox(height: 36),
-              const Text(
-                'Quick Actions',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimaryDark,
-                  letterSpacing: -0.5,
-                ),
-              ),
-              const SizedBox(height: 16),
-              GestureDetector(
-                onTap: () => context.push('/lobbies/create'),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColors.primaryLight, AppColors.primary],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.25),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        right: -20,
-                        bottom: -20,
-                        child: Transform.rotate(
-                          angle: -math.pi / 12,
-                          child: Icon(
-                            Icons.add_circle,
-                            size: 120,
-                            color: AppColors.backgroundLight
-                                .withValues(alpha: 0.15),
-                          ),
-                        ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: AppColors.backgroundLight
-                                  .withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: const Icon(
-                              Icons.add,
-                              color: AppColors.backgroundDark,
-                              size: 28,
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          const Text(
-                            'Host a Match',
-                            style: TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.w900,
-                              color: AppColors.backgroundDark,
-                              height: 1.1,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Create a new lobby and invite players',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: AppColors.backgroundDark
-                                  .withValues(alpha: 0.8),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+
+              const SizedBox(height: 48),
+
+              // Quick Actions — 2-up grid
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  'Quick Actions',
+                  style: GoogleFonts.inter(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.primary,
+                    height: 1.2,
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _BentoCard(
-                      title: 'Find Match',
-                      subtitle: 'Join an existing game',
-                      icon: Icons.radar,
-                      iconColor: AppColors.primaryLight,
-                      onTap: () => context.push('/lobbies'),
+              const SizedBox(height: 18),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _ActionCard(
+                        title: 'Find Match',
+                        subtitle: 'Join an existing game',
+                        icon: Icons.radar,
+                        onTap: () => context.push('/lobbies'),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _BentoCard(
-                      title: 'My Wallet',
-                      subtitle: 'Manage balance',
-                      icon: Icons.account_balance_wallet_rounded,
-                      iconColor: AppColors.success,
-                      onTap: () => context.push('/wallet'),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _BentoCard(
-                      title: 'Friends',
-                      subtitle: 'Find & connect',
-                      icon: Icons.people_rounded,
-                      iconColor: const Color(0xFF42A5F5),
-                      onTap: () => context.push('/friends'),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _BentoCard(
-                      title: 'Leaderboard',
-                      subtitle: 'Top players',
-                      icon: Icons.leaderboard_rounded,
-                      iconColor: AppColors.warning,
-                      onTap: () => context.push('/leaderboard'),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 36),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Upcoming Matches',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimaryDark,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () => context.push('/lobbies'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.primary,
-                      textStyle: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    child: const Text('View All'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Container(
-                width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 36, horizontal: 24),
-                decoration: BoxDecoration(
-                  color: AppColors.cardDark,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                      color: AppColors.textPrimaryDark.withValues(alpha: 0.05)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.2),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _ActionCard(
+                        title: 'My Wallet',
+                        subtitle: 'Manage balance',
+                        icon: Icons.account_balance_wallet_outlined,
+                        onTap: () => context.push('/wallet'),
+                      ),
                     ),
                   ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _ActionCard(
+                        title: 'Friends',
+                        subtitle: 'Find & connect',
+                        icon: Icons.people_outlined,
+                        onTap: () => context.push('/friends'),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _ActionCard(
+                        title: 'Leaderboard',
+                        subtitle: 'Top players',
+                        icon: Icons.leaderboard_outlined,
+                        onTap: () => context.push('/leaderboard'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 48),
+
+              // Upcoming Matches
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Upcoming Matches',
+                      style: GoogleFonts.inter(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.primary,
+                        height: 1.2,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => context.push('/lobbies'),
+                      child: Text(
+                        'View All',
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.primary,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.symmetric(horizontal: 24),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
+                decoration: const BoxDecoration(
+                  color: AppColors.secondaryLight,
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
                       padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: AppColors.surfaceDark,
+                      decoration: const BoxDecoration(
+                        color: AppColors.foursier,
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color:
-                              AppColors.textPrimaryDark.withValues(alpha: 0.1),
-                        ),
                       ),
                       child: const Icon(
-                        Icons.sports_esports_rounded,
-                        size: 48,
+                        Icons.sports_esports_outlined,
+                        size: 40,
                         color: AppColors.primaryLight,
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    const Text(
+                    const SizedBox(height: 18),
+                    Text(
                       'No matches soon',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimaryDark,
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.primary,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'Hop into a lobby or create one to start playing!',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: GoogleFonts.inter(
                         fontSize: 14,
-                        color: AppColors.textPrimaryDark.withValues(alpha: 0.5),
-                        height: 1.4,
+                        color: AppColors.primaryLight,
+                        height: 1.5,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 48),
             ],
           ),
         ),
@@ -473,16 +456,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+/// Sport card following Nike's category-icon-card pattern
 class _SportCard extends StatelessWidget {
   final String title;
   final IconData icon;
-  final Color color;
   final VoidCallback onTap;
 
   const _SportCard({
     required this.title,
     required this.icon,
-    required this.color,
     required this.onTap,
   });
 
@@ -491,39 +473,22 @@ class _SportCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 110,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          color: AppColors.cardDark,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-              color: AppColors.textPrimaryDark.withValues(alpha: 0.05)),
-          boxShadow: [
-            BoxShadow(
-              color: color.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+        width: 100,
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        decoration: const BoxDecoration(
+          color: AppColors.secondaryLight,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: color, size: 28),
-            ),
+            Icon(icon, color: AppColors.primary, size: 32),
             const SizedBox(height: 12),
             Text(
               title,
-              style: const TextStyle(
+              style: GoogleFonts.inter(
                 fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimaryDark,
+                fontWeight: FontWeight.w500,
+                color: AppColors.primary,
               ),
             ),
           ],
@@ -533,18 +498,17 @@ class _SportCard extends StatelessWidget {
   }
 }
 
-class _BentoCard extends StatelessWidget {
+/// Action card — flat, no shadow, soft-cloud background
+class _ActionCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final IconData icon;
-  final Color iconColor;
   final VoidCallback onTap;
 
-  const _BentoCard({
+  const _ActionCard({
     required this.title,
     required this.subtitle,
     required this.icon,
-    required this.iconColor,
     required this.onTap,
   });
 
@@ -554,41 +518,30 @@ class _BentoCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: AppColors.cardDark,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-              color: AppColors.textPrimaryDark.withValues(alpha: 0.05)),
+        decoration: const BoxDecoration(
+          color: AppColors.secondaryLight,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(icon, color: iconColor, size: 26),
-            ),
-            const SizedBox(height: 20),
+            Icon(icon, color: AppColors.primary, size: 24),
+            const SizedBox(height: 18),
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: AppColors.textPrimaryDark,
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: AppColors.primary,
                 height: 1.2,
-                letterSpacing: -0.5,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textPrimaryDark.withValues(alpha: 0.5),
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                color: AppColors.primaryLight,
               ),
             ),
           ],

@@ -1,6 +1,5 @@
 import 'package:beesports/models/lobby_entity.dart';
 import 'package:beesports/repos/lobby_repository.dart';
-import 'package:beesports/models/lobby_status.dart';
 import 'package:beesports/models/sport_type.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -69,7 +68,6 @@ class LobbyListBloc extends Bloc<LobbyListEvent, LobbyListState> {
     try {
       final lobbies = await _lobbyRepository.getLobbies(
         sport: event.sport,
-        status: LobbyStatus.open,
         sortBy: event.sortBy,
       );
       emit(LobbyListLoaded(

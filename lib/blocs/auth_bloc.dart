@@ -210,6 +210,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     if (msg.contains('already registered')) {
       return 'This email is already registered. Try signing in.';
     }
+    if (msg.contains('rate limit') || msg.contains('429')) {
+      return 'Too many attempts. Please wait a moment and try again.';
+    }
     return 'Something went wrong. Please try again.';
   }
 }

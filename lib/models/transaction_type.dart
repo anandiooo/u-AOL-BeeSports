@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:beesports/app/app_colors.dart';
 
 enum TransactionType {
-  topUp('Top Up', Icons.add_circle, Color(0xFF4CAF50)),
-  depositHold('Deposit Hold', Icons.lock, Color(0xFFFF9800)),
-  depositRelease('Deposit Release', Icons.lock_open, Color(0xFF42A5F5)),
-  depositForfeit('Deposit Forfeit', Icons.money_off, Color(0xFFEF5350)),
-  refund('Refund', Icons.replay, Color(0xFF9C27B0));
+  topUp('Top Up', Icons.add_circle, AppColors.success),
+  depositHold('Deposit Hold', Icons.lock, AppColors.accentTeal),
+  depositRelease('Deposit Release', Icons.lock_open, AppColors.info),
+  depositForfeit('Deposit Forfeit', Icons.money_off, AppColors.sale),
+  refund('Refund', Icons.replay, AppColors.accentPink);
 
   final String label;
   final IconData icon;

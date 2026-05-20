@@ -38,11 +38,11 @@ class MainScaffold extends StatelessWidget {
     return Scaffold(
       body: child,
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: AppColors.surfaceDark,
+        decoration: const BoxDecoration(
+          color: AppColors.navBar,
           border: Border(
             top: BorderSide(
-              color: AppColors.textPrimaryDark.withValues(alpha: 0.05),
+              color: AppColors.glassBorder,
               width: 1,
             ),
           ),
@@ -54,10 +54,9 @@ class MainScaffold extends StatelessWidget {
           ),
           child: BottomNavigationBar(
             currentIndex: _calculateSelectedIndex(context),
-            backgroundColor: AppColors.surfaceDark,
-            selectedItemColor: AppColors.primary,
-            unselectedItemColor:
-                AppColors.textPrimaryDark.withValues(alpha: 0.4),
+            backgroundColor: AppColors.navBar,
+            selectedItemColor: AppColors.navSelected,
+            unselectedItemColor: AppColors.navUnselected,
             type: BottomNavigationBarType.fixed,
             elevation: 0,
             selectedLabelStyle:

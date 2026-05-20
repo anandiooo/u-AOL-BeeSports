@@ -2,6 +2,7 @@ import 'package:beesports/app/app_colors.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class RegisterScreen extends StatefulWidget {
   final VoidCallback onNavigateToLogin;
@@ -42,13 +43,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.foursier,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
-                backgroundColor: AppColors.error,
+                backgroundColor: AppColors.tersierDark,
               ),
             );
           }
@@ -62,22 +64,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 children: [
                   const Icon(
                     Icons.person_add_alt_1_rounded,
-                    size: 56,
+                    size: 48,
                     color: AppColors.primary,
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    'Create Account',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w800,
+                  Text(
+                    'CREATE ACCOUNT',
+                    style: GoogleFonts.bebasNeue(
+                      fontSize: 40,
+                      fontWeight: FontWeight.w400,
+                      height: 0.9,
+                      color: AppColors.primary,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   Text(
                     'Join BeeSports with your BINUS email',
-                    style: TextStyle(
-                      color: AppColors.textSecondaryDark.withValues(alpha: 0.7),
+                    style: GoogleFonts.inter(
+                      color: AppColors.primaryLight,
+                      fontSize: 14,
                     ),
                   ),
                   const SizedBox(height: 36),
@@ -88,6 +93,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         TextFormField(
                           controller: _nameController,
                           textCapitalization: TextCapitalization.words,
+                          style: GoogleFonts.inter(color: AppColors.primary),
                           decoration: const InputDecoration(
                             hintText: 'Full Name',
                             prefixIcon: Icon(Icons.person_outlined),
@@ -100,6 +106,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
+                          style: GoogleFonts.inter(color: AppColors.primary),
                           decoration: const InputDecoration(
                             hintText: 'BINUS Email (@binus.ac.id)',
                             prefixIcon: Icon(Icons.email_outlined),
@@ -118,6 +125,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
+                          style: GoogleFonts.inter(color: AppColors.primary),
                           decoration: InputDecoration(
                             hintText: 'Password (min. 6 characters)',
                             prefixIcon: const Icon(Icons.lock_outlined),
@@ -143,6 +151,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         TextFormField(
                           controller: _confirmPasswordController,
                           obscureText: _obscureConfirm,
+                          style: GoogleFonts.inter(color: AppColors.primary),
                           decoration: InputDecoration(
                             hintText: 'Confirm Password',
                             prefixIcon: const Icon(Icons.lock_outlined),
@@ -163,7 +172,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 24),
                         _buildRegisterButton(),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 24),
                         _buildLoginLink(),
                       ],
                     ),
@@ -183,7 +192,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         final isLoading = state is AuthLoading;
         return SizedBox(
           width: double.infinity,
-          height: 52,
+          height: 48,
           child: ElevatedButton(
             onPressed: isLoading ? null : _onRegister,
             child: isLoading
@@ -192,7 +201,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     height: 24,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Colors.black,
+                      color: AppColors.foursierLight,
                     ),
                   )
                 : const Text('Create Account'),
@@ -206,17 +215,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text(
+        Text(
           'Already have an account? ',
-          style: TextStyle(color: AppColors.textSecondaryDark),
+          style: GoogleFonts.inter(color: AppColors.primaryLight),
         ),
         GestureDetector(
           onTap: widget.onNavigateToLogin,
-          child: const Text(
+          child: Text(
             'Sign In',
-            style: TextStyle(
+            style: GoogleFonts.inter(
               color: AppColors.primary,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
+              decoration: TextDecoration.underline,
             ),
           ),
         ),

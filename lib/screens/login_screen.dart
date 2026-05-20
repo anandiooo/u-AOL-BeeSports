@@ -2,6 +2,7 @@ import 'package:beesports/app/app_colors.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback onNavigateToRegister;
@@ -54,13 +55,14 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.foursier,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
-                backgroundColor: AppColors.error,
+                backgroundColor: AppColors.tersierDark,
               ),
             );
           }
@@ -85,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen>
                           _buildPasswordField(),
                           const SizedBox(height: 24),
                           _buildSignInButton(),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 24),
                           _buildRegisterLink(),
                         ],
                       ),
@@ -103,46 +105,37 @@ class _LoginScreenState extends State<LoginScreen>
   Widget _buildLogo() {
     return Column(
       children: [
+        // Ink square icon — no gradient, no shadow
         Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [AppColors.primary, AppColors.accent],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
+          width: 72,
+          height: 72,
+          decoration: const BoxDecoration(
+            color: AppColors.primary,
           ),
           child: const Icon(
             Icons.sports_soccer,
-            size: 40,
-            color: Colors.black,
+            size: 36,
+            color: AppColors.foursierLight,
           ),
         ),
-        const SizedBox(height: 16),
-        const Text(
-          'BeeSports',
-          style: TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.5,
+        const SizedBox(height: 18),
+        Text(
+          'BEESPORTS',
+          style: GoogleFonts.bebasNeue(
+            fontSize: 48,
+            fontWeight: FontWeight.w400,
+            height: 0.9,
+            color: AppColors.primary,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8),
         Text(
           'Match. Play. Win.',
-          style: TextStyle(
+          style: GoogleFonts.inter(
             fontSize: 14,
-            color: AppColors.textSecondaryDark.withValues(alpha: 0.7),
+            color: AppColors.primaryLight,
             letterSpacing: 2,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ],
@@ -153,6 +146,7 @@ class _LoginScreenState extends State<LoginScreen>
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
+      style: GoogleFonts.inter(color: AppColors.primary),
       decoration: const InputDecoration(
         hintText: 'BINUS Email (@binus.ac.id)',
         prefixIcon: Icon(Icons.email_outlined),
@@ -171,6 +165,7 @@ class _LoginScreenState extends State<LoginScreen>
     return TextFormField(
       controller: _passwordController,
       obscureText: _obscurePassword,
+      style: GoogleFonts.inter(color: AppColors.primary),
       decoration: InputDecoration(
         hintText: 'Password',
         prefixIcon: const Icon(Icons.lock_outlined),
@@ -195,7 +190,7 @@ class _LoginScreenState extends State<LoginScreen>
         final isLoading = state is AuthLoading;
         return SizedBox(
           width: double.infinity,
-          height: 52,
+          height: 48,
           child: ElevatedButton(
             onPressed: isLoading ? null : _onSignIn,
             child: isLoading
@@ -204,7 +199,7 @@ class _LoginScreenState extends State<LoginScreen>
                     height: 24,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Colors.black,
+                      color: AppColors.foursierLight,
                     ),
                   )
                 : const Text('Sign In'),
@@ -218,17 +213,18 @@ class _LoginScreenState extends State<LoginScreen>
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text(
+        Text(
           "Don't have an account? ",
-          style: TextStyle(color: AppColors.textSecondaryDark),
+          style: GoogleFonts.inter(color: AppColors.primaryLight),
         ),
         GestureDetector(
           onTap: widget.onNavigateToRegister,
-          child: const Text(
+          child: Text(
             'Register',
-            style: TextStyle(
+            style: GoogleFonts.inter(
               color: AppColors.primary,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
+              decoration: TextDecoration.underline,
             ),
           ),
         ),

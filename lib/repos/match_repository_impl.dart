@@ -129,19 +129,19 @@ class MatchRepositoryImpl implements MatchRepository {
               'elo_rating': newElo,
               'matches_played': ratings.firstWhere(
                     (r) => r['user_id'] == userId,
-                    orElse: () => {'matches_played': 0},
+                    orElse: () => <String, dynamic>{'matches_played': 0},
                   )['matches_played'] +
                   1,
               if (result == 'win')
                 'wins': ratings.firstWhere(
                       (r) => r['user_id'] == userId,
-                      orElse: () => {'wins': 0},
+                      orElse: () => <String, dynamic>{'wins': 0},
                     )['wins'] +
                     1,
               if (result == 'loss')
                 'losses': ratings.firstWhere(
                       (r) => r['user_id'] == userId,
-                      orElse: () => {'losses': 0},
+                      orElse: () => <String, dynamic>{'losses': 0},
                     )['losses'] +
                     1,
             })

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:beesports/app/app_colors.dart';
 
 enum SportType {
-  futsal('Futsal', Icons.sports_soccer, Color(0xFF66BB6A)),
-  basketball('Basketball', Icons.sports_basketball, Color(0xFFEF5350)),
-  badminton('Badminton', Icons.sports_tennis, Color(0xFF42A5F5)),
-  volleyball('Volleyball', Icons.sports_volleyball, Color(0xFFAB47BC)),
-  tennis('Tennis', Icons.sports_tennis, Color(0xFFFFEE58)),
-  tableTennis('Table Tennis', Icons.sports_cricket, Color(0xFF26C6DA));
+  futsal('Futsal', Icons.sports_soccer, AppColors.futsal),
+  basketball('Basketball', Icons.sports_basketball, AppColors.basketball),
+  badminton('Badminton', Icons.sports_tennis, AppColors.badminton),
+  volleyball('Volleyball', Icons.sports_volleyball, AppColors.volleyball),
+  tennis('Tennis', Icons.sports_tennis, AppColors.tennis),
+  tableTennis('Table Tennis', Icons.sports_cricket, AppColors.tableTennis);
 
   final String label;
   final IconData icon;

@@ -3,11 +3,11 @@ import 'package:beesports/blocs/match_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MatchResultScreen extends StatefulWidget {
   final String lobbyId;
   const MatchResultScreen({super.key, required this.lobbyId});
-
   @override
   State<MatchResultScreen> createState() => _MatchResultScreenState();
 }
@@ -21,134 +21,98 @@ class _MatchResultScreenState extends State<MatchResultScreen> {
     return BlocConsumer<MatchBloc, MatchState>(
       listener: (context, state) {
         if (state is MatchSubmitted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
               content: Text('Match result submitted! Elo updated.'),
-              backgroundColor: AppColors.success,
-            ),
-          );
+              backgroundColor: AppColors.secondary));
           context.pop();
         } else if (state is MatchError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(state.message),
-              backgroundColor: AppColors.error,
-            ),
-          );
+              backgroundColor: AppColors.tersierDark));
         }
       },
       builder: (context, state) {
         final isLoading = state is MatchLoading;
-
         return Scaffold(
-          appBar: AppBar(title: const Text('Submit Match Result')),
+          backgroundColor: AppColors.foursier,
+          appBar: AppBar(
+            title: Text('Submit Match Result',
+                style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w500, color: AppColors.primary)),
+            backgroundColor: AppColors.foursier,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            iconTheme: const IconThemeData(color: AppColors.primary),
+          ),
           body: Padding(
             padding: const EdgeInsets.all(24),
-            child: Column(
-              children: [
-                const SizedBox(height: 24),
-                const Text(
-                  'Enter Final Score',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Row(
+            child: Column(children: [
+              const SizedBox(height: 24),
+              Text('ENTER FINAL SCORE',
+                  style: GoogleFonts.bebasNeue(
+                      fontSize: 36, color: AppColors.primary)),
+              const SizedBox(height: 32),
+              Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _TeamScoreColumn(
-                      label: 'Team A',
-                      color: AppColors.primary,
-                      score: _teamAScore,
-                      onIncrement: () => setState(() => _teamAScore++),
-                      onDecrement: () => setState(() {
-                        if (_teamAScore > 0) _teamAScore--;
-                      }),
-                    ),
+                        label: 'Team A',
+                        score: _teamAScore,
+                        onIncrement: () => setState(() => _teamAScore++),
+                        onDecrement: () => setState(() {
+                              if (_teamAScore > 0) _teamAScore--;
+                            })),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.05),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Text(
-                        'VS',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.textSecondaryDark,
-                        ),
-                      ),
+                          horizontal: 16, vertical: 8),
+                      color: AppColors.secondaryLight,
+                      child: Text('VS',
+                          style: GoogleFonts.bebasNeue(
+                              fontSize: 24, color: AppColors.primaryLight)),
                     ),
                     _TeamScoreColumn(
-                      label: 'Team B',
-                      color: AppColors.accent,
-                      score: _teamBScore,
-                      onIncrement: () => setState(() => _teamBScore++),
-                      onDecrement: () => setState(() {
-                        if (_teamBScore > 0) _teamBScore--;
-                      }),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.warning.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: AppColors.warning.withValues(alpha: 0.3),
-                    ),
+                        label: 'Team B',
+                        score: _teamBScore,
+                        onIncrement: () => setState(() => _teamBScore++),
+                        onDecrement: () => setState(() {
+                              if (_teamBScore > 0) _teamBScore--;
+                            })),
+                  ]),
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(16),
+                color: AppColors.secondaryLight,
+                child: Row(children: [
+                  const Icon(Icons.info_outline,
+                      color: AppColors.primaryLight, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                        'Submitting will update Elo ratings for all participants and mark the lobby as finished.',
+                        style: GoogleFonts.inter(
+                            color: AppColors.primaryLight, fontSize: 13)),
                   ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.info_outline,
-                          color: AppColors.warning, size: 20),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Submitting will update Elo ratings for all participants and mark the lobby as finished.',
-                          style: TextStyle(
-                            color: AppColors.warning.withValues(alpha: 0.9),
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                ]),
+              ),
+              const Spacer(),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: isLoading
+                      ? null
+                      : () => context.read<MatchBloc>().add(SubmitMatchResult(
+                            widget.lobbyId, _teamAScore, _teamBScore)),
+                  child: isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: AppColors.foursierLight))
+                      : const Text('Submit Result'),
                 ),
-                const Spacer(),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: isLoading
-                        ? null
-                        : () {
-                            context.read<MatchBloc>().add(
-                                  SubmitMatchResult(
-                                    widget.lobbyId,
-                                    _teamAScore,
-                                    _teamBScore,
-                                  ),
-                                );
-                          },
-                    child: isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('Submit Result'),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ]),
           ),
         );
       },
@@ -158,61 +122,60 @@ class _MatchResultScreenState extends State<MatchResultScreen> {
 
 class _TeamScoreColumn extends StatelessWidget {
   final String label;
-  final Color color;
   final int score;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
-
-  const _TeamScoreColumn({
-    required this.label,
-    required this.color,
-    required this.score,
-    required this.onIncrement,
-    required this.onDecrement,
-  });
+  const _TeamScoreColumn(
+      {required this.label,
+      required this.score,
+      required this.onIncrement,
+      required this.onDecrement});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: color,
+    return Column(children: [
+      Text(label,
+          style: GoogleFonts.inter(
+              fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.primary)),
+      const SizedBox(height: 16),
+      Container(
+        padding: const EdgeInsets.all(12),
+        color: AppColors.secondaryLight,
+        child: Column(children: [
+          GestureDetector(
+            onTap: onIncrement,
+            child: Container(
+              width: 36,
+              height: 36,
+              decoration: const BoxDecoration(
+                  color: AppColors.primary, shape: BoxShape.circle),
+              child: const Icon(Icons.add,
+                  color: AppColors.foursierLight, size: 20),
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color.withValues(alpha: 0.3)),
-          ),
-          child: Column(
-            children: [
-              IconButton(
-                icon: Icon(Icons.add_circle, color: color, size: 36),
-                onPressed: onIncrement,
-              ),
-              Text(
-                '$score',
-                style: TextStyle(
+          const SizedBox(height: 8),
+          Text('$score',
+              style: GoogleFonts.inter(
                   fontSize: 48,
-                  fontWeight: FontWeight.w900,
-                  color: color,
-                ),
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.primary)),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: onDecrement,
+            child: Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: score > 0 ? AppColors.primary : AppColors.tersierLight,
+                shape: BoxShape.circle,
               ),
-              IconButton(
-                icon: Icon(Icons.remove_circle, color: color, size: 36),
-                onPressed: onDecrement,
-              ),
-            ],
+              child: Icon(Icons.remove,
+                  color: score > 0 ? AppColors.foursierLight : AppColors.primaryLight,
+                  size: 20),
+            ),
           ),
-        ),
-      ],
-    );
+        ]),
+      ),
+    ]);
   }
 }
