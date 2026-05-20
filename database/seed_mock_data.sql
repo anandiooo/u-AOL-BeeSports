@@ -1,12 +1,5 @@
--- BeeSports realistic mock data seed
---
--- Assumption:
--- The auth users are seeded first in this file so the profile foreign key can
--- resolve in Supabase or a local auth environment.
+﻿BEGIN;
 
-BEGIN;
-
--- auth users
 INSERT INTO auth.users (
     instance_id,
     id,
@@ -170,7 +163,6 @@ INSERT INTO auth.users (
         NOW() - INTERVAL '8 hours'
     ) ON CONFLICT DO NOTHING;
 
--- profiles
 INSERT INTO profiles (
     id,
     email,
@@ -361,7 +353,6 @@ INSERT INTO profiles (
         NOW() - INTERVAL '8 hours'
     ) ON CONFLICT DO NOTHING;
 
--- user sport ratings
 INSERT INTO user_sport_ratings (
     id,
     user_id,
@@ -388,7 +379,6 @@ INSERT INTO user_sport_ratings (
     ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0014', '88888888-8888-8888-8888-888888888888', 'badminton', 1455, 23, 17, 6, NOW() - INTERVAL '8 hours'),
     ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0015', '88888888-8888-8888-8888-888888888888', 'tennis', 1378, 18, 13, 5, NOW() - INTERVAL '8 hours') ON CONFLICT DO NOTHING;
 
--- credit wallets
 INSERT INTO credit_wallets (user_id, balance, held, updated_at) VALUES
     ('11111111-1111-1111-1111-111111111111', 380000.00, 50000.00, NOW() - INTERVAL '2 days'),
     ('22222222-2222-2222-2222-222222222222', 215000.00, 25000.00, NOW() - INTERVAL '1 day'),
@@ -399,7 +389,6 @@ INSERT INTO credit_wallets (user_id, balance, held, updated_at) VALUES
     ('77777777-7777-7777-7777-777777777777', 65000.00, 10000.00, NOW() - INTERVAL '12 hours'),
     ('88888888-8888-8888-8888-888888888888', 430000.00, 0.00, NOW() - INTERVAL '8 hours') ON CONFLICT DO NOTHING;
 
--- lobbies
 INSERT INTO lobbies (
     id,
     host_id,
@@ -557,7 +546,6 @@ INSERT INTO lobbies (
         NOW() - INTERVAL '4 hours'
     ) ON CONFLICT DO NOTHING;
 
--- lobby participants
 INSERT INTO lobby_participants (
     id,
     lobby_id,
@@ -591,7 +579,7 @@ INSERT INTO lobby_participants (
     ('cccccccc-0014-0014-0014-cccccccc0014', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb4', '44444444-4444-4444-4444-444444444444', 'confirmed', 'B', 2, TRUE, NOW() - INTERVAL '2 hours 30 minutes', NOW() - INTERVAL '2 hours 30 minutes', NOW() - INTERVAL '4 hours', NULL, NOW() - INTERVAL '30 minutes'),
     ('cccccccc-0015-0015-0015-cccccccc0015', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb4', '66666666-6666-6666-6666-666666666666', 'joined', 'A', 3, TRUE, NOW() - INTERVAL '2 hours 30 minutes', NOW() - INTERVAL '2 hours 30 minutes', NOW() - INTERVAL '4 hours', NULL, NOW() - INTERVAL '30 minutes'),
     ('cccccccc-0016-0016-0016-cccccccc0016', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb4', '88888888-8888-8888-8888-888888888888', 'joined', 'B', 4, TRUE, NOW() - INTERVAL '2 hours 30 minutes', NOW() - INTERVAL '2 hours 30 minutes', NOW() - INTERVAL '3 hours', NULL, NOW() - INTERVAL '30 minutes') ON CONFLICT DO NOTHING;
--- matches
+
 INSERT INTO matches (
     id,
     lobby_id,
@@ -629,7 +617,6 @@ INSERT INTO matches (
         NOW() - INTERVAL '2 hours'
     ) ON CONFLICT DO NOTHING;
 
--- match participants
 INSERT INTO match_participants (
     id,
     match_id,
@@ -650,7 +637,6 @@ INSERT INTO match_participants (
     ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeee07', 'dddddddd-dddd-dddd-dddd-dddddddddd02', '66666666-6666-6666-6666-666666666666', 'A', 'win', 1128, 1137, 9),
     ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeee08', 'dddddddd-dddd-dddd-dddd-dddddddddd02', '88888888-8888-8888-8888-888888888888', 'B', 'loss', 1455, 1450, -5) ON CONFLICT DO NOTHING;
 
--- credit transactions
 INSERT INTO credit_transactions (
     id,
     user_id,
@@ -667,7 +653,6 @@ INSERT INTO credit_transactions (
     ('ffffffff-ffff-ffff-ffff-fffffffff004', '55555555-5555-5555-5555-555555555555', 'deposit_release', 40000.00, 520000.00, 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb3', 'Deposit released after settled badminton finals.', NOW() - INTERVAL '18 hours'),
     ('ffffffff-ffff-ffff-ffff-fffffffff005', '66666666-6666-6666-6666-666666666666', 'refund', 20000.00, 175000.00, 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb5', 'Refund for cancelled tennis ladder.', NOW() - INTERVAL '3 hours') ON CONFLICT DO NOTHING;
 
--- payments
 INSERT INTO payments (
     id,
     user_id,
@@ -697,7 +682,6 @@ INSERT INTO payments (
         NOW() - INTERVAL '8 days'
     ) ON CONFLICT DO NOTHING;
 
--- reliability events
 INSERT INTO reliability_events (
     id,
     user_id,
@@ -711,7 +695,6 @@ INSERT INTO reliability_events (
     ('abababab-abab-abab-abab-abababab0002', '77777777-7777-7777-7777-777777777777', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb1', 'late_cancel', -4, 'Cancelled late before the open basketball slot.', NOW() - INTERVAL '18 hours'),
     ('abababab-abab-abab-abab-abababab0003', '66666666-6666-6666-6666-666666666666', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb4', 'assist_lead', 3, 'Kept the volleyball drill organized and helped new players.', NOW() - INTERVAL '25 minutes') ON CONFLICT DO NOTHING;
 
--- chat messages
 INSERT INTO chat_messages (
     id,
     lobby_id,
@@ -726,7 +709,6 @@ INSERT INTO chat_messages (
     ('cdcdcdcd-cdcd-cdcd-cdcd-cdcdcdcd0004', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb3', '55555555-5555-5555-5555-555555555555', 'Finals are live on court 1. Please keep score updates clean.', TRUE, NOW() - INTERVAL '1 day 1 hour'),
     ('cdcdcdcd-cdcd-cdcd-cdcd-cdcdcdcd0005', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb1', '11111111-1111-1111-1111-111111111111', 'Need one more guard. Beginners are welcome as long as they hustle.', FALSE, NOW() - INTERVAL '14 hours');
 
--- friendships
 INSERT INTO friendships (
     id,
     requester_id,
@@ -739,7 +721,6 @@ INSERT INTO friendships (
     ('edededed-eded-eded-eded-edededed0002', '33333333-3333-3333-3333-333333333333', '44444444-4444-4444-4444-444444444444', 'accepted', NOW() - INTERVAL '20 days', NOW() - INTERVAL '19 days'),
     ('edededed-eded-eded-eded-edededed0003', '66666666-6666-6666-6666-666666666666', '77777777-7777-7777-7777-777777777777', 'pending', NOW() - INTERVAL '2 days', NOW() - INTERVAL '2 days') ON CONFLICT DO NOTHING;
 
--- notifications
 INSERT INTO notifications (
     id,
     user_id,

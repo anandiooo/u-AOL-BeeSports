@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -15,10 +15,10 @@ class LoggerService {
       String logDirPath;
 
       if (kDebugMode && (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
-        // local root log
+
         logDirPath = Directory.current.path;
       } else {
-        // mobile docs log
+
         final dir = await getApplicationDocumentsDirectory();
         logDirPath = dir.path;
       }
@@ -29,7 +29,6 @@ class LoggerService {
         await _logFile!.create();
       }
 
-      // catch ui errors
       final originalOnError = FlutterError.onError;
       FlutterError.onError = (FlutterErrorDetails details) {
         logError(details.exceptionAsString(), details.stack?.toString());
@@ -40,7 +39,6 @@ class LoggerService {
         }
       };
 
-      // catch async errors
       PlatformDispatcher.instance.onError = (error, stack) {
         logError(error.toString(), stack.toString());
         return true;

@@ -105,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen>
   Widget _buildLogo() {
     return Column(
       children: [
-        // Ink square icon — no gradient, no shadow
+
         Container(
           width: 72,
           height: 72,

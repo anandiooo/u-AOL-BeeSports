@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 
 import 'package:beesports/models/user_entity.dart';
 import 'package:beesports/repos/auth_repository.dart';
@@ -31,18 +31,17 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
         data: {'full_name': fullName},
       );
-      
+
       final user = response.user;
       if (user != null) {
-        // force profile creation
+
         final userEntity = UserEntity(
           id: user.id,
           email: user.email ?? email,
           fullName: fullName,
         );
         await _upsertProfile(userEntity);
-        
-        // force wallet creation
+
         try {
           await _client.from('credit_wallets').insert({
             'user_id': user.id,
@@ -104,15 +103,13 @@ class AuthRepositoryImpl implements AuthRepository {
     final profile = await _fetchProfile(user.id);
     if (profile != null) return profile;
 
-    // handle missing profile
     final newProfile = UserEntity(
       id: user.id,
       email: user.email ?? email,
       fullName: user.userMetadata?['full_name'] as String?,
     );
     await _upsertProfile(newProfile);
-    
-    // handle missing wallet
+
     try {
       await _client.from('credit_wallets').insert({
         'user_id': user.id,

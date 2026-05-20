@@ -89,7 +89,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Avatar & name
+
                       Center(
                         child: Column(children: [
                           Container(
@@ -121,7 +121,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       ),
                       const SizedBox(height: 32),
 
-                      // Bio section
                       Text('Bio',
                           style: GoogleFonts.inter(
                               fontSize: 14,
@@ -142,7 +141,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       ),
                       const SizedBox(height: 48),
 
-                      // Sports preferences
                       Text('Sports Preferences',
                           style: GoogleFonts.inter(
                               fontSize: 24,
@@ -204,7 +202,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       ),
                       const SizedBox(height: 48),
 
-                      // Skill levels
                       if (_selectedSports.isNotEmpty) ...[
                         Text('Skill Levels',
                             style: GoogleFonts.inter(
@@ -287,7 +284,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     ]),
               ),
             ),
-            // Sticky bottom save
+
             Container(
               padding: const EdgeInsets.all(24),
               decoration: const BoxDecoration(

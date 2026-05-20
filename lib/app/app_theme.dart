@@ -3,24 +3,15 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:beesports/app/app_colors.dart';
 
-/// Sporty Neon Green theme.
-/// Key principles:
-/// - Dark charcoal (#1A1A2E) background with neon green (#76FF03) accents
-/// - Pill-shaped buttons (rounded.full = 9999px)
-/// - Glassmorphism cards with subtle neon borders
-/// - Inter for UI, Bebas Neue for display headlines
-/// - 8px spacing base with 48px section rhythm
 class AppTheme {
   AppTheme._();
 
-  // Border radius tokens
   static const double radiusNone = 0;
   static const double radiusSm = 18;
   static const double radiusMd = 24;
   static const double radiusLg = 30;
   static const double radiusFull = 9999;
 
-  // Spacing tokens
   static const double spaceXxs = 2;
   static const double spaceXs = 4;
   static const double spaceSm = 8;

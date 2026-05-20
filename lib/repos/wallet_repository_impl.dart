@@ -1,4 +1,4 @@
-﻿import 'package:beesports/models/credit_transaction_entity.dart';
+import 'package:beesports/models/credit_transaction_entity.dart';
 import 'package:beesports/models/wallet_entity.dart';
 import 'package:beesports/repos/wallet_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -158,7 +158,7 @@ class WalletRepositoryImpl implements WalletRepository {
 
     await _client.from('credit_transactions').insert({
       'user_id': userId,
-      'type': 'refund', // todo: add withdrawal to enum
+      'type': 'refund',
       'amount': amount,
       'balance_after': newBalance,
       'description': 'Withdrawal Rp${amount.toStringAsFixed(0)}',

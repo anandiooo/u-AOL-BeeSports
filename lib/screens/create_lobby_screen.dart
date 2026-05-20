@@ -74,7 +74,6 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Section: Sport
                   Text('Select Sport',
                       style: GoogleFonts.inter(
                           fontSize: 24,
@@ -96,8 +95,9 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                             color: sel ? AppColors.primary : AppColors.foursier,
                             borderRadius: BorderRadius.circular(30),
                             border: Border.all(
-                                color:
-                                    sel ? AppColors.primary : AppColors.foursierDark),
+                                color: sel
+                                    ? AppColors.primary
+                                    : AppColors.foursierDark),
                           ),
                           child: Row(mainAxisSize: MainAxisSize.min, children: [
                             Icon(sport.icon,
@@ -117,10 +117,7 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                       );
                     }).toList(),
                   ),
-
                   const SizedBox(height: 48),
-
-                  // Section: Details
                   Text('Lobby Details',
                       style: GoogleFonts.inter(
                           fontSize: 24,
@@ -168,10 +165,7 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                           ),
                         ]),
                   ),
-
                   const SizedBox(height: 48),
-
-                  // Section: Schedule
                   Text('Schedule & Duration',
                       style: GoogleFonts.inter(
                           fontSize: 24,
@@ -244,10 +238,7 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                           ),
                         ]),
                   ),
-
                   const SizedBox(height: 48),
-
-                  // Section: Players
                   Text('Players & Requirements',
                       style: GoogleFonts.inter(
                           fontSize: 24,
@@ -311,7 +302,8 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                             Expanded(
                               child: TextFormField(
                                 controller: _minEloController,
-                                style: GoogleFonts.inter(color: AppColors.primary),
+                                style:
+                                    GoogleFonts.inter(color: AppColors.primary),
                                 keyboardType: TextInputType.number,
                                 decoration: const InputDecoration(
                                     hintText: 'Min',
@@ -324,11 +316,13 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                                     const EdgeInsets.symmetric(horizontal: 8),
                                 child: Text('—',
                                     style: GoogleFonts.inter(
-                                        color: AppColors.primaryLight, fontSize: 18))),
+                                        color: AppColors.primaryLight,
+                                        fontSize: 18))),
                             Expanded(
                               child: TextFormField(
                                 controller: _maxEloController,
-                                style: GoogleFonts.inter(color: AppColors.primary),
+                                style:
+                                    GoogleFonts.inter(color: AppColors.primary),
                                 keyboardType: TextInputType.number,
                                 decoration: const InputDecoration(
                                     hintText: 'Max',
@@ -339,10 +333,7 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                           ]),
                         ]),
                   ),
-
                   const SizedBox(height: 48),
-
-                  // Submit CTA
                   SizedBox(
                     width: double.infinity,
                     height: 48,
@@ -353,7 +344,8 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                               height: 24,
                               width: 24,
                               child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: AppColors.foursierLight))
+                                  strokeWidth: 2,
+                                  color: AppColors.foursierLight))
                           : const Text('Create Lobby'),
                     ),
                   ),
@@ -378,8 +370,8 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
   }
 
   void _pickTime() async {
-    final time = await showTimePicker(
-        context: context, initialTime: _selectedTime);
+    final time =
+        await showTimePicker(context: context, initialTime: _selectedTime);
     if (time != null) setState(() => _selectedTime = time);
   }
 
@@ -387,9 +379,8 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
     if (!_formKey.currentState!.validate()) return;
     final authState = context.read<AuthBloc>().state;
     if (authState is! Authenticated) return;
-    final scheduledAt = DateTime(
-        _selectedDate.year, _selectedDate.month, _selectedDate.day,
-        _selectedTime.hour, _selectedTime.minute);
+    final scheduledAt = DateTime(_selectedDate.year, _selectedDate.month,
+        _selectedDate.day, _selectedTime.hour, _selectedTime.minute);
     context.read<CreateLobbyBloc>().add(SubmitLobby(
           hostId: authState.user.id,
           title: _titleController.text.trim(),
@@ -422,7 +413,9 @@ class _PickerField extends StatelessWidget {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(label,
           style: GoogleFonts.inter(
-              fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.primaryLight)),
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: AppColors.primaryLight)),
       const SizedBox(height: 8),
       GestureDetector(
         onTap: onTap,
@@ -438,7 +431,8 @@ class _PickerField extends StatelessWidget {
             Text(value,
                 style: GoogleFonts.inter(
                     color: AppColors.primary,
-                    fontWeight: FontWeight.w500, fontSize: 14)),
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14)),
           ]),
         ),
       ),
@@ -464,7 +458,9 @@ class _CounterField extends StatelessWidget {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(label,
           style: GoogleFonts.inter(
-              fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.primaryLight)),
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: AppColors.primaryLight)),
       const SizedBox(height: 8),
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
@@ -472,23 +468,22 @@ class _CounterField extends StatelessWidget {
           color: AppColors.foursier,
           borderRadius: BorderRadius.circular(30),
         ),
-        child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _RoundButton(
-                  icon: Icons.remove,
-                  enabled: value > min,
-                  onTap: () => onChanged(value - 1)),
-              Text('$value',
-                  style: GoogleFonts.inter(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.primary)),
-              _RoundButton(
-                  icon: Icons.add,
-                  enabled: value < max,
-                  onTap: () => onChanged(value + 1)),
-            ]),
+        child:
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          _RoundButton(
+              icon: Icons.remove,
+              enabled: value > min,
+              onTap: () => onChanged(value - 1)),
+          Text('$value',
+              style: GoogleFonts.inter(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.primary)),
+          _RoundButton(
+              icon: Icons.add,
+              enabled: value < max,
+              onTap: () => onChanged(value + 1)),
+        ]),
       ),
     ]);
   }
