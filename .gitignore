@@ -1,6 +1,5 @@
-# Flutter / Dart - Production-Ready .gitignore
-
 # Environment & Secrets (NEVER commit these)
+DESIGN.md
 *.env
 .env.*
 !.env.example
