@@ -26,8 +26,6 @@ class LobbyRepositoryImpl implements LobbyRepository {
 
     if (status != null) {
       query = query.eq('status', status.value);
-    } else {
-      query = query.inFilter('status', ['open', 'confirmed']);
     }
 
     final String orderColumn;
