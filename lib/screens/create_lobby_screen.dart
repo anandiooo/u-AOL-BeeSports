@@ -3,6 +3,7 @@ import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:beesports/blocs/create_lobby_bloc.dart';
 import 'package:beesports/models/sport_type.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -286,6 +287,10 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.w500),
                             keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              _RupiahInputFormatter(),
+                            ],
                             decoration: const InputDecoration(
                                 hintText: '0 for no deposit',
                                 prefixIcon: Icon(Icons.monetization_on),
@@ -390,7 +395,7 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
           durationMinutes: _duration,
           minPlayers: _minPlayers,
           maxPlayers: _maxPlayers,
-          depositAmount: double.tryParse(_depositController.text.trim()) ?? 0,
+          depositAmount: double.tryParse(_depositController.text.replaceAll('.', '').trim()) ?? 0,
           minElo: int.tryParse(_minEloController.text.trim()),
           maxElo: int.tryParse(_maxEloController.text.trim()),
         ));
@@ -511,6 +516,39 @@ class _RoundButton extends StatelessWidget {
             size: 16,
             color: enabled ? AppColors.foursierLight : AppColors.primaryLight),
       ),
+    );
+  }
+}
+
+class _RupiahInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    if (newValue.text.isEmpty) {
+      return newValue.copyWith(text: '');
+    }
+
+    final String cleanText = newValue.text.replaceAll(RegExp(r'\D'), '');
+    final double? value = double.tryParse(cleanText);
+
+    if (value == null) {
+      return oldValue;
+    }
+
+    final clean = cleanText.split('.')[0];
+    final buffer = StringBuffer();
+    final len = clean.length;
+    for (var i = 0; i < len; i++) {
+      if (i > 0 && (len - i) % 3 == 0) {
+        buffer.write('.');
+      }
+      buffer.write(clean[i]);
+    }
+
+    final String formattedText = buffer.toString();
+    return TextEditingValue(
+      text: formattedText,
+      selection: TextSelection.collapsed(offset: formattedText.length),
     );
   }
 }

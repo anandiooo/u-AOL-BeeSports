@@ -40,12 +40,12 @@ class _WalletScreenState extends State<WalletScreen> {
         listener: (context, state) {
           if (state is TopUpSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Top-up of Rp${state.amount.toStringAsFixed(0)} successful!'), backgroundColor: AppColors.neonGreen),
+              SnackBar(content: Text('Top-up of Rp${_formatRupiah(state.amount)} successful!'), backgroundColor: AppColors.neonGreen),
             );
           }
           if (state is WithdrawSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Withdrawal of Rp${state.amount.toStringAsFixed(0)} successful!'), backgroundColor: AppColors.neonGreen),
+              SnackBar(content: Text('Withdrawal of Rp${_formatRupiah(state.amount)} successful!'), backgroundColor: AppColors.neonGreen),
             );
           }
         },
@@ -131,7 +131,7 @@ class _BalanceSection extends StatelessWidget {
         const SizedBox(height: 20),
         Text('Total Balance', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.mute)),
         const SizedBox(height: 8),
-        Text('Rp ${balance.toStringAsFixed(0)}', style: GoogleFonts.inter(fontSize: 42, fontWeight: FontWeight.w500, color: AppColors.neonGreen, height: 1.2)),
+        Text('Rp ${_formatRupiah(balance)}', style: GoogleFonts.inter(fontSize: 42, fontWeight: FontWeight.w500, color: AppColors.neonGreen, height: 1.2)),
         const SizedBox(height: 32),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -195,7 +195,7 @@ class _BalanceDetail extends StatelessWidget {
       children: [
         Text(label, style: GoogleFonts.inter(fontSize: 14, color: AppColors.mute, fontWeight: FontWeight.w500)),
         const SizedBox(height: 6),
-        Text('Rp ${value.toStringAsFixed(0)}', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.charcoal)),
+        Text('Rp ${_formatRupiah(value)}', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.charcoal)),
       ],
     );
   }
@@ -210,7 +210,7 @@ class _TransactionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final isCredit = transaction.isCredit;
     final sign = isCredit ? '+' : '-';
-    final amountColor = isCredit ? AppColors.neonGreen : AppColors.charcoal;
+    final amountColor = isCredit ? AppColors.neonGreen : AppColors.sale;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 1),
@@ -218,7 +218,7 @@ class _TransactionTile extends StatelessWidget {
       decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.hairline))),
       child: Row(
         children: [
-          Icon(transaction.type.icon, size: 22, color: AppColors.neonGreen),
+          Icon(transaction.type.icon, size: 22, color: transaction.type.color),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -235,7 +235,7 @@ class _TransactionTile extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('$sign Rp ${transaction.amount.toStringAsFixed(0)}', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500, color: amountColor)),
+              Text('$sign Rp ${_formatRupiah(transaction.amount)}', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500, color: amountColor)),
               const SizedBox(height: 2),
               Text(_formatDateTime(transaction.createdAt), style: GoogleFonts.inter(fontSize: 12, color: AppColors.mute)),
             ],
@@ -248,4 +248,17 @@ class _TransactionTile extends StatelessWidget {
   String _formatDateTime(DateTime dt) {
     return '${dt.day}/${dt.month} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
   }
+}
+
+String _formatRupiah(double n) {
+  final clean = n.toStringAsFixed(0);
+  final buffer = StringBuffer();
+  final len = clean.length;
+  for (var i = 0; i < len; i++) {
+    if (i > 0 && (len - i) % 3 == 0) {
+      buffer.write('.');
+    }
+    buffer.write(clean[i]);
+  }
+  return buffer.toString();
 }

@@ -6,7 +6,7 @@ enum TransactionType {
   depositHold('Deposit Hold', Icons.lock, AppColors.accentTeal),
   depositRelease('Deposit Release', Icons.lock_open, AppColors.info),
   depositForfeit('Deposit Forfeit', Icons.money_off, AppColors.sale),
-  refund('Refund', Icons.replay, AppColors.accentPink);
+  refund('Withdraw', Icons.remove_circle, AppColors.sale);
 
   final String label;
   final IconData icon;
@@ -31,8 +31,7 @@ enum TransactionType {
 
   bool get isCredit =>
       this == TransactionType.topUp ||
-      this == TransactionType.depositRelease ||
-      this == TransactionType.refund;
+      this == TransactionType.depositRelease;
 
   static TransactionType? fromString(String value) {
     switch (value) {

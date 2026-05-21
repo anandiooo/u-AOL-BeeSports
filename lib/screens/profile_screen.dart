@@ -97,11 +97,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: 96,
                 height: 96,
                 decoration: const BoxDecoration(color: AppColors.neonGreen, shape: BoxShape.circle),
-                child: Center(
-                  child: Text(
-                    (profile.fullName ?? 'U')[0].toUpperCase(),
-                    style: GoogleFonts.bebasNeue(fontSize: 40, color: AppColors.onPrimary),
-                  ),
+                child: ClipOval(
+                  child: profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty
+                      ? Image.network(
+                          profile.avatarUrl!,
+                          fit: BoxFit.cover,
+                          width: 96,
+                          height: 96,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Center(
+                              child: Text(
+                                (profile.fullName ?? 'U')[0].toUpperCase(),
+                                style: GoogleFonts.bebasNeue(fontSize: 40, color: AppColors.onPrimary),
+                              ),
+                            );
+                          },
+                        )
+                      : Center(
+                          child: Text(
+                            (profile.fullName ?? 'U')[0].toUpperCase(),
+                            style: GoogleFonts.bebasNeue(fontSize: 40, color: AppColors.onPrimary),
+                          ),
+                        ),
                 ),
               ),
             ).animate().scale(begin: const Offset(0.8, 0.8), duration: 400.ms, curve: Curves.easeOutBack),

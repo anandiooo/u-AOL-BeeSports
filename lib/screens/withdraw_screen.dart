@@ -2,6 +2,7 @@ import 'package:beesports/app/app_colors.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:beesports/blocs/wallet_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -94,13 +95,19 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
             const SizedBox(height: 10),
             TextFormField(
               controller: _customController,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                _RupiahInputFormatter(),
+              ],
               decoration: const InputDecoration(
                   prefixText: 'Rp ', hintText: 'Enter amount',
                   prefixIcon: Icon(Icons.edit)),
               style: GoogleFonts.inter(color: AppColors.primary),
               keyboardType: TextInputType.number,
-              onChanged: (v) =>
-                  setState(() => _selectedAmount = double.tryParse(v)),
+              onChanged: (v) {
+                final clean = v.replaceAll('.', '');
+                setState(() => _selectedAmount = double.tryParse(clean));
+              },
             ),
             const Spacer(),
             Container(
@@ -125,7 +132,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                 onPressed: _selectedAmount != null && _selectedAmount! > 0
                     ? _submit : null,
                 child: Text(_selectedAmount != null && _selectedAmount! > 0
-                    ? 'Withdraw Rp${_formatNumber(_selectedAmount!)}'
+                    ? 'Withdraw'
                     : 'Select an amount'),
               ),
             ),
@@ -143,6 +150,49 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
         userId: authState.user.id, amount: _selectedAmount!));
   }
 
-  String _formatNumber(double n) =>
-      n >= 1000 ? '${(n / 1000).toStringAsFixed(0)}K' : n.toStringAsFixed(0);
+  String _formatNumber(double n) {
+    final clean = n.toStringAsFixed(0);
+    final buffer = StringBuffer();
+    final len = clean.length;
+    for (var i = 0; i < len; i++) {
+      if (i > 0 && (len - i) % 3 == 0) {
+        buffer.write('.');
+      }
+      buffer.write(clean[i]);
+    }
+    return buffer.toString();
+  }
+}
+
+class _RupiahInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    if (newValue.text.isEmpty) {
+      return newValue.copyWith(text: '');
+    }
+
+    final String cleanText = newValue.text.replaceAll(RegExp(r'\D'), '');
+    final double? value = double.tryParse(cleanText);
+
+    if (value == null) {
+      return oldValue;
+    }
+
+    final clean = cleanText.split('.')[0];
+    final buffer = StringBuffer();
+    final len = clean.length;
+    for (var i = 0; i < len; i++) {
+      if (i > 0 && (len - i) % 3 == 0) {
+        buffer.write('.');
+      }
+      buffer.write(clean[i]);
+    }
+
+    final String formattedText = buffer.toString();
+    return TextEditingValue(
+      text: formattedText,
+      selection: TextSelection.collapsed(offset: formattedText.length),
+    );
+  }
 }

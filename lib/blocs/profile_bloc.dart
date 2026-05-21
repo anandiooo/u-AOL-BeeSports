@@ -23,6 +23,21 @@ class ProfileUpdateRequested extends ProfileEvent {
   List<Object?> get props => [profile];
 }
 
+class ProfileAvatarUploadRequested extends ProfileEvent {
+  final String userId;
+  final List<int> imageBytes;
+  final String fileName;
+  final ProfileEntity currentProfile;
+  const ProfileAvatarUploadRequested(
+    this.userId,
+    this.imageBytes,
+    this.fileName,
+    this.currentProfile,
+  );
+  @override
+  List<Object?> get props => [userId, imageBytes, fileName, currentProfile];
+}
+
 abstract class ProfileState extends Equatable {
   const ProfileState();
   @override
@@ -60,6 +75,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ProfileBloc(this._profileRepository) : super(ProfileInitial()) {
     on<ProfileLoadRequested>(_onLoad);
     on<ProfileUpdateRequested>(_onUpdate);
+    on<ProfileAvatarUploadRequested>(_onAvatarUpload);
   }
 
   Future<void> _onLoad(
@@ -89,6 +105,25 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       emit(ProfileUpdateSuccess(event.profile));
     } catch (e) {
       emit(ProfileError('Failed to update profile: ${e.toString()}'));
+    }
+  }
+
+  Future<void> _onAvatarUpload(
+    ProfileAvatarUploadRequested event,
+    Emitter<ProfileState> emit,
+  ) async {
+    emit(ProfileLoading());
+    try {
+      final avatarUrl = await _profileRepository.uploadProfileAvatar(
+        event.userId,
+        event.imageBytes,
+        event.fileName,
+      );
+      final updated = event.currentProfile.copyWith(avatarUrl: avatarUrl);
+      await _profileRepository.updateProfile(updated);
+      emit(ProfileUpdateSuccess(updated));
+    } catch (e) {
+      emit(ProfileError('Failed to upload avatar: ${e.toString()}'));
     }
   }
 }
