@@ -7,6 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:beesports/models/lobby_entity.dart';
 
 class LobbyDetailScreen extends StatelessWidget {
   final String lobbyId;
@@ -64,6 +67,10 @@ class LobbyDetailScreen extends StatelessWidget {
                 children: [
                   _buildHeader(lobby),
                   const SizedBox(height: 24),
+                  if (lobby.latitude != null && lobby.longitude != null) ...[
+                    _buildMapSection(lobby),
+                    const SizedBox(height: 24),
+                  ],
                   _buildInfoSection(lobby),
                   const SizedBox(height: 24),
                   _buildParticipantsSection(participants, lobby),
@@ -328,6 +335,56 @@ class LobbyDetailScreen extends StatelessWidget {
 
   String _formatTime(DateTime dt) =>
       '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+
+  Widget _buildMapSection(LobbyEntity lobby) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Location',
+          style: GoogleFonts.inter(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: AppColors.primary),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          height: 200,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.tersierLight),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: FlutterMap(
+            options: MapOptions(
+              initialCenter: LatLng(lobby.latitude!, lobby.longitude!),
+              initialZoom: 15.0,
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.example.beesports',
+              ),
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: LatLng(lobby.latitude!, lobby.longitude!),
+                    width: 40,
+                    height: 40,
+                    child: const Icon(
+                      Icons.location_on,
+                      color: AppColors.secondary,
+                      size: 40,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class _InfoRow extends StatelessWidget {
