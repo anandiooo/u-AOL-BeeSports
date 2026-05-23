@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:beesports/models/profile_entity.dart';
 import 'package:beesports/repos/profile_repository.dart';
 import 'package:equatable/equatable.dart';
@@ -18,9 +19,10 @@ class ProfileLoadRequested extends ProfileEvent {
 
 class ProfileUpdateRequested extends ProfileEvent {
   final ProfileEntity profile;
-  const ProfileUpdateRequested(this.profile);
+  final File? avatarFile;
+  const ProfileUpdateRequested(this.profile, {this.avatarFile});
   @override
-  List<Object?> get props => [profile];
+  List<Object?> get props => [profile, avatarFile];
 }
 
 abstract class ProfileState extends Equatable {
@@ -85,8 +87,20 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ) async {
     emit(ProfileLoading());
     try {
-      await _profileRepository.updateProfile(event.profile);
-      emit(ProfileUpdateSuccess(event.profile));
+      var updatedProfile = event.profile;
+      
+      if (event.avatarFile != null) {
+        final avatarUrl = await _profileRepository.uploadAvatar(
+          event.profile.id,
+          event.avatarFile!,
+        );
+        if (avatarUrl != null) {
+          updatedProfile = updatedProfile.copyWith(avatarUrl: avatarUrl);
+        }
+      }
+      
+      await _profileRepository.updateProfile(updatedProfile);
+      emit(ProfileUpdateSuccess(updatedProfile));
     } catch (e) {
       emit(ProfileError('Failed to update profile: ${e.toString()}'));
     }

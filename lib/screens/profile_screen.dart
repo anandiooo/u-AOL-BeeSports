@@ -96,13 +96,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Container(
                 width: 96,
                 height: 96,
-                decoration: const BoxDecoration(color: AppColors.neonGreen, shape: BoxShape.circle),
-                child: Center(
-                  child: Text(
-                    (profile.fullName ?? 'U')[0].toUpperCase(),
-                    style: GoogleFonts.bebasNeue(fontSize: 40, color: AppColors.onPrimary),
-                  ),
+                decoration: BoxDecoration(
+                  color: AppColors.neonGreen, 
+                  shape: BoxShape.circle,
+                  image: profile.avatarUrl != null 
+                      ? DecorationImage(
+                          image: NetworkImage(profile.avatarUrl!),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
                 ),
+                child: profile.avatarUrl == null 
+                    ? Center(
+                        child: Text(
+                          (profile.fullName ?? 'U').isNotEmpty ? (profile.fullName ?? 'U')[0].toUpperCase() : 'U',
+                          style: GoogleFonts.bebasNeue(fontSize: 40, color: AppColors.onPrimary),
+                        ),
+                      )
+                    : null,
               ),
             ).animate().scale(begin: const Offset(0.8, 0.8), duration: 400.ms, curve: Curves.easeOutBack),
             const SizedBox(height: 18),

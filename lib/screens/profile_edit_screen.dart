@@ -2,8 +2,10 @@ import 'package:beesports/app/app_colors.dart';
 import 'package:beesports/models/profile_entity.dart';
 import 'package:beesports/blocs/profile_bloc.dart';
 import 'package:beesports/models/skill_level.dart';
+import 'dart:io';
 import 'package:beesports/models/sport_type.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,7 +18,10 @@ class ProfileEditScreen extends StatefulWidget {
 
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final _bioController = TextEditingController();
+  final _nameController = TextEditingController();
   final Set<SportType> _selectedSports = {};
+  File? _avatarFile;
+  final _imagePicker = ImagePicker();
   final Map<SportType, SkillLevel> _skillLevels = {};
   bool _initialized = false;
   ProfileEntity? _currentProfile;
@@ -24,6 +29,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   @override
   void dispose() {
     _bioController.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
@@ -31,17 +37,28 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     if (_initialized) return;
     _initialized = true;
     _bioController.text = profile.bio;
+    _nameController.text = profile.fullName ?? '';
     _selectedSports.addAll(profile.sportPreferences);
     _skillLevels.addAll(profile.skillLevels);
   }
 
+  Future<void> _pickImage() async {
+    final pickedFile = await _imagePicker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _avatarFile = File(pickedFile.path);
+      });
+    }
+  }
+
   void _onSave(ProfileEntity current) {
     final updated = current.copyWith(
+      fullName: _nameController.text.trim(),
       bio: _bioController.text.trim(),
       sportPreferences: _selectedSports.toList(),
       skillLevels: Map.from(_skillLevels),
     );
-    context.read<ProfileBloc>().add(ProfileUpdateRequested(updated));
+    context.read<ProfileBloc>().add(ProfileUpdateRequested(updated, avatarFile: _avatarFile));
   }
 
   @override
@@ -92,34 +109,73 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
                       Center(
                         child: Column(children: [
-                          Container(
-                            width: 80,
-                            height: 80,
-                            decoration: const BoxDecoration(
-                                color: AppColors.primary,
-                                shape: BoxShape.circle),
-                            child: Center(
-                              child: Text(
-                                  (_currentProfile!.fullName ?? 'U')[0]
-                                      .toUpperCase(),
-                                  style: GoogleFonts.bebasNeue(
-                                      fontSize: 32,
-                                      color: AppColors.foursierLight)),
+                          GestureDetector(
+                            onTap: _pickImage,
+                            child: Stack(
+                              alignment: Alignment.bottomRight,
+                              children: [
+                                Container(
+                                  width: 80,
+                                  height: 80,
+                                  decoration: BoxDecoration(
+                                      color: AppColors.primary,
+                                      shape: BoxShape.circle,
+                                      image: _avatarFile != null
+                                          ? DecorationImage(
+                                              image: FileImage(_avatarFile!),
+                                              fit: BoxFit.cover,
+                                            )
+                                          : _currentProfile!.avatarUrl != null
+                                              ? DecorationImage(
+                                                  image: NetworkImage(_currentProfile!.avatarUrl!),
+                                                  fit: BoxFit.cover,
+                                                )
+                                              : null,
+                                      ),
+                                  child: (_avatarFile == null && _currentProfile!.avatarUrl == null)
+                                      ? Center(
+                                          child: Text(
+                                              (_currentProfile!.fullName ?? 'U').isNotEmpty ? (_currentProfile!.fullName ?? 'U')[0].toUpperCase() : 'U',
+                                              style: GoogleFonts.bebasNeue(
+                                                  fontSize: 32,
+                                                  color: AppColors.foursierLight)),
+                                        )
+                                      : null,
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.secondary,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.camera_alt, size: 14, color: AppColors.primary),
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 12),
-                          Text(_currentProfile!.fullName ?? 'Anonymous',
-                              style: GoogleFonts.inter(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.primary)),
-                          const SizedBox(height: 2),
                           Text(_currentProfile!.email,
                               style: GoogleFonts.inter(
                                   fontSize: 12, color: AppColors.primaryLight)),
                         ]),
                       ),
                       const SizedBox(height: 32),
+
+                      Text('Full Name',
+                          style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.primaryLight)),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _nameController,
+                        style: GoogleFonts.inter(
+                            color: AppColors.primary, fontSize: 14),
+                        decoration: InputDecoration(
+                          hintText: 'Enter your full name',
+                        ),
+                      ),
+                      const SizedBox(height: 24),
 
                       Text('Bio',
                           style: GoogleFonts.inter(

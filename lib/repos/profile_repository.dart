@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:beesports/models/profile_entity.dart';
 
 abstract class ProfileRepository {
@@ -12,4 +13,6 @@ abstract class ProfileRepository {
     required List<String> sportPreferences,
     required Map<String, String> skillLevels,
   });
+
+  Future<String?> uploadAvatar(String userId, File imageFile);
 }
