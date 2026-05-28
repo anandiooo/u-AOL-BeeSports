@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({super.key});
@@ -16,27 +17,94 @@ class ProfileEditScreen extends StatefulWidget {
 
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final _bioController = TextEditingController();
+  final _nameController = TextEditingController();
   final Set<SportType> _selectedSports = {};
   final Map<SportType, SkillLevel> _skillLevels = {};
   bool _initialized = false;
+  bool _attemptedSave = false;
   ProfileEntity? _currentProfile;
 
   @override
   void dispose() {
     _bioController.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
   void _initFromProfile(ProfileEntity profile) {
     if (_initialized) return;
     _initialized = true;
+    _nameController.text = profile.fullName ?? '';
     _bioController.text = profile.bio;
     _selectedSports.addAll(profile.sportPreferences);
     _skillLevels.addAll(profile.skillLevels);
   }
 
+  Future<void> _pickAndUploadImage() async {
+    final ImagePicker picker = ImagePicker();
+    try {
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      if (image != null && _currentProfile != null) {
+        // Read bytes from XFile (works on both web and mobile)
+        final bytes = await image.readAsBytes();
+        // Generate filename with extension
+        final extension = image.name.contains('.')
+            ? image.name.split('.').last
+            : 'jpg';
+        final fileName =
+            'profile_${DateTime.now().millisecondsSinceEpoch}.$extension';
+
+        if (mounted) {
+          context.read<ProfileBloc>().add(
+                ProfileAvatarUploadRequested(
+                  _currentProfile!.id,
+                  bytes,
+                  fileName,
+                  _currentProfile!,
+                ),
+              );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to pick image: $e'),
+            backgroundColor: AppColors.tersierDark,
+          ),
+        );
+      }
+    }
+  }
+
   void _onSave(ProfileEntity current) {
+    setState(() => _attemptedSave = true);
+
+    // Validate: every selected sport must have a skill level
+    final missingSports = _selectedSports
+        .where((sport) => !_skillLevels.containsKey(sport))
+        .toList();
+
+    if (missingSports.isNotEmpty) {
+      final names = missingSports.map((s) => s.label).join(', ');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please select a skill level for: $names',
+            style: const TextStyle(color: Colors.white),
+          ),
+          backgroundColor: AppColors.sale,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+      return;
+    }
+
     final updated = current.copyWith(
+      fullName: _nameController.text.trim().isEmpty
+          ? null
+          : _nameController.text.trim(),
       bio: _bioController.text.trim(),
       sportPreferences: _selectedSports.toList(),
       skillLevels: Map.from(_skillLevels),
@@ -92,28 +160,105 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
                       Center(
                         child: Column(children: [
-                          Container(
-                            width: 80,
-                            height: 80,
-                            decoration: const BoxDecoration(
-                                color: AppColors.primary,
-                                shape: BoxShape.circle),
-                            child: Center(
-                              child: Text(
-                                  (_currentProfile!.fullName ?? 'U')[0]
-                                      .toUpperCase(),
-                                  style: GoogleFonts.bebasNeue(
-                                      fontSize: 32,
-                                      color: AppColors.foursierLight)),
+                          GestureDetector(
+                            onTap: _pickAndUploadImage,
+                            child: Container(
+                              width: 90,
+                              height: 90,
+                              decoration: const BoxDecoration(
+                                  color: AppColors.primary,
+                                  shape: BoxShape.circle),
+                              child: Stack(
+                                children: [
+                                  ClipOval(
+                                    child: _currentProfile!.avatarUrl != null &&
+                                            _currentProfile!.avatarUrl!
+                                                .isNotEmpty
+                                        ? Image.network(
+                                            _currentProfile!.avatarUrl!,
+                                            fit: BoxFit.cover,
+                                            width: 90,
+                                            height: 90,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return Center(
+                                                child: Text(
+                                                  (_nameController.text
+                                                              .trim()
+                                                              .isEmpty
+                                                          ? _currentProfile!
+                                                                  .fullName ??
+                                                              'U'
+                                                          : _nameController.text
+                                                              .trim())[0]
+                                                      .toUpperCase(),
+                                                  style: GoogleFonts.bebasNeue(
+                                                    fontSize: 32,
+                                                    color: AppColors
+                                                        .foursierLight,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          )
+                                        : Center(
+                                            child: Text(
+                                              (_nameController.text
+                                                          .trim()
+                                                          .isEmpty
+                                                      ? _currentProfile!
+                                                              .fullName ??
+                                                          'U'
+                                                      : _nameController.text
+                                                          .trim())[0]
+                                                  .toUpperCase(),
+                                              style: GoogleFonts.bebasNeue(
+                                                fontSize: 32,
+                                                color:
+                                                    AppColors.foursierLight,
+                                              ),
+                                            ),
+                                          ),
+                                  ),
+                                  Positioned.fill(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.black.withOpacity(0.24),
+                                      ),
+                                      child: const Center(
+                                          child: Icon(
+                                            Icons.camera_alt,
+                                            color: Colors.white,
+                                            size: 24,
+                                          ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           const SizedBox(height: 12),
-                          Text(_currentProfile!.fullName ?? 'Anonymous',
+                          TextField(
+                            controller: _nameController,
+                            style: GoogleFonts.inter(
+                                color: AppColors.primary, fontSize: 16),
+                            decoration: InputDecoration(
+                              labelText: 'Display name',
+                              hintText: 'Enter your username',
+                              labelStyle: GoogleFonts.inter(
+                                  color: AppColors.primaryLight, fontSize: 12),
+                            ),
+                            onChanged: (_) => setState(() {}),
+                          ),
+                          const SizedBox(height: 8),
+                          Text('Click on the profile picture to change your avatar',
                               style: GoogleFonts.inter(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.primary)),
-                          const SizedBox(height: 2),
+                                  fontSize: 12,
+                                  color: AppColors.primaryLight,
+                                  height: 1.3)),
+                          const SizedBox(height: 12),
                           Text(_currentProfile!.email,
                               style: GoogleFonts.inter(
                                   fontSize: 12, color: AppColors.primaryLight)),
@@ -214,23 +359,44 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                 fontSize: 14, color: AppColors.primaryLight)),
                         const SizedBox(height: 18),
                         ..._selectedSports.map((sport) {
+                          final isMissing = _attemptedSave &&
+                              !_skillLevels.containsKey(sport);
                           return Container(
                             margin: const EdgeInsets.only(bottom: 12),
                             padding: const EdgeInsets.all(16),
-                            color: AppColors.secondaryLight,
+                            decoration: BoxDecoration(
+                              color: AppColors.secondaryLight,
+                              border: isMissing
+                                  ? Border.all(
+                                      color: AppColors.sale, width: 1.5)
+                                  : null,
+                            ),
                             child: Column(
                                 crossAxisAlignment:
                                     CrossAxisAlignment.start,
                                 children: [
                                   Row(children: [
                                     Icon(sport.icon,
-                                        color: AppColors.primary, size: 18),
+                                        color: isMissing
+                                            ? AppColors.sale
+                                            : AppColors.primary,
+                                        size: 18),
                                     const SizedBox(width: 8),
                                     Text(sport.label,
                                         style: GoogleFonts.inter(
                                             fontWeight: FontWeight.w500,
                                             fontSize: 14,
-                                            color: AppColors.primary)),
+                                            color: isMissing
+                                                ? AppColors.sale
+                                                : AppColors.primary)),
+                                    if (isMissing) ...[ 
+                                      const Spacer(),
+                                      Text('Required',
+                                          style: GoogleFonts.inter(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w500,
+                                              color: AppColors.sale)),
+                                    ],
                                   ]),
                                   const SizedBox(height: 12),
                                   Row(
@@ -277,6 +443,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                       ),
                                     );
                                   }).toList()),
+                                  if (isMissing) ...[
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Please select your skill level for ${sport.label}',
+                                      style: GoogleFonts.inter(
+                                          fontSize: 11,
+                                          color: AppColors.sale),
+                                    ),
+                                  ],
                                 ]),
                           );
                         }),

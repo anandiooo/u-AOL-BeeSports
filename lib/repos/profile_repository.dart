@@ -5,6 +5,12 @@ abstract class ProfileRepository {
 
   Future<void> updateProfile(ProfileEntity profile);
 
+  Future<String?> uploadProfileAvatar(
+    String userId,
+    List<int> imageBytes,
+    String fileName,
+  );
+
   Future<void> completeOnboarding({
     required String userId,
     required String nim,

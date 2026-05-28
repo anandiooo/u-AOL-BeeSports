@@ -1,6 +1,7 @@
 import 'package:beesports/app/app_colors.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:beesports/blocs/notification_bloc.dart';
+import 'package:beesports/blocs/profile_bloc.dart';
 import 'package:beesports/widgets/empty_states.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,6 +26,9 @@ class _HomeScreenState extends State<HomeScreen> {
       context
           .read<NotificationBloc>()
           .add(LoadNotifications(authState.user.id));
+      context
+          .read<ProfileBloc>()
+          .add(ProfileLoadRequested(authState.user.id));
     }
   }
 
@@ -141,20 +145,78 @@ class _HomeScreenState extends State<HomeScreen> {
                             borderRadius: BorderRadius.circular(20),
                             child: Hero(
                               tag: 'profile_avatar',
-                              child: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: const BoxDecoration(
-                                  color: AppColors.neonGreen,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.person_outline,
-                                    color: AppColors.onPrimary,
-                                    size: 22,
-                                  ),
-                                ),
+                              child: BlocBuilder<ProfileBloc, ProfileState>(
+                                builder: (context, state) {
+                                  String? avatarUrl;
+                                  String initials = 'U';
+                                  
+                                  if (state is ProfileLoaded || state is ProfileUpdateSuccess) {
+                                    final profile = state is ProfileLoaded 
+                                        ? state.profile 
+                                        : (state as ProfileUpdateSuccess).profile;
+                                    avatarUrl = profile.avatarUrl;
+                                    final name = profile.fullName ?? '';
+                                    if (name.isNotEmpty) {
+                                      initials = name
+                                          .split(' ')
+                                          .where((w) => w.isNotEmpty)
+                                          .map((w) => w[0].toUpperCase())
+                                          .join()
+                                          .substring(
+                                              0,
+                                              (name.split(' ').where((w) => w.isNotEmpty).length > 1 ? 2 : 1)
+                                                  .clamp(0, 2));
+                                    }
+                                  }
+                                  
+                                  return Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.neonGreen,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: ClipOval(
+                                      child: avatarUrl != null &&
+                                              avatarUrl.isNotEmpty
+                                          ? Image.network(
+                                              avatarUrl,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (context, error,
+                                                  stackTrace) {
+                                                return Container(
+                                                  color: AppColors.primary,
+                                                  child: Center(
+                                                    child: Text(
+                                                      initials,
+                                                      style: const TextStyle(
+                                                        color: AppColors
+                                                            .onPrimary,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            )
+                                          : Container(
+                                              color: AppColors.primary,
+                                              child: Center(
+                                                child: Text(
+                                                  initials,
+                                                  style: const TextStyle(
+                                                    color: AppColors.onPrimary,
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           ),

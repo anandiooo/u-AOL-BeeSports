@@ -147,7 +147,7 @@ class WalletRepositoryImpl implements WalletRepository {
     final wallet = await getWallet(userId);
 
     if (wallet.available < amount) {
-      throw Exception('Insufficient available balance for withdrawal.');
+      throw ('Insufficient balance.');
     }
 
     final newBalance = wallet.balance - amount;
