@@ -1,3 +1,4 @@
+import 'package:beesports/core/feedback_service.dart';
 import 'package:beesports/app/app_colors.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:beesports/blocs/wallet_bloc.dart';
@@ -16,7 +17,14 @@ class WithdrawScreen extends StatefulWidget {
 class _WithdrawScreenState extends State<WithdrawScreen> {
   final _customController = TextEditingController();
   double? _selectedAmount;
-  static const _presets = [10000.0, 25000.0, 50000.0, 100000.0, 200000.0, 500000.0];
+  static const _presets = [
+    10000.0,
+    25000.0,
+    50000.0,
+    100000.0,
+    200000.0,
+    500000.0
+  ];
 
   @override
   void dispose() {
@@ -27,37 +35,36 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.foursier,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text('Withdraw',
             style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500, color: AppColors.primary)),
-        backgroundColor: AppColors.foursier,
+                fontWeight: FontWeight.w500, color: AppColors.neonGreen)),
+        backgroundColor: AppColors.background,
         elevation: 0,
         scrolledUnderElevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.primary),
+        iconTheme: const IconThemeData(color: AppColors.neonGreen),
       ),
       body: BlocListener<WalletBloc, WalletState>(
         listener: (context, state) {
           if (state is WithdrawSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Rp${state.amount.toStringAsFixed(0)} withdrawn!'),
-                backgroundColor: AppColors.secondary));
+            FeedbackService.showSuccess(
+                context, 'Rp${state.amount.toStringAsFixed(0)} withdrawn!');
             context.pop();
           }
           if (state is WalletError) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.tersierDark));
+            FeedbackService.showError(context, state.message);
           }
         },
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('Select Amount',
                 style: GoogleFonts.inter(
-                    fontSize: 24, fontWeight: FontWeight.w500,
-                    color: AppColors.primary)),
+                    fontSize: 24,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.neonGreen)),
             const SizedBox(height: 18),
             Wrap(
               spacing: 8,
@@ -74,15 +81,17 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 14),
                     decoration: BoxDecoration(
-                      color: sel ? AppColors.primary : AppColors.foursier,
+                      color: sel ? AppColors.neonGreen : AppColors.background,
                       borderRadius: BorderRadius.circular(30),
                       border: Border.all(
-                          color: sel ? AppColors.primary : AppColors.foursierDark),
+                          color: sel ? AppColors.neonGreen : AppColors.border),
                     ),
                     child: Text('Rp${_formatNumber(amount)}',
                         style: GoogleFonts.inter(
                             fontWeight: FontWeight.w500,
-                            color: sel ? AppColors.foursierLight : AppColors.primary)),
+                            color: sel
+                                ? AppColors.onAccent
+                                : AppColors.neonGreen)),
                   ),
                 );
               }).toList(),
@@ -90,8 +99,9 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
             const SizedBox(height: 24),
             Text('Or enter custom amount',
                 style: GoogleFonts.inter(
-                    fontSize: 14, fontWeight: FontWeight.w500,
-                    color: AppColors.primaryLight)),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textSecondary)),
             const SizedBox(height: 10),
             TextFormField(
               controller: _customController,
@@ -100,9 +110,10 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                 _RupiahInputFormatter(),
               ],
               decoration: const InputDecoration(
-                  prefixText: 'Rp ', hintText: 'Enter amount',
+                  prefixText: 'Rp ',
+                  hintText: 'Enter amount',
                   prefixIcon: Icon(Icons.edit)),
-              style: GoogleFonts.inter(color: AppColors.primary),
+              style: GoogleFonts.inter(color: AppColors.neonGreen),
               keyboardType: TextInputType.number,
               onChanged: (v) {
                 final clean = v.replaceAll('.', '');
@@ -112,15 +123,16 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
             const Spacer(),
             Container(
               padding: const EdgeInsets.all(16),
-              color: AppColors.secondaryLight,
+              color: AppColors.surfaceVariant,
               child: Row(children: [
-                const Icon(Icons.info_outline, size: 18, color: AppColors.primaryLight),
+                const Icon(Icons.info_outline,
+                    size: 18, color: AppColors.textSecondary),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                       'This is a simulated withdrawal for testing. No real payout will be processed.',
                       style: GoogleFonts.inter(
-                          fontSize: 12, color: AppColors.primaryLight)),
+                          fontSize: 12, color: AppColors.textSecondary)),
                 ),
               ]),
             ),
@@ -130,7 +142,8 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
               height: 48,
               child: ElevatedButton(
                 onPressed: _selectedAmount != null && _selectedAmount! > 0
-                    ? _submit : null,
+                    ? _submit
+                    : null,
                 child: Text(_selectedAmount != null && _selectedAmount! > 0
                     ? 'Withdraw'
                     : 'Select an amount'),
@@ -146,8 +159,8 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
   void _submit() {
     final authState = context.read<AuthBloc>().state;
     if (authState is! Authenticated || _selectedAmount == null) return;
-    context.read<WalletBloc>().add(WithdrawRequested(
-        userId: authState.user.id, amount: _selectedAmount!));
+    context.read<WalletBloc>().add(
+        WithdrawRequested(userId: authState.user.id, amount: _selectedAmount!));
   }
 
   String _formatNumber(double n) {

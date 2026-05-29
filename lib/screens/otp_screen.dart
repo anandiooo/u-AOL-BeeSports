@@ -1,3 +1,4 @@
+import 'package:beesports/core/feedback_service.dart';
 import 'package:beesports/app/app_colors.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:flutter/material.dart';
@@ -60,14 +61,14 @@ class _OtpScreenState extends State<OtpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.foursier,
+      backgroundColor: AppColors.background,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
-                backgroundColor: AppColors.tersierDark,
+                backgroundColor: AppColors.error,
               ),
             );
           }
@@ -82,12 +83,12 @@ class _OtpScreenState extends State<OtpScreen> {
                   width: 64,
                   height: 64,
                   decoration: const BoxDecoration(
-                    color: AppColors.secondaryLight,
+                    color: AppColors.surfaceVariant,
                   ),
                   child: const Icon(
                     Icons.mark_email_read_outlined,
                     size: 32,
-                    color: AppColors.primary,
+                    color: AppColors.neonGreen,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -97,14 +98,14 @@ class _OtpScreenState extends State<OtpScreen> {
                     fontSize: 40,
                     fontWeight: FontWeight.w400,
                     height: 0.9,
-                    color: AppColors.primary,
+                    color: AppColors.neonGreen,
                   ),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   'Enter the 6-digit code sent to',
                   style: GoogleFonts.inter(
-                    color: AppColors.primaryLight,
+                    color: AppColors.textSecondary,
                     fontSize: 14,
                   ),
                 ),
@@ -113,7 +114,7 @@ class _OtpScreenState extends State<OtpScreen> {
                   widget.email,
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w500,
-                    color: AppColors.primary,
+                    color: AppColors.neonGreen,
                     fontSize: 14,
                   ),
                 ),
@@ -133,13 +134,13 @@ class _OtpScreenState extends State<OtpScreen> {
                         style: GoogleFonts.inter(
                           fontSize: 22,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.primary,
+                          color: AppColors.neonGreen,
                         ),
                         decoration: InputDecoration(
                           counterText: '',
                           contentPadding: EdgeInsets.zero,
                           filled: true,
-                          fillColor: AppColors.secondaryLight,
+                          fillColor: AppColors.surfaceVariant,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(0),
                             borderSide: BorderSide.none,
@@ -147,7 +148,7 @@ class _OtpScreenState extends State<OtpScreen> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(0),
                             borderSide: const BorderSide(
-                                color: AppColors.primary, width: 2),
+                                color: AppColors.neonGreen, width: 2),
                           ),
                         ),
                         inputFormatters: [
@@ -173,7 +174,7 @@ class _OtpScreenState extends State<OtpScreen> {
                                 height: 24,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: AppColors.foursierLight,
+                                  color: AppColors.onAccent,
                                 ),
                               )
                             : const Text('Verify'),
@@ -186,7 +187,7 @@ class _OtpScreenState extends State<OtpScreen> {
                   'Check your inbox and spam folder',
                   style: GoogleFonts.inter(
                     fontSize: 12,
-                    color: AppColors.primaryLight,
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ],

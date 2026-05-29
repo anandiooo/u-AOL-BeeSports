@@ -1,3 +1,4 @@
+import 'package:beesports/core/feedback_service.dart';
 import 'package:beesports/app/app_colors.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:beesports/models/lobby_participant_entity.dart';
@@ -20,23 +21,19 @@ class LobbyDetailScreen extends StatelessWidget {
     return BlocConsumer<LobbyDetailBloc, LobbyDetailState>(
       listener: (context, state) {
         if (state is LobbyActionSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(state.message),
-              backgroundColor: AppColors.secondary));
+          FeedbackService.showError(context, state.message);
         }
         if (state is LobbyDetailError) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(state.message),
-              backgroundColor: AppColors.tersierDark));
+          FeedbackService.showError(context, state.message);
         }
       },
       builder: (context, state) {
         if (state is LobbyDetailLoading) {
           return Scaffold(
-            backgroundColor: AppColors.foursier,
-            appBar: AppBar(backgroundColor: AppColors.foursier, elevation: 0),
+            backgroundColor: AppColors.background,
+            appBar: AppBar(backgroundColor: AppColors.background, elevation: 0),
             body: const Center(
-                child: CircularProgressIndicator(color: AppColors.primary)),
+                child: CircularProgressIndicator(color: AppColors.neonGreen)),
           );
         }
         if (state is LobbyDetailLoaded) {
@@ -50,15 +47,15 @@ class LobbyDetailScreen extends StatelessWidget {
               participants.any((p) => p.userId == currentUserId && p.isActive);
 
           return Scaffold(
-            backgroundColor: AppColors.foursier,
+            backgroundColor: AppColors.background,
             appBar: AppBar(
               title: Text(lobby.title,
                   style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w500, color: AppColors.primary)),
-              backgroundColor: AppColors.foursier,
+                      fontWeight: FontWeight.w500, color: AppColors.neonGreen)),
+              backgroundColor: AppColors.background,
               elevation: 0,
               scrolledUnderElevation: 0,
-              iconTheme: const IconThemeData(color: AppColors.primary),
+              iconTheme: const IconThemeData(color: AppColors.neonGreen),
             ),
             body: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -78,12 +75,13 @@ class LobbyDetailScreen extends StatelessWidget {
                   if (lobby.description.isNotEmpty) ...[
                     Text('Description',
                         style: GoogleFonts.inter(
-                            fontSize: 16, fontWeight: FontWeight.w500,
-                            color: AppColors.primary)),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.neonGreen)),
                     const SizedBox(height: 8),
                     Text(lobby.description,
                         style: GoogleFonts.inter(
-                            color: AppColors.primaryLight, height: 1.5)),
+                            color: AppColors.textSecondary, height: 1.5)),
                     const SizedBox(height: 24),
                   ],
                   _buildActions(
@@ -94,11 +92,11 @@ class LobbyDetailScreen extends StatelessWidget {
           );
         }
         return Scaffold(
-          backgroundColor: AppColors.foursier,
-          appBar: AppBar(backgroundColor: AppColors.foursier, elevation: 0),
+          backgroundColor: AppColors.background,
+          appBar: AppBar(backgroundColor: AppColors.background, elevation: 0),
           body: Center(
               child: Text('Failed to load lobby.',
-                  style: GoogleFonts.inter(color: AppColors.primary))),
+                  style: GoogleFonts.inter(color: AppColors.neonGreen))),
         );
       },
     );
@@ -107,29 +105,32 @@ class LobbyDetailScreen extends StatelessWidget {
   Widget _buildHeader(lobby) {
     final sport = lobby.sport;
     return Row(children: [
-      Icon(sport.icon, color: AppColors.primary, size: 32),
+      Icon(sport.icon, color: AppColors.neonGreen, size: 32),
       const SizedBox(width: 16),
       Expanded(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(sport.label,
               style: GoogleFonts.inter(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w500, fontSize: 14)),
+                  color: AppColors.neonGreen,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14)),
           const SizedBox(height: 2),
           Text('Hosted by ${lobby.hostName ?? 'Unknown'}',
-              style: GoogleFonts.inter(color: AppColors.primaryLight, fontSize: 14)),
+              style: GoogleFonts.inter(
+                  color: AppColors.textSecondary, fontSize: 14)),
         ]),
       ),
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: AppColors.primary,
+          color: AppColors.neonGreen,
           borderRadius: BorderRadius.circular(30),
         ),
         child: Text(lobby.status.label,
             style: GoogleFonts.inter(
-                color: AppColors.foursierLight,
-                fontWeight: FontWeight.w500, fontSize: 12)),
+                color: AppColors.onAccent,
+                fontWeight: FontWeight.w500,
+                fontSize: 12)),
       ),
     ]);
   }
@@ -137,7 +138,7 @@ class LobbyDetailScreen extends StatelessWidget {
   Widget _buildInfoSection(lobby) {
     return Container(
       padding: const EdgeInsets.all(20),
-      color: AppColors.secondaryLight,
+      color: AppColors.surfaceVariant,
       child: Column(children: [
         _InfoRow(
             icon: Icons.calendar_today,
@@ -146,14 +147,14 @@ class LobbyDetailScreen extends StatelessWidget {
                 '${_formatDate(lobby.scheduledAt)} at ${_formatTime(lobby.scheduledAt)}'),
         const Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
-            child: Divider(height: 1, color: AppColors.tersierLight)),
+            child: Divider(height: 1, color: AppColors.divider)),
         _InfoRow(
             icon: Icons.timer,
             label: 'Duration',
             value: '${lobby.durationMinutes} minutes'),
         const Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
-            child: Divider(height: 1, color: AppColors.tersierLight)),
+            child: Divider(height: 1, color: AppColors.divider)),
         _InfoRow(
             icon: Icons.people,
             label: 'Players',
@@ -162,17 +163,17 @@ class LobbyDetailScreen extends StatelessWidget {
         if (lobby.hasDeposit) ...[
           const Padding(
               padding: EdgeInsets.symmetric(vertical: 12),
-              child: Divider(height: 1, color: AppColors.tersierLight)),
+              child: Divider(height: 1, color: AppColors.divider)),
           _InfoRow(
               icon: Icons.monetization_on,
               label: 'Deposit',
               value: 'Rp${lobby.depositAmount.toStringAsFixed(0)}',
-              valueColor: AppColors.secondary),
+              valueColor: AppColors.neonGreen),
         ],
         if (lobby.minElo != null || lobby.maxElo != null) ...[
           const Padding(
               padding: EdgeInsets.symmetric(vertical: 12),
-              child: Divider(height: 1, color: AppColors.tersierLight)),
+              child: Divider(height: 1, color: AppColors.divider)),
           _InfoRow(
               icon: Icons.trending_up,
               label: 'Elo Range',
@@ -184,8 +185,10 @@ class LobbyDetailScreen extends StatelessWidget {
 
   Widget _buildParticipantsSection(
       List<LobbyParticipantEntity> participants, lobby) {
-    final teamA = participants.where((p) => p.team == 'A' && p.isActive).toList();
-    final teamB = participants.where((p) => p.team == 'B' && p.isActive).toList();
+    final teamA =
+        participants.where((p) => p.team == 'A' && p.isActive).toList();
+    final teamB =
+        participants.where((p) => p.team == 'B' && p.isActive).toList();
     final unassigned =
         participants.where((p) => p.team == null && p.isActive).toList();
 
@@ -193,11 +196,14 @@ class LobbyDetailScreen extends StatelessWidget {
       Row(children: [
         Text('Participants',
             style: GoogleFonts.inter(
-                fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.primary)),
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: AppColors.neonGreen)),
         const Spacer(),
         Text(
             '${participants.where((p) => p.isActive).length}/${lobby.maxPlayers}',
-            style: GoogleFonts.inter(fontSize: 14, color: AppColors.primaryLight)),
+            style: GoogleFonts.inter(
+                fontSize: 14, color: AppColors.textSecondary)),
       ]),
       const SizedBox(height: 12),
       if (teamA.isNotEmpty || teamB.isNotEmpty) ...[
@@ -219,7 +225,7 @@ class LobbyDetailScreen extends StatelessWidget {
           padding: const EdgeInsets.all(24),
           alignment: Alignment.center,
           child: Text('No participants yet',
-              style: GoogleFonts.inter(color: AppColors.primaryLight)),
+              style: GoogleFonts.inter(color: AppColors.textSecondary)),
         ),
     ]);
   }
@@ -248,8 +254,8 @@ class LobbyDetailScreen extends StatelessWidget {
           height: 48,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.secondaryLight,
-                foregroundColor: AppColors.secondaryDark),
+                backgroundColor: AppColors.surfaceVariant,
+                foregroundColor: AppColors.border),
             onPressed: () => _showConfirmDialog(context,
                 title: 'Leave Lobby',
                 message: 'Are you sure you want to leave?',
@@ -267,8 +273,8 @@ class LobbyDetailScreen extends StatelessWidget {
           height: 48,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.secondary,
-                foregroundColor: AppColors.foursierLight),
+                backgroundColor: AppColors.neonGreen,
+                foregroundColor: AppColors.onAccent),
             onPressed: lobby.hasMinPlayers
                 ? () => context
                     .read<LobbyDetailBloc>()
@@ -283,17 +289,17 @@ class LobbyDetailScreen extends StatelessWidget {
           height: 48,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.secondaryLight,
-                foregroundColor: AppColors.secondaryDark),
+                backgroundColor: AppColors.surfaceVariant,
+                foregroundColor: AppColors.border),
             onPressed: () => _showConfirmDialog(context,
                 title: 'Cancel Lobby',
                 message: 'Are you sure? All participants will be removed.',
                 onConfirm: () {
-                  context
-                      .read<LobbyDetailBloc>()
-                      .add(CancelLobbyRequested(lobby.id));
-                  context.pop();
-                }),
+              context
+                  .read<LobbyDetailBloc>()
+                  .add(CancelLobbyRequested(lobby.id));
+              context.pop();
+            }),
             child: const Text('Cancel Lobby'),
           ),
         ),
@@ -327,8 +333,18 @@ class LobbyDetailScreen extends StatelessWidget {
 
   String _formatDate(DateTime dt) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
     return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
   }
@@ -345,14 +361,14 @@ class LobbyDetailScreen extends StatelessWidget {
           style: GoogleFonts.inter(
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: AppColors.primary),
+              color: AppColors.neonGreen),
         ),
         const SizedBox(height: 8),
         Container(
           height: 200,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.tersierLight),
+            border: Border.all(color: AppColors.divider),
           ),
           clipBehavior: Clip.antiAlias,
           child: FlutterMap(
@@ -373,7 +389,7 @@ class LobbyDetailScreen extends StatelessWidget {
                     height: 40,
                     child: const Icon(
                       Icons.location_on,
-                      color: AppColors.secondary,
+                      color: AppColors.neonGreen,
                       size: 40,
                     ),
                   ),
@@ -393,21 +409,25 @@ class _InfoRow extends StatelessWidget {
   final String value;
   final Color? valueColor;
   const _InfoRow(
-      {required this.icon, required this.label, required this.value,
+      {required this.icon,
+      required this.label,
+      required this.value,
       this.valueColor});
 
   @override
   Widget build(BuildContext context) {
     return Row(children: [
-      Icon(icon, size: 18, color: AppColors.primaryLight),
+      Icon(icon, size: 18, color: AppColors.textSecondary),
       const SizedBox(width: 10),
-      Text(label, style: GoogleFonts.inter(color: AppColors.primaryLight, fontSize: 14)),
+      Text(label,
+          style:
+              GoogleFonts.inter(color: AppColors.textSecondary, fontSize: 14)),
       const Spacer(),
       Text(value,
           style: GoogleFonts.inter(
               fontWeight: FontWeight.w500,
               fontSize: 14,
-              color: valueColor ?? AppColors.primary)),
+              color: valueColor ?? AppColors.neonGreen)),
     ]);
   }
 }
@@ -421,7 +441,9 @@ class _TeamHeader extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 6, top: 4),
       child: Text(label,
           style: GoogleFonts.inter(
-              fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.primary)),
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: AppColors.neonGreen)),
     );
   }
 }
@@ -435,38 +457,40 @@ class _ParticipantTile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 4),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      color: AppColors.secondaryLight,
+      color: AppColors.surfaceVariant,
       child: Row(children: [
         Container(
           width: 32,
           height: 32,
           decoration: const BoxDecoration(
-              color: AppColors.primary, shape: BoxShape.circle),
+              color: AppColors.neonGreen, shape: BoxShape.circle),
           child: Center(
-            child: Text(
-                (participant.userName ?? '?')[0].toUpperCase(),
+            child: Text((participant.userName ?? '?')[0].toUpperCase(),
                 style: GoogleFonts.inter(
                     fontWeight: FontWeight.w500,
-                    color: AppColors.foursierLight, fontSize: 14)),
+                    color: AppColors.onAccent,
+                    fontSize: 14)),
           ),
         ),
         const SizedBox(width: 10),
         Expanded(
           child: Text(participant.userName ?? 'Unknown',
               style: GoogleFonts.inter(
-                  fontSize: 14, fontWeight: FontWeight.w500,
-                  color: AppColors.primary)),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.neonGreen)),
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-            color: AppColors.foursier,
+            color: AppColors.background,
             borderRadius: BorderRadius.circular(30),
           ),
           child: Text(participant.status.label,
               style: GoogleFonts.inter(
-                  fontSize: 12, fontWeight: FontWeight.w500,
-                  color: AppColors.primary)),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.neonGreen)),
         ),
       ]),
     );

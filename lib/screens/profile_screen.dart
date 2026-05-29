@@ -50,27 +50,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile', style: GoogleFonts.inter(fontWeight: FontWeight.w500)),
+        title: Text('Profile',
+            style: GoogleFonts.inter(fontWeight: FontWeight.w500)),
         actions: [
-          IconButton(icon: const Icon(Icons.edit_outlined), onPressed: () => context.push('/profile/edit')),
-          IconButton(icon: const Icon(Icons.logout, color: AppColors.accentOrange), onPressed: _handleLogout),
+          IconButton(
+              icon: const Icon(Icons.edit_outlined),
+              onPressed: () => context.push('/profile/edit')),
+          IconButton(
+              icon: const Icon(Icons.logout, color: AppColors.accentOrange),
+              onPressed: _handleLogout),
         ],
       ),
       body: BlocBuilder<ProfileBloc, ProfileState>(
         builder: (context, state) {
           if (state is ProfileLoading) return const ShimmerProfileHeader();
           if (state is ProfileLoaded) return _buildProfile(state.profile);
-          if (state is ProfileUpdateSuccess) return _buildProfile(state.profile);
+          if (state is ProfileUpdateSuccess)
+            return _buildProfile(state.profile);
           if (state is ProfileError) {
             return Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.error_outline, size: 48, color: AppColors.mute),
+                  const Icon(Icons.error_outline,
+                      size: 48, color: AppColors.mute),
                   const SizedBox(height: 16),
                   Text(state.message),
                   const SizedBox(height: 24),
-                  ElevatedButton(onPressed: _loadProfile, child: const Text('Retry')),
+                  ElevatedButton(
+                      onPressed: _loadProfile, child: const Text('Retry')),
                 ],
               ),
             );
@@ -86,7 +94,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       color: AppColors.neonGreen,
       onRefresh: () async => _loadProfile(),
       child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics()),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -96,36 +105,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Container(
                 width: 96,
                 height: 96,
-                decoration: const BoxDecoration(color: AppColors.neonGreen, shape: BoxShape.circle),
+                decoration: const BoxDecoration(
+                    color: AppColors.neonGreen, shape: BoxShape.circle),
                 child: ClipOval(
-                  child: profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty
-                      ? Image.network(
-                          profile.avatarUrl!,
-                          fit: BoxFit.cover,
-                          width: 96,
-                          height: 96,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Center(
+                  child:
+                      profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty
+                          ? Image.network(
+                              profile.avatarUrl!,
+                              fit: BoxFit.cover,
+                              width: 96,
+                              height: 96,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Center(
+                                  child: Text(
+                                    (profile.fullName ?? 'U')[0].toUpperCase(),
+                                    style: GoogleFonts.bebasNeue(
+                                        fontSize: 40,
+                                        color: AppColors.onPrimary),
+                                  ),
+                                );
+                              },
+                            )
+                          : Center(
                               child: Text(
                                 (profile.fullName ?? 'U')[0].toUpperCase(),
-                                style: GoogleFonts.bebasNeue(fontSize: 40, color: AppColors.onPrimary),
+                                style: GoogleFonts.bebasNeue(
+                                    fontSize: 40, color: AppColors.onPrimary),
                               ),
-                            );
-                          },
-                        )
-                      : Center(
-                          child: Text(
-                            (profile.fullName ?? 'U')[0].toUpperCase(),
-                            style: GoogleFonts.bebasNeue(fontSize: 40, color: AppColors.onPrimary),
-                          ),
-                        ),
+                            ),
                 ),
               ),
-            ).animate().scale(begin: const Offset(0.8, 0.8), duration: 400.ms, curve: Curves.easeOutBack),
+            ).animate().scale(
+                begin: const Offset(0.8, 0.8),
+                duration: 400.ms,
+                curve: Curves.easeOutBack),
             const SizedBox(height: 18),
             Text(
               profile.fullName ?? 'Unknown',
-              style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w500, color: AppColors.charcoal),
+              style: GoogleFonts.inter(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.charcoal),
             ).animate().fadeIn(delay: 100.ms, duration: 350.ms),
             const SizedBox(height: 4),
             Text(
@@ -135,12 +155,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
             if (profile.bio.isNotEmpty) ...[
               const SizedBox(height: 18),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                decoration: BoxDecoration(color: AppColors.softCloud, borderRadius: BorderRadius.circular(16)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                decoration: BoxDecoration(
+                    color: AppColors.softCloud,
+                    borderRadius: BorderRadius.circular(16)),
                 child: Text(
                   profile.bio,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(color: AppColors.charcoal, fontSize: 14, height: 1.5, fontStyle: FontStyle.italic),
+                  style: GoogleFonts.inter(
+                      color: AppColors.charcoal,
+                      fontSize: 14,
+                      height: 1.5,
+                      fontStyle: FontStyle.italic),
                 ),
               ).animate().fadeIn(delay: 200.ms, duration: 350.ms),
             ],
@@ -150,43 +177,70 @@ class _ProfileScreenState extends State<ProfileScreen> {
               spacing: 8,
               runSpacing: 8,
               children: [
-                _InfoPill(icon: Icons.badge_outlined, label: profile.nim ?? 'N/A'),
-                _InfoPill(icon: Icons.location_on_outlined, label: profile.campus ?? 'Unknown'),
-                _InfoPill(icon: Icons.shield_outlined, label: profile.role.toUpperCase()),
+                _InfoPill(
+                    icon: Icons.badge_outlined, label: profile.nim ?? 'N/A'),
+                _InfoPill(
+                    icon: Icons.location_on_outlined,
+                    label: profile.campus ?? 'Unknown'),
+                _InfoPill(
+                    icon: Icons.shield_outlined,
+                    label: profile.role.toUpperCase()),
               ],
             ).animate().fadeIn(delay: 250.ms, duration: 350.ms),
             const SizedBox(height: 48),
             Align(
               alignment: Alignment.centerLeft,
-              child: Text('Statistics', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w500, color: AppColors.charcoal)),
+              child: Text('Statistics',
+                  style: GoogleFonts.inter(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.charcoal)),
             ).animate().fadeIn(delay: 300.ms, duration: 350.ms),
             const SizedBox(height: 18),
             Row(
               children: [
-                _StatCard(label: 'Elo Rating', value: profile.eloRating.toString(), icon: Icons.trending_up),
+                _StatCard(
+                    label: 'Elo Rating',
+                    value: profile.eloRating.toString(),
+                    icon: Icons.trending_up),
                 const SizedBox(width: 8),
-                _StatCard(label: 'Reliability', value: '${profile.reliabilityScore}%', icon: Icons.verified_outlined),
+                _StatCard(
+                    label: 'Reliability',
+                    value: '${profile.reliabilityScore}%',
+                    icon: Icons.verified_outlined),
               ],
-            )
-                .animate()
-                .fadeIn(delay: 350.ms, duration: 350.ms)
-                .slideY(begin: 0.05, delay: 350.ms, duration: 350.ms, curve: Curves.easeOutCubic),
+            ).animate().fadeIn(delay: 350.ms, duration: 350.ms).slideY(
+                begin: 0.05,
+                delay: 350.ms,
+                duration: 350.ms,
+                curve: Curves.easeOutCubic),
             const SizedBox(height: 8),
             Row(
               children: [
-                _StatCard(label: 'Matches', value: profile.matchesPlayed.toString(), icon: Icons.sports_esports_outlined),
+                _StatCard(
+                    label: 'Matches',
+                    value: profile.matchesPlayed.toString(),
+                    icon: Icons.sports_esports_outlined),
                 const SizedBox(width: 8),
-                _StatCard(label: 'Win Rate', value: '${profile.winRate.toStringAsFixed(0)}%', icon: Icons.emoji_events_outlined),
+                _StatCard(
+                    label: 'Win Rate',
+                    value: '${profile.winRate.toStringAsFixed(0)}%',
+                    icon: Icons.emoji_events_outlined),
               ],
-            )
-                .animate()
-                .fadeIn(delay: 400.ms, duration: 350.ms)
-                .slideY(begin: 0.05, delay: 400.ms, duration: 350.ms, curve: Curves.easeOutCubic),
+            ).animate().fadeIn(delay: 400.ms, duration: 350.ms).slideY(
+                begin: 0.05,
+                delay: 400.ms,
+                duration: 350.ms,
+                curve: Curves.easeOutCubic),
             const SizedBox(height: 48),
             if (profile.sportPreferences.isNotEmpty) ...[
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text('Sports & Skills', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w500, color: AppColors.charcoal)),
+                child: Text('Sports & Skills',
+                    style: GoogleFonts.inter(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.charcoal)),
               ).animate().fadeIn(delay: 450.ms, duration: 350.ms),
               const SizedBox(height: 18),
               ...profile.sportPreferences.asMap().entries.map((entry) {
@@ -195,26 +249,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 final level = profile.skillLevels[sport];
                 return Container(
                   margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  decoration: BoxDecoration(color: AppColors.softCloud, borderRadius: BorderRadius.circular(16)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  decoration: BoxDecoration(
+                      color: AppColors.softCloud,
+                      borderRadius: BorderRadius.circular(16)),
                   child: Row(
                     children: [
                       Icon(sport.icon, color: AppColors.neonGreen, size: 22),
                       const SizedBox(width: 14),
-                      Text(sport.label, style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 16, color: AppColors.charcoal)),
+                      Text(sport.label,
+                          style: GoogleFonts.inter(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                              color: AppColors.charcoal)),
                       const Spacer(),
                       if (level != null)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(color: AppColors.neonGreen, borderRadius: BorderRadius.circular(30)),
-                          child: Text('${level.emoji} ${level.label}', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.onPrimary)),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                              color: AppColors.neonGreen,
+                              borderRadius: BorderRadius.circular(30)),
+                          child: Text('${level.emoji} ${level.label}',
+                              style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.onPrimary)),
                         ),
                     ],
                   ),
                 )
                     .animate()
-                    .fadeIn(delay: (500 + 60 * index).ms, duration: 350.ms, curve: Curves.easeOutCubic)
-                    .slideX(begin: 0.05, delay: (500 + 60 * index).ms, duration: 350.ms, curve: Curves.easeOutCubic);
+                    .fadeIn(
+                        delay: (500 + 60 * index).ms,
+                        duration: 350.ms,
+                        curve: Curves.easeOutCubic)
+                    .slideX(
+                        begin: 0.05,
+                        delay: (500 + 60 * index).ms,
+                        duration: 350.ms,
+                        curve: Curves.easeOutCubic);
               }),
             ],
           ],
@@ -234,13 +309,19 @@ class _InfoPill extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(30), border: Border.all(color: AppColors.hairline)),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: AppColors.hairline)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 16, color: AppColors.mute),
           const SizedBox(width: 8),
-          Text(label, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.charcoal)),
+          Text(label,
+              style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.charcoal)),
         ],
       ),
     );
@@ -252,22 +333,34 @@ class _StatCard extends StatelessWidget {
   final String value;
   final IconData icon;
 
-  const _StatCard({required this.label, required this.value, required this.icon});
+  const _StatCard(
+      {required this.label, required this.value, required this.icon});
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(color: AppColors.softCloud, borderRadius: BorderRadius.circular(16)),
+        decoration: BoxDecoration(
+            color: AppColors.softCloud,
+            borderRadius: BorderRadius.circular(16)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(icon, color: AppColors.neonGreen, size: 22),
             const SizedBox(height: 18),
-            Text(value, style: GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.w500, color: AppColors.charcoal, height: 1.2)),
+            Text(value,
+                style: GoogleFonts.inter(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.charcoal,
+                    height: 1.2)),
             const SizedBox(height: 4),
-            Text(label, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.mute)),
+            Text(label,
+                style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.mute)),
           ],
         ),
       ),

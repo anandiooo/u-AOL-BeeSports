@@ -30,8 +30,7 @@ enum TransactionType {
   }
 
   bool get isCredit =>
-      this == TransactionType.topUp ||
-      this == TransactionType.depositRelease;
+      this == TransactionType.topUp || this == TransactionType.depositRelease;
 
   static TransactionType? fromString(String value) {
     switch (value) {

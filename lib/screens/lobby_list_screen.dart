@@ -21,6 +21,13 @@ class LobbyListScreen extends StatefulWidget {
 class _LobbyListScreenState extends State<LobbyListScreen> {
   SportType? _selectedSport;
   String _sortBy = 'time';
+  final _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -33,7 +40,9 @@ class _LobbyListScreenState extends State<LobbyListScreen> {
             (s) => s.name.toLowerCase() == sportParam.toLowerCase(),
           );
           setState(() => _selectedSport = sport);
-          context.read<LobbyListBloc>().add(LoadLobbies(sport: sport, sortBy: _sortBy));
+          context
+              .read<LobbyListBloc>()
+              .add(LoadLobbies(sport: sport, sortBy: _sortBy));
         } catch (_) {
           context.read<LobbyListBloc>().add(LoadLobbies(sortBy: _sortBy));
         }
@@ -46,14 +55,18 @@ class _LobbyListScreenState extends State<LobbyListScreen> {
   void _onSportFilter(SportType? sport) {
     HapticFeedback.selectionClick();
     setState(() => _selectedSport = sport);
-    context.read<LobbyListBloc>().add(LoadLobbies(sport: sport, sortBy: _sortBy));
+    context
+        .read<LobbyListBloc>()
+        .add(LoadLobbies(sport: sport, sortBy: _sortBy));
   }
 
   void _onSortChanged(String? value) {
     if (value == null) return;
     HapticFeedback.selectionClick();
     setState(() => _sortBy = value);
-    context.read<LobbyListBloc>().add(LoadLobbies(sport: _selectedSport, sortBy: value));
+    context
+        .read<LobbyListBloc>()
+        .add(LoadLobbies(sport: _selectedSport, sortBy: value));
   }
 
   @override
@@ -67,23 +80,80 @@ class _LobbyListScreenState extends State<LobbyListScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Explore Lobbies', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w500, color: AppColors.charcoal)),
+                  Text('Explore Lobbies',
+                      style: GoogleFonts.inter(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.charcoal)),
                   Container(
                     width: 40,
                     height: 40,
-                    decoration: const BoxDecoration(color: AppColors.softCloud, shape: BoxShape.circle),
+                    decoration: const BoxDecoration(
+                        color: AppColors.softCloud, shape: BoxShape.circle),
                     child: PopupMenuButton<String>(
-                      icon: const Icon(Icons.sort_rounded, color: AppColors.neonGreen, size: 20),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                      icon: const Icon(Icons.sort_rounded,
+                          color: AppColors.neonGreen, size: 20),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24)),
                       onSelected: _onSortChanged,
                       itemBuilder: (_) => [
-                        PopupMenuItem(value: 'time', child: Text('Next Upcoming', style: GoogleFonts.inter(fontWeight: FontWeight.w500))),
-                        PopupMenuItem(value: 'slots', child: Text('Most Available Slots', style: GoogleFonts.inter(fontWeight: FontWeight.w500))),
-                        PopupMenuItem(value: 'newest', child: Text('Newly Created', style: GoogleFonts.inter(fontWeight: FontWeight.w500))),
+                        PopupMenuItem(
+                            value: 'time',
+                            child: Text('Next Upcoming',
+                                style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w500))),
+                        PopupMenuItem(
+                            value: 'slots',
+                            child: Text('Most Available Slots',
+                                style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w500))),
+                        PopupMenuItem(
+                            value: 'newest',
+                            child: Text('Newly Created',
+                                style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w500))),
                       ],
                     ),
                   ),
                 ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              child: TextField(
+                controller: _searchController,
+                onChanged: (value) {
+                  context.read<LobbyListBloc>().add(SearchLobbies(
+                        value,
+                        sport: _selectedSport,
+                        sortBy: _sortBy,
+                      ));
+                },
+                style:
+                    GoogleFonts.inter(fontSize: 14, color: AppColors.charcoal),
+                decoration: InputDecoration(
+                  hintText: 'Search by title or description...',
+                  hintStyle:
+                      GoogleFonts.inter(fontSize: 14, color: AppColors.mute),
+                  prefixIcon: const Icon(Icons.search_rounded,
+                      color: AppColors.mute, size: 20),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: const BorderSide(color: AppColors.hairline),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: const BorderSide(color: AppColors.hairline),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: const BorderSide(color: AppColors.neonGreen),
+                  ),
+                  fillColor: AppColors.softCloud,
+                  filled: true,
+                ),
               ),
             ),
             Container(
@@ -94,11 +164,17 @@ class _LobbyListScreenState extends State<LobbyListScreen> {
                 physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 children: [
-                  _FilterChip(label: 'All Sports', selected: _selectedSport == null, onTap: () => _onSportFilter(null)),
+                  _FilterChip(
+                      label: 'All Sports',
+                      selected: _selectedSport == null,
+                      onTap: () => _onSportFilter(null)),
                   const SizedBox(width: 8),
                   ...SportType.values.map((sport) => Padding(
                         padding: const EdgeInsets.only(right: 8),
-                        child: _FilterChip(label: sport.label, selected: _selectedSport == sport, onTap: () => _onSportFilter(sport)),
+                        child: _FilterChip(
+                            label: sport.label,
+                            selected: _selectedSport == sport,
+                            onTap: () => _onSportFilter(sport)),
                       )),
                 ],
               ),
@@ -117,14 +193,20 @@ class _LobbyListScreenState extends State<LobbyListScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.error_outline_rounded, size: 48, color: AppColors.mute),
+                          const Icon(Icons.error_outline_rounded,
+                              size: 48, color: AppColors.mute),
                           const SizedBox(height: 18),
-                          Text(state.message, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500)),
+                          Text(state.message,
+                              style: GoogleFonts.inter(
+                                  fontSize: 16, fontWeight: FontWeight.w500)),
                           const SizedBox(height: 24),
                           SizedBox(
                             height: 48,
                             child: ElevatedButton(
-                              onPressed: () => context.read<LobbyListBloc>().add(LoadLobbies(sport: _selectedSport, sortBy: _sortBy)),
+                              onPressed: () => context
+                                  .read<LobbyListBloc>()
+                                  .add(LoadLobbies(
+                                      sport: _selectedSport, sortBy: _sortBy)),
                               child: const Text('Retry'),
                             ),
                           ),
@@ -134,21 +216,34 @@ class _LobbyListScreenState extends State<LobbyListScreen> {
                   }
                   if (state is LobbyListLoaded) {
                     if (state.lobbies.isEmpty) {
-                      return EmptyLobbies(sportLabel: _selectedSport?.label, onCreateTap: () => context.push('/lobbies/create'));
+                      return EmptyLobbies(
+                          sportLabel: _selectedSport?.label,
+                          onCreateTap: () => context.push('/lobbies/create'));
                     }
                     return RefreshIndicator(
                       color: AppColors.neonGreen,
                       onRefresh: () async {
-                        context.read<LobbyListBloc>().add(LoadLobbies(sport: _selectedSport, sortBy: _sortBy));
+                        context.read<LobbyListBloc>().add(LoadLobbies(
+                            sport: _selectedSport, sortBy: _sortBy));
                       },
                       child: ListView.builder(
-                        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-                        padding: const EdgeInsets.only(left: 24, right: 24, top: 8, bottom: 100),
+                        physics: const AlwaysScrollableScrollPhysics(
+                            parent: BouncingScrollPhysics()),
+                        padding: const EdgeInsets.only(
+                            left: 24, right: 24, top: 8, bottom: 100),
                         itemCount: state.lobbies.length,
-                        itemBuilder: (context, index) => _LobbyCard(lobby: state.lobbies[index])
-                            .animate()
-                            .fadeIn(delay: (60 * index).ms, duration: 350.ms, curve: Curves.easeOutCubic)
-                            .slideX(begin: 0.05, delay: (60 * index).ms, duration: 350.ms, curve: Curves.easeOutCubic),
+                        itemBuilder: (context, index) =>
+                            _LobbyCard(lobby: state.lobbies[index])
+                                .animate()
+                                .fadeIn(
+                                    delay: (60 * index).ms,
+                                    duration: 350.ms,
+                                    curve: Curves.easeOutCubic)
+                                .slideX(
+                                    begin: 0.05,
+                                    delay: (60 * index).ms,
+                                    duration: 350.ms,
+                                    curve: Curves.easeOutCubic),
                       ),
                     );
                   }
@@ -165,7 +260,9 @@ class _LobbyListScreenState extends State<LobbyListScreen> {
           context.push('/lobbies/create');
         },
         icon: const Icon(Icons.add_rounded, size: 20),
-        label: Text('New Lobby', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500)),
+        label: Text('New Lobby',
+            style:
+                GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500)),
       ),
     );
   }
@@ -176,7 +273,8 @@ class _FilterChip extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
-  const _FilterChip({required this.label, required this.selected, required this.onTap});
+  const _FilterChip(
+      {required this.label, required this.selected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -192,11 +290,15 @@ class _FilterChip extends StatelessWidget {
           decoration: BoxDecoration(
             color: selected ? AppColors.neonGreen : AppColors.canvas,
             borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: selected ? AppColors.neonGreen : AppColors.hairline),
+            border: Border.all(
+                color: selected ? AppColors.neonGreen : AppColors.hairline),
           ),
           child: Text(
             label,
-            style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w500, color: selected ? AppColors.onPrimary : AppColors.charcoal),
+            style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: selected ? AppColors.onPrimary : AppColors.charcoal),
           ),
         ),
       ),
@@ -229,7 +331,8 @@ class _LobbyCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.softCloud,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.hairline.withValues(alpha: 0.5)),
+            border:
+                Border.all(color: AppColors.hairline.withValues(alpha: 0.5)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,7 +351,10 @@ class _LobbyCard extends StatelessWidget {
                             color: Colors.transparent,
                             child: Text(
                               lobby.title,
-                              style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.charcoal),
+                              style: GoogleFonts.inter(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.charcoal),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -257,15 +363,25 @@ class _LobbyCard extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           'Hosted by ${lobby.hostName ?? 'Unknown'}',
-                          style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.mute),
+                          style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.mute),
                         ),
                       ],
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(color: AppColors.canvas, borderRadius: BorderRadius.circular(30)),
-                    child: Text(lobby.status.label, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.neonGreen)),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                        color: AppColors.canvas,
+                        borderRadius: BorderRadius.circular(30)),
+                    child: Text(lobby.status.label,
+                        style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.neonGreen)),
                   ),
                 ],
               ),
@@ -274,12 +390,21 @@ class _LobbyCard extends StatelessWidget {
               const SizedBox(height: 14),
               Row(
                 children: [
-                  _InfoChip(icon: Icons.calendar_today_rounded, text: '$dateStr · $timeStr'),
+                  _InfoChip(
+                      icon: Icons.calendar_today_rounded,
+                      text: '$dateStr · $timeStr'),
                   const Spacer(),
-                  _InfoChip(icon: Icons.group_outlined, text: '${lobby.currentPlayers}/${lobby.maxPlayers}', isBold: true),
+                  _InfoChip(
+                      icon: Icons.group_outlined,
+                      text: '${lobby.currentPlayers}/${lobby.maxPlayers}',
+                      isBold: true),
                   if (lobby.hasDeposit) ...[
                     const SizedBox(width: 12),
-                    _InfoChip(icon: Icons.monetization_on_outlined, text: 'Rp${lobby.depositAmount.toStringAsFixed(0)}', color: AppColors.neonGreen, isBold: true),
+                    _InfoChip(
+                        icon: Icons.monetization_on_outlined,
+                        text: 'Rp${lobby.depositAmount.toStringAsFixed(0)}',
+                        color: AppColors.neonGreen,
+                        isBold: true),
                   ],
                 ],
               ),
@@ -294,7 +419,8 @@ class _LobbyCard extends StatelessWidget {
     final now = DateTime.now();
     final diff = dt.difference(now);
     if (diff.inDays == 0 && dt.day == now.day) return 'Today';
-    if (diff.inDays == 1 || (diff.inDays == 0 && dt.day == now.day + 1)) return 'Tomorrow';
+    if (diff.inDays == 1 || (diff.inDays == 0 && dt.day == now.day + 1))
+      return 'Tomorrow';
     return '${dt.day}/${dt.month}';
   }
 
@@ -309,7 +435,11 @@ class _InfoChip extends StatelessWidget {
   final Color? color;
   final bool isBold;
 
-  const _InfoChip({required this.icon, required this.text, this.color, this.isBold = false});
+  const _InfoChip(
+      {required this.icon,
+      required this.text,
+      this.color,
+      this.isBold = false});
 
   @override
   Widget build(BuildContext context) {
@@ -319,7 +449,11 @@ class _InfoChip extends StatelessWidget {
       children: [
         Icon(icon, size: 16, color: c),
         const SizedBox(width: 6),
-        Text(text, style: GoogleFonts.inter(fontSize: 14, color: c, fontWeight: isBold ? FontWeight.w500 : FontWeight.w400)),
+        Text(text,
+            style: GoogleFonts.inter(
+                fontSize: 14,
+                color: c,
+                fontWeight: isBold ? FontWeight.w500 : FontWeight.w400)),
       ],
     );
   }

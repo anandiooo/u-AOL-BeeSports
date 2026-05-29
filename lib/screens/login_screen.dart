@@ -1,3 +1,4 @@
+import 'package:beesports/core/feedback_service.dart';
 import 'package:beesports/app/app_colors.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:flutter/material.dart';
@@ -55,16 +56,11 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.foursier,
+      backgroundColor: AppColors.background,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.tersierDark,
-              ),
-            );
+            FeedbackService.showError(context, state.message);
           }
         },
         child: SafeArea(
@@ -105,17 +101,16 @@ class _LoginScreenState extends State<LoginScreen>
   Widget _buildLogo() {
     return Column(
       children: [
-
         Container(
           width: 72,
           height: 72,
           decoration: const BoxDecoration(
-            color: AppColors.primary,
+            color: AppColors.neonGreen,
           ),
           child: const Icon(
             Icons.sports_soccer,
             size: 36,
-            color: AppColors.foursierLight,
+            color: AppColors.onAccent,
           ),
         ),
         const SizedBox(height: 18),
@@ -125,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen>
             fontSize: 48,
             fontWeight: FontWeight.w400,
             height: 0.9,
-            color: AppColors.primary,
+            color: AppColors.neonGreen,
           ),
         ),
         const SizedBox(height: 8),
@@ -133,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen>
           'Match. Play. Win.',
           style: GoogleFonts.inter(
             fontSize: 14,
-            color: AppColors.primaryLight,
+            color: AppColors.textSecondary,
             letterSpacing: 2,
             fontWeight: FontWeight.w500,
           ),
@@ -146,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen>
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
-      style: GoogleFonts.inter(color: AppColors.primary),
+      style: GoogleFonts.inter(color: AppColors.neonGreen),
       decoration: const InputDecoration(
         hintText: 'BINUS Email (@binus.ac.id)',
         prefixIcon: Icon(Icons.email_outlined),
@@ -165,7 +160,7 @@ class _LoginScreenState extends State<LoginScreen>
     return TextFormField(
       controller: _passwordController,
       obscureText: _obscurePassword,
-      style: GoogleFonts.inter(color: AppColors.primary),
+      style: GoogleFonts.inter(color: AppColors.neonGreen),
       decoration: InputDecoration(
         hintText: 'Password',
         prefixIcon: const Icon(Icons.lock_outlined),
@@ -199,7 +194,7 @@ class _LoginScreenState extends State<LoginScreen>
                     height: 24,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: AppColors.foursierLight,
+                      color: AppColors.onAccent,
                     ),
                   )
                 : const Text('Sign In'),
@@ -215,14 +210,14 @@ class _LoginScreenState extends State<LoginScreen>
       children: [
         Text(
           "Don't have an account? ",
-          style: GoogleFonts.inter(color: AppColors.primaryLight),
+          style: GoogleFonts.inter(color: AppColors.textSecondary),
         ),
         GestureDetector(
           onTap: widget.onNavigateToRegister,
           child: Text(
             'Register',
             style: GoogleFonts.inter(
-              color: AppColors.primary,
+              color: AppColors.neonGreen,
               fontWeight: FontWeight.w500,
               decoration: TextDecoration.underline,
             ),

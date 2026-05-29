@@ -26,9 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context
           .read<NotificationBloc>()
           .add(LoadNotifications(authState.user.id));
-      context
-          .read<ProfileBloc>()
-          .add(ProfileLoadRequested(authState.user.id));
+      context.read<ProfileBloc>().add(ProfileLoadRequested(authState.user.id));
     }
   }
 
@@ -149,11 +147,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                 builder: (context, state) {
                                   String? avatarUrl;
                                   String initials = 'U';
-                                  
-                                  if (state is ProfileLoaded || state is ProfileUpdateSuccess) {
-                                    final profile = state is ProfileLoaded 
-                                        ? state.profile 
-                                        : (state as ProfileUpdateSuccess).profile;
+
+                                  if (state is ProfileLoaded ||
+                                      state is ProfileUpdateSuccess) {
+                                    final profile = state is ProfileLoaded
+                                        ? state.profile
+                                        : (state as ProfileUpdateSuccess)
+                                            .profile;
                                     avatarUrl = profile.avatarUrl;
                                     final name = profile.fullName ?? '';
                                     if (name.isNotEmpty) {
@@ -164,11 +164,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                           .join()
                                           .substring(
                                               0,
-                                              (name.split(' ').where((w) => w.isNotEmpty).length > 1 ? 2 : 1)
+                                              (name
+                                                              .split(' ')
+                                                              .where((w) =>
+                                                                  w.isNotEmpty)
+                                                              .length >
+                                                          1
+                                                      ? 2
+                                                      : 1)
                                                   .clamp(0, 2));
                                     }
                                   }
-                                  
+
                                   return Container(
                                     width: 40,
                                     height: 40,
@@ -182,16 +189,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ? Image.network(
                                               avatarUrl,
                                               fit: BoxFit.cover,
-                                              errorBuilder: (context, error,
-                                                  stackTrace) {
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
                                                 return Container(
-                                                  color: AppColors.primary,
+                                                  color: AppColors.neonGreen,
                                                   child: Center(
                                                     child: Text(
                                                       initials,
                                                       style: const TextStyle(
-                                                        color: AppColors
-                                                            .onPrimary,
+                                                        color:
+                                                            AppColors.onPrimary,
                                                         fontWeight:
                                                             FontWeight.w600,
                                                         fontSize: 14,
@@ -202,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               },
                                             )
                                           : Container(
-                                              color: AppColors.primary,
+                                              color: AppColors.neonGreen,
                                               child: Center(
                                                 child: Text(
                                                   initials,

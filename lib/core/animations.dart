@@ -16,8 +16,7 @@ class AppAnimations {
   static const Curve bouncyCurve = Curves.elasticOut;
   static const Curve enterCurve = Curves.easeOutCubic;
 
-  static Duration staggerFor(int index) =>
-      Duration(milliseconds: 60 * index);
+  static Duration staggerFor(int index) => Duration(milliseconds: 60 * index);
 
   static Duration staggerCapped(int index) =>
       Duration(milliseconds: 60 * index.clamp(0, 10));

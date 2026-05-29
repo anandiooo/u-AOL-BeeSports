@@ -47,15 +47,18 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
     Emitter<LeaderboardState> emit,
   ) async {
     emit(LeaderboardLoading());
-    try {
-      final entries = await _repository.getLeaderboard(
-        event.sport,
-        campus: event.campus,
-      );
-      emit(LeaderboardLoaded(entries, event.sport, campus: event.campus));
-    } catch (e) {
-      emit(LeaderboardError(e.toString()));
-    }
+    final result = await _repository.getLeaderboard(
+      event.sport,
+      campus: event.campus,
+    );
+    result.when(
+      success: (entries) {
+        emit(LeaderboardLoaded(entries, event.sport, campus: event.campus));
+      },
+      failure: (f) {
+        emit(LeaderboardError(f.message));
+      },
+    );
   }
 
   Future<void> _onChangeSport(

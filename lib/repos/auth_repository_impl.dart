@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:beesports/models/user_entity.dart';
 import 'package:beesports/repos/auth_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:beesports/core/result.dart';
+import 'package:beesports/core/error_mapper.dart';
+import 'package:beesports/core/retry_helper.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final SupabaseClient _client;
@@ -19,13 +22,13 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> signUp({
+  Future<Result<void>> signUp({
     required String email,
     required String password,
     required String fullName,
   }) async {
-    _validateDomain(email);
-    try {
+    return withRetry(() async {
+      _validateDomain(email);
       final response = await _client.auth.signUp(
         email: email,
         password: password,
@@ -34,7 +37,6 @@ class AuthRepositoryImpl implements AuthRepository {
 
       final user = response.user;
       if (user != null) {
-
         final userEntity = UserEntity(
           id: user.id,
           email: user.email ?? email,
@@ -50,92 +52,98 @@ class AuthRepositoryImpl implements AuthRepository {
           });
         } catch (_) {}
       }
-    } catch (e, st) {
-      print('AuthRepositoryImpl.signUp error: $e');
-      print('$st');
-      throw AuthException(e.toString());
-    }
+    });
   }
 
   @override
-  Future<UserEntity> verifyOtp({
+  Future<Result<UserEntity>> verifyOtp({
     required String email,
     required String token,
   }) async {
-    final response = await _client.auth.verifyOTP(
-      email: email,
-      token: token,
-      type: OtpType.signup,
-    );
+    return withRetry(() async {
+      final response = await _client.auth.verifyOTP(
+        email: email,
+        token: token,
+        type: OtpType.signup,
+      );
 
-    final user = response.user;
-    if (user == null) {
-      throw const AuthException('OTP verification failed.');
-    }
+      final user = response.user;
+      if (user == null) {
+        throw const AuthException('OTP verification failed.');
+      }
 
-    final userEntity = UserEntity(
-      id: user.id,
-      email: user.email ?? email,
-      fullName: user.userMetadata?['full_name'] as String?,
-    );
+      final userEntity = UserEntity(
+        id: user.id,
+        email: user.email ?? email,
+        fullName: user.userMetadata?['full_name'] as String?,
+      );
 
-    await _upsertProfile(userEntity);
-    return userEntity;
+      await _upsertProfile(userEntity);
+      return userEntity;
+    });
   }
 
   @override
-  Future<UserEntity> signIn({
+  Future<Result<UserEntity>> signIn({
     required String email,
     required String password,
   }) async {
-    _validateDomain(email);
+    return withRetry(() async {
+      _validateDomain(email);
 
-    final response = await _client.auth.signInWithPassword(
-      email: email,
-      password: password,
-    );
+      final response = await _client.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
 
-    final user = response.user;
-    if (user == null) {
-      throw const AuthException('Sign-in failed.');
-    }
+      final user = response.user;
+      if (user == null) {
+        throw const AuthException('Sign-in failed.');
+      }
 
-    final profile = await _fetchProfile(user.id);
-    if (profile != null) return profile;
+      final profile = await _fetchProfile(user.id);
+      if (profile != null) return profile;
 
-    final newProfile = UserEntity(
-      id: user.id,
-      email: user.email ?? email,
-      fullName: user.userMetadata?['full_name'] as String?,
-    );
-    await _upsertProfile(newProfile);
+      final newProfile = UserEntity(
+        id: user.id,
+        email: user.email ?? email,
+        fullName: user.userMetadata?['full_name'] as String?,
+      );
+      await _upsertProfile(newProfile);
 
-    try {
-      await _client.from('credit_wallets').insert({
-        'user_id': user.id,
-        'balance': 0,
-        'held': 0,
-      });
-    } catch (_) {}
+      try {
+        await _client.from('credit_wallets').insert({
+          'user_id': user.id,
+          'balance': 0,
+          'held': 0,
+        });
+      } catch (_) {}
 
-    return newProfile;
+      return newProfile;
+    });
   }
 
   @override
-  Future<void> signOut() async {
-    await _client.auth.signOut();
+  Future<Result<void>> signOut() async {
+    return withRetry(() async {
+      await _client.auth.signOut();
+    });
   }
 
   @override
-  Future<UserEntity?> getCurrentUser() async {
-    final user = _client.auth.currentUser;
-    if (user == null) return null;
-    return await _fetchProfile(user.id);
+  Future<Result<UserEntity?>> getCurrentUser() async {
+    return withRetry(() async {
+      final user = _client.auth.currentUser;
+      if (user == null) return null;
+      return await _fetchProfile(user.id);
+    });
   }
 
   @override
-  Future<void> saveUserProfile(UserEntity user) async {
-    await _upsertProfile(user);
+  Future<Result<void>> saveUserProfile(UserEntity user) async {
+    return withRetry(() async {
+      await _upsertProfile(user);
+    });
   }
 
   @override

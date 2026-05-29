@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:beesports/models/lobby_entity.dart';
 import 'package:beesports/models/lobby_participant_entity.dart';
+import 'package:beesports/models/participant_status.dart';
 import 'package:beesports/repos/lobby_repository.dart';
 import 'package:beesports/models/lobby_status.dart';
 import 'package:equatable/equatable.dart';
@@ -17,6 +19,14 @@ class LoadLobbyDetail extends LobbyDetailEvent {
   const LoadLobbyDetail(this.lobbyId);
   @override
   List<Object?> get props => [lobbyId];
+}
+
+class LobbyDetailUpdated extends LobbyDetailEvent {
+  final LobbyEntity lobby;
+  final List<LobbyParticipantEntity> participants;
+  const LobbyDetailUpdated(this.lobby, this.participants);
+  @override
+  List<Object?> get props => [lobby, participants];
 }
 
 class JoinLobbyRequested extends LobbyDetailEvent {
@@ -83,13 +93,28 @@ class LobbyActionSuccess extends LobbyDetailState {
 
 class LobbyDetailBloc extends Bloc<LobbyDetailEvent, LobbyDetailState> {
   final LobbyRepository _lobbyRepository;
+  StreamSubscription<LobbyEntity?>? _lobbySubscription;
+  StreamSubscription<List<LobbyParticipantEntity>>? _participantsSubscription;
 
   LobbyDetailBloc(this._lobbyRepository) : super(LobbyDetailInitial()) {
     on<LoadLobbyDetail>(_onLoad);
+    on<LobbyDetailUpdated>(_onUpdate);
     on<JoinLobbyRequested>(_onJoin);
     on<LeaveLobbyRequested>(_onLeave);
     on<ConfirmLobbyRequested>(_onConfirm);
     on<CancelLobbyRequested>(_onCancel);
+  }
+
+  void _onUpdate(LobbyDetailUpdated event, Emitter<LobbyDetailState> emit) {
+    emit(LobbyDetailLoaded(
+        lobby: event.lobby, participants: event.participants));
+  }
+
+  @override
+  Future<void> close() {
+    _lobbySubscription?.cancel();
+    _participantsSubscription?.cancel();
+    return super.close();
   }
 
   Future<void> _onLoad(
@@ -97,96 +122,165 @@ class LobbyDetailBloc extends Bloc<LobbyDetailEvent, LobbyDetailState> {
     Emitter<LobbyDetailState> emit,
   ) async {
     emit(LobbyDetailLoading());
-    try {
-      final lobby = await _lobbyRepository.getLobbyById(event.lobbyId);
-      if (lobby == null) {
-        emit(const LobbyDetailError('Lobby not found.'));
-        return;
-      }
-      final participants =
-          await _lobbyRepository.getParticipants(event.lobbyId);
-      emit(LobbyDetailLoaded(lobby: lobby, participants: participants));
-    } catch (e) {
-      emit(LobbyDetailError(e.toString()));
-    }
+    final lobbyResult = await _lobbyRepository.getLobbyById(event.lobbyId);
+
+    await lobbyResult.when(
+      success: (lobby) async {
+        if (lobby == null) {
+          emit(const LobbyDetailError('Lobby not found.'));
+          return;
+        }
+        final participantsResult =
+            await _lobbyRepository.getParticipants(event.lobbyId);
+        participantsResult.when(
+          success: (participants) {
+            emit(LobbyDetailLoaded(lobby: lobby, participants: participants));
+
+            _lobbySubscription?.cancel();
+            _participantsSubscription?.cancel();
+
+            _lobbySubscription = _lobbyRepository
+                .watchLobby(event.lobbyId)
+                .listen((updatedLobby) {
+              if (updatedLobby != null && state is LobbyDetailLoaded) {
+                final currentState = state as LobbyDetailLoaded;
+                add(LobbyDetailUpdated(
+                    updatedLobby, currentState.participants));
+              }
+            });
+
+            _participantsSubscription = _lobbyRepository
+                .watchParticipants(event.lobbyId)
+                .listen((updatedParticipants) {
+              if (state is LobbyDetailLoaded) {
+                final currentState = state as LobbyDetailLoaded;
+                add(LobbyDetailUpdated(
+                    currentState.lobby, updatedParticipants));
+              }
+            });
+          },
+          failure: (f) {
+            emit(LobbyDetailError(f.message));
+          },
+        );
+      },
+      failure: (f) async {
+        emit(LobbyDetailError(f.message));
+      },
+    );
   }
 
   Future<void> _onJoin(
     JoinLobbyRequested event,
     Emitter<LobbyDetailState> emit,
   ) async {
-    try {
-      await _lobbyRepository.joinLobby(
+    // Optimistic UI Update
+    if (state is LobbyDetailLoaded) {
+      final current = state as LobbyDetailLoaded;
+      final optimisticLobby = current.lobby.copyWith(
+        currentPlayers: current.lobby.currentPlayers + 1,
+      );
+      final optimisticParticipant = LobbyParticipantEntity(
+        id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
         lobbyId: event.lobbyId,
         userId: event.userId,
+        status: current.lobby.isFull
+            ? ParticipantStatus.waitlisted
+            : ParticipantStatus.joined,
+        joinedAt: DateTime.now(),
       );
-      emit(const LobbyActionSuccess('Successfully joined the lobby!'));
-      add(LoadLobbyDetail(event.lobbyId));
-    } catch (e, st) {
-      debugPrint('LobbyDetailBloc._onJoin error: $e\n$st');
-      emit(LobbyDetailError(_friendlyError(e)));
+      emit(LobbyDetailLoaded(
+        lobby: optimisticLobby,
+        participants: [...current.participants, optimisticParticipant],
+      ));
     }
+
+    final result = await _lobbyRepository.joinLobby(
+      lobbyId: event.lobbyId,
+      userId: event.userId,
+    );
+    result.when(
+      success: (_) {
+        emit(const LobbyActionSuccess('Successfully joined the lobby!'));
+        // LoadLobbyDetail will be triggered by stream or we can just fetch it
+        add(LoadLobbyDetail(event.lobbyId));
+      },
+      failure: (f) {
+        emit(LobbyDetailError(f.message));
+        add(LoadLobbyDetail(event.lobbyId)); // Revert optimistic update
+      },
+    );
   }
 
   Future<void> _onLeave(
     LeaveLobbyRequested event,
     Emitter<LobbyDetailState> emit,
   ) async {
-    try {
-      await _lobbyRepository.leaveLobby(
-        lobbyId: event.lobbyId,
-        userId: event.userId,
+    // Optimistic UI Update
+    if (state is LobbyDetailLoaded) {
+      final current = state as LobbyDetailLoaded;
+      final optimisticLobby = current.lobby.copyWith(
+        currentPlayers: (current.lobby.currentPlayers - 1).clamp(0, 999),
       );
-      emit(const LobbyActionSuccess('You have left the lobby.'));
-      add(LoadLobbyDetail(event.lobbyId));
-    } catch (e, st) {
-      debugPrint('LobbyDetailBloc._onLeave error: $e\n$st');
-      emit(LobbyDetailError(_friendlyError(e)));
+      final optimisticParticipants =
+          current.participants.where((p) => p.userId != event.userId).toList();
+      emit(LobbyDetailLoaded(
+        lobby: optimisticLobby,
+        participants: optimisticParticipants,
+      ));
     }
+
+    final result = await _lobbyRepository.leaveLobby(
+      lobbyId: event.lobbyId,
+      userId: event.userId,
+    );
+    result.when(
+      success: (_) {
+        emit(const LobbyActionSuccess('You have left the lobby.'));
+        add(LoadLobbyDetail(event.lobbyId));
+      },
+      failure: (f) {
+        emit(LobbyDetailError(f.message));
+        add(LoadLobbyDetail(event.lobbyId)); // Revert optimistic update
+      },
+    );
   }
 
   Future<void> _onConfirm(
     ConfirmLobbyRequested event,
     Emitter<LobbyDetailState> emit,
   ) async {
-    try {
-      await _lobbyRepository.updateLobbyStatus(
-        lobbyId: event.lobbyId,
-        status: LobbyStatus.confirmed,
-      );
-      emit(const LobbyActionSuccess('Lobby confirmed!'));
-      add(LoadLobbyDetail(event.lobbyId));
-    } catch (e, st) {
-      debugPrint('LobbyDetailBloc._onConfirm error: $e\n$st');
-      emit(LobbyDetailError(_friendlyError(e)));
-    }
+    final result = await _lobbyRepository.updateLobbyStatus(
+      lobbyId: event.lobbyId,
+      status: LobbyStatus.confirmed,
+    );
+    result.when(
+      success: (_) {
+        emit(const LobbyActionSuccess('Lobby confirmed!'));
+        add(LoadLobbyDetail(event.lobbyId));
+      },
+      failure: (f) {
+        emit(LobbyDetailError(f.message));
+      },
+    );
   }
 
   Future<void> _onCancel(
     CancelLobbyRequested event,
     Emitter<LobbyDetailState> emit,
   ) async {
-    try {
-      await _lobbyRepository.updateLobbyStatus(
-        lobbyId: event.lobbyId,
-        status: LobbyStatus.cancelled,
-      );
-      emit(const LobbyActionSuccess('Lobby cancelled.'));
-      add(LoadLobbyDetail(event.lobbyId));
-    } catch (e, st) {
-      debugPrint('LobbyDetailBloc._onCancel error: $e\n$st');
-      emit(LobbyDetailError(_friendlyError(e)));
-    }
-  }
-
-  String _friendlyError(Object e) {
-    final msg = e.toString();
-    if (msg.contains('Time conflict')) {
-      return 'You already have a lobby during this time slot.';
-    }
-    if (msg.contains('duplicate key') || msg.contains('unique')) {
-      return 'You have already joined this lobby.';
-    }
-    return 'Something went wrong. Please try again.';
+    final result = await _lobbyRepository.updateLobbyStatus(
+      lobbyId: event.lobbyId,
+      status: LobbyStatus.cancelled,
+    );
+    result.when(
+      success: (_) {
+        emit(const LobbyActionSuccess('Lobby cancelled.'));
+        add(LoadLobbyDetail(event.lobbyId));
+      },
+      failure: (f) {
+        emit(LobbyDetailError(f.message));
+      },
+    );
   }
 }

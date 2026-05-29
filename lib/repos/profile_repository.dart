@@ -1,17 +1,18 @@
 import 'package:beesports/models/profile_entity.dart';
+import 'package:beesports/core/result.dart';
 
 abstract class ProfileRepository {
-  Future<ProfileEntity?> getProfile(String userId);
+  Future<Result<ProfileEntity?>> getProfile(String userId);
 
-  Future<void> updateProfile(ProfileEntity profile);
+  Future<Result<void>> updateProfile(ProfileEntity profile);
 
-  Future<String?> uploadProfileAvatar(
+  Future<Result<String?>> uploadProfileAvatar(
     String userId,
     List<int> imageBytes,
     String fileName,
   );
 
-  Future<void> completeOnboarding({
+  Future<Result<void>> completeOnboarding({
     required String userId,
     required String nim,
     required String campus,

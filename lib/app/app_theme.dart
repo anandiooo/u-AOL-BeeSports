@@ -21,10 +21,9 @@ class AppTheme {
   static const double spaceXxl = 30;
   static const double spaceSection = 48;
 
-  static ThemeData get darkTheme => lightTheme;
-
-  static ThemeData get lightTheme {
-    final baseTextTheme = GoogleFonts.interTextTheme(ThemeData.dark().textTheme);
+  static ThemeData get darkTheme {
+    final baseTextTheme =
+        GoogleFonts.interTextTheme(ThemeData.dark().textTheme);
 
     return ThemeData(
       useMaterial3: true,
@@ -32,14 +31,14 @@ class AppTheme {
       colorScheme: const ColorScheme.dark(
         primary: AppColors.neonGreen,
         secondary: AppColors.accentOrange,
-        surface: AppColors.softCloud,
+        surface: AppColors.surface,
         error: AppColors.error,
-        onPrimary: AppColors.onPrimary,
-        onSecondary: AppColors.charcoal,
-        onSurface: AppColors.charcoal,
-        onError: AppColors.charcoal,
+        onPrimary: AppColors.onAccent,
+        onSecondary: AppColors.textPrimary,
+        onSurface: AppColors.textPrimary,
+        onError: AppColors.textPrimary,
       ),
-      scaffoldBackgroundColor: AppColors.canvas,
+      scaffoldBackgroundColor: AppColors.background,
       textTheme: baseTextTheme.copyWith(
         displayLarge: GoogleFonts.bebasNeue(
           fontSize: 96,
@@ -58,7 +57,7 @@ class AppTheme {
           fontSize: 32,
           fontWeight: FontWeight.w500,
           height: 1.2,
-          color: AppColors.charcoal,
+          color: AppColors.textPrimary,
         ),
         headlineMedium: GoogleFonts.inter(
           fontSize: 24,
@@ -106,7 +105,7 @@ class AppTheme {
           fontSize: 14,
           fontWeight: FontWeight.w500,
           height: 1.5,
-          color: AppColors.mute,
+          color: AppColors.textSecondary,
         ),
         labelLarge: GoogleFonts.inter(
           fontSize: 16,
@@ -128,21 +127,21 @@ class AppTheme {
         ),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.canvas,
-        foregroundColor: AppColors.charcoal,
+        backgroundColor: AppColors.background,
+        foregroundColor: AppColors.textPrimary,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
         titleTextStyle: GoogleFonts.inter(
           fontSize: 18,
           fontWeight: FontWeight.w500,
-          color: AppColors.charcoal,
+          color: AppColors.textPrimary,
         ),
-        iconTheme: const IconThemeData(color: AppColors.charcoal),
+        iconTheme: const IconThemeData(color: AppColors.textPrimary),
         surfaceTintColor: Colors.transparent,
       ),
       cardTheme: CardThemeData(
-        color: AppColors.softCloud,
+        color: AppColors.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusMd),
@@ -153,7 +152,7 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.neonGreen,
-          foregroundColor: AppColors.onPrimary,
+          foregroundColor: AppColors.onAccent,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
           minimumSize: const Size(0, 48),
@@ -193,7 +192,7 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.softCloud,
+        fillColor: AppColors.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radiusMd),
           borderSide: const BorderSide(color: AppColors.hairline),
@@ -214,16 +213,19 @@ class AppTheme {
           borderRadius: BorderRadius.circular(radiusMd),
           borderSide: const BorderSide(color: AppColors.error, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        hintStyle: TextStyle(color: AppColors.mute.withValues(alpha: 0.7)),
-        prefixIconColor: AppColors.mute,
-        suffixIconColor: AppColors.mute,
-        labelStyle: const TextStyle(color: AppColors.mute),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        hintStyle:
+            TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.7)),
+        prefixIconColor: AppColors.textSecondary,
+        suffixIconColor: AppColors.textSecondary,
+        labelStyle: const TextStyle(color: AppColors.textSecondary),
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: AppColors.softCloud,
+        backgroundColor: AppColors.surface,
         selectedColor: AppColors.neonGreen,
-        labelStyle: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w500),
+        labelStyle:
+            GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w500),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusLg),
           side: const BorderSide(color: AppColors.hairline),
@@ -241,16 +243,17 @@ class AppTheme {
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: AppColors.neonGreen,
-        foregroundColor: AppColors.onPrimary,
+        foregroundColor: AppColors.onAccent,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusLg),
         ),
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: AppColors.softCloud,
-        contentTextStyle: GoogleFonts.inter(color: AppColors.charcoal),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusMd)),
+        backgroundColor: AppColors.surface,
+        contentTextStyle: GoogleFonts.inter(color: AppColors.textPrimary),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(radiusMd)),
         behavior: SnackBarBehavior.floating,
       ),
       dividerTheme: const DividerThemeData(
@@ -259,13 +262,14 @@ class AppTheme {
         space: 0,
       ),
       dialogTheme: DialogThemeData(
-        backgroundColor: AppColors.softCloud,
+        backgroundColor: AppColors.surface,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusMd)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(radiusMd)),
         titleTextStyle: GoogleFonts.inter(
           fontSize: 18,
           fontWeight: FontWeight.w500,
-          color: AppColors.charcoal,
+          color: AppColors.textPrimary,
         ),
         contentTextStyle: GoogleFonts.inter(
           fontSize: 16,
@@ -274,25 +278,28 @@ class AppTheme {
         ),
       ),
       popupMenuTheme: PopupMenuThemeData(
-        color: AppColors.softCloud,
+        color: AppColors.surface,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusMd)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(radiusMd)),
       ),
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: AppColors.neonGreen,
       ),
       datePickerTheme: DatePickerThemeData(
-        backgroundColor: AppColors.softCloud,
+        backgroundColor: AppColors.surface,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusMd)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(radiusMd)),
       ),
       timePickerTheme: TimePickerThemeData(
-        backgroundColor: AppColors.softCloud,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusMd)),
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(radiusMd)),
       ),
       tabBarTheme: const TabBarThemeData(
         labelColor: AppColors.neonGreen,
-        unselectedLabelColor: AppColors.mute,
+        unselectedLabelColor: AppColors.textSecondary,
         indicatorColor: AppColors.neonGreen,
       ),
       switchTheme: SwitchThemeData(
@@ -301,7 +308,8 @@ class AppTheme {
           return AppColors.stone;
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) return AppColors.neonGreen.withValues(alpha: 0.3);
+          if (states.contains(WidgetState.selected))
+            return AppColors.neonGreen.withValues(alpha: 0.3);
           return AppColors.hairline;
         }),
       ),
@@ -311,18 +319,18 @@ class AppTheme {
           return Colors.transparent;
         }),
         checkColor: WidgetStateProperty.all(AppColors.onPrimary),
-        side: const BorderSide(color: AppColors.mute, width: 2),
+        side: const BorderSide(color: AppColors.textSecondary, width: 2),
       ),
       radioTheme: RadioThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return AppColors.neonGreen;
-          return AppColors.mute;
+          return AppColors.textSecondary;
         }),
       ),
-      iconTheme: const IconThemeData(color: AppColors.charcoal),
+      iconTheme: const IconThemeData(color: AppColors.textPrimary),
       listTileTheme: const ListTileThemeData(
-        textColor: AppColors.charcoal,
-        iconColor: AppColors.mute,
+        textColor: AppColors.textPrimary,
+        iconColor: AppColors.textSecondary,
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:beesports/core/feedback_service.dart';
 import 'package:beesports/app/app_colors.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:flutter/material.dart';
@@ -43,16 +44,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.foursier,
+      backgroundColor: AppColors.background,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.tersierDark,
-              ),
-            );
+            FeedbackService.showError(context, state.message);
           }
         },
         child: SafeArea(
@@ -65,7 +61,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const Icon(
                     Icons.person_add_alt_1_rounded,
                     size: 48,
-                    color: AppColors.primary,
+                    color: AppColors.neonGreen,
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -74,14 +70,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       fontSize: 40,
                       fontWeight: FontWeight.w400,
                       height: 0.9,
-                      color: AppColors.primary,
+                      color: AppColors.neonGreen,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Join BeeSports with your BINUS email',
                     style: GoogleFonts.inter(
-                      color: AppColors.primaryLight,
+                      color: AppColors.textSecondary,
                       fontSize: 14,
                     ),
                   ),
@@ -93,7 +89,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         TextFormField(
                           controller: _nameController,
                           textCapitalization: TextCapitalization.words,
-                          style: GoogleFonts.inter(color: AppColors.primary),
+                          style: GoogleFonts.inter(color: AppColors.neonGreen),
                           decoration: const InputDecoration(
                             hintText: 'Full Name',
                             prefixIcon: Icon(Icons.person_outlined),
@@ -106,7 +102,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
-                          style: GoogleFonts.inter(color: AppColors.primary),
+                          style: GoogleFonts.inter(color: AppColors.neonGreen),
                           decoration: const InputDecoration(
                             hintText: 'BINUS Email (@binus.ac.id)',
                             prefixIcon: Icon(Icons.email_outlined),
@@ -125,7 +121,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
-                          style: GoogleFonts.inter(color: AppColors.primary),
+                          style: GoogleFonts.inter(color: AppColors.neonGreen),
                           decoration: InputDecoration(
                             hintText: 'Password (min. 6 characters)',
                             prefixIcon: const Icon(Icons.lock_outlined),
@@ -151,7 +147,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         TextFormField(
                           controller: _confirmPasswordController,
                           obscureText: _obscureConfirm,
-                          style: GoogleFonts.inter(color: AppColors.primary),
+                          style: GoogleFonts.inter(color: AppColors.neonGreen),
                           decoration: InputDecoration(
                             hintText: 'Confirm Password',
                             prefixIcon: const Icon(Icons.lock_outlined),
@@ -201,7 +197,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     height: 24,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: AppColors.foursierLight,
+                      color: AppColors.onAccent,
                     ),
                   )
                 : const Text('Create Account'),
@@ -217,14 +213,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       children: [
         Text(
           'Already have an account? ',
-          style: GoogleFonts.inter(color: AppColors.primaryLight),
+          style: GoogleFonts.inter(color: AppColors.textSecondary),
         ),
         GestureDetector(
           onTap: widget.onNavigateToLogin,
           child: Text(
             'Sign In',
             style: GoogleFonts.inter(
-              color: AppColors.primary,
+              color: AppColors.neonGreen,
               fontWeight: FontWeight.w500,
               decoration: TextDecoration.underline,
             ),

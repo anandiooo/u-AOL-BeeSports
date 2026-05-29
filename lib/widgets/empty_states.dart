@@ -13,11 +13,17 @@ class EmptyLobbies extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.sports_esports_outlined, size: 64, color: AppColors.mute.withValues(alpha: 0.5)),
+          Icon(Icons.sports_esports_outlined,
+              size: 64, color: AppColors.mute.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
           Text(
-            sportLabel == null ? 'No Lobbies Available' : 'No $sportLabel Lobbies',
-            style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.charcoal),
+            sportLabel == null
+                ? 'No Lobbies Available'
+                : 'No $sportLabel Lobbies',
+            style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                color: AppColors.charcoal),
           ),
           const SizedBox(height: 8),
           Text(
@@ -46,11 +52,15 @@ class EmptyTransactions extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.receipt_long_outlined, size: 48, color: AppColors.mute.withValues(alpha: 0.5)),
+            Icon(Icons.receipt_long_outlined,
+                size: 48, color: AppColors.mute.withValues(alpha: 0.5)),
             const SizedBox(height: 16),
             Text(
               'No Transactions Yet',
-              style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.charcoal),
+              style: GoogleFonts.inter(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.charcoal),
             ),
             const SizedBox(height: 8),
             Text(
@@ -75,11 +85,15 @@ class EmptyNotifications extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.notifications_none_rounded, size: 48, color: AppColors.mute.withValues(alpha: 0.5)),
+            Icon(Icons.notifications_none_rounded,
+                size: 48, color: AppColors.mute.withValues(alpha: 0.5)),
             const SizedBox(height: 16),
             Text(
               'You\'re All Caught Up',
-              style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.charcoal),
+              style: GoogleFonts.inter(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.charcoal),
             ),
           ],
         ),
@@ -104,11 +118,15 @@ class EmptyUpcomingMatches extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(Icons.event_busy_outlined, size: 32, color: AppColors.mute.withValues(alpha: 0.5)),
+          Icon(Icons.event_busy_outlined,
+              size: 32, color: AppColors.mute.withValues(alpha: 0.5)),
           const SizedBox(height: 12),
           Text(
             'No upcoming matches',
-            style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.charcoal),
+            style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: AppColors.charcoal),
           ),
           const SizedBox(height: 16),
           OutlinedButton(
@@ -134,11 +152,15 @@ class EmptyFriends extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.people_outline, size: 64, color: AppColors.mute.withValues(alpha: 0.5)),
+          Icon(Icons.people_outline,
+              size: 64, color: AppColors.mute.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
           Text(
             'No Friends Yet',
-            style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.charcoal),
+            style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                color: AppColors.charcoal),
           ),
           const SizedBox(height: 8),
           Text(
@@ -161,11 +183,15 @@ class EmptyMatches extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.sports_score_outlined, size: 64, color: AppColors.mute.withValues(alpha: 0.5)),
+          Icon(Icons.sports_score_outlined,
+              size: 64, color: AppColors.mute.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
           Text(
             'No Match History',
-            style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.charcoal),
+            style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                color: AppColors.charcoal),
           ),
           const SizedBox(height: 8),
           Text(

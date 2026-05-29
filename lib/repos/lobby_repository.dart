@@ -2,34 +2,40 @@ import 'package:beesports/models/lobby_entity.dart';
 import 'package:beesports/models/lobby_participant_entity.dart';
 import 'package:beesports/models/lobby_status.dart';
 import 'package:beesports/models/sport_type.dart';
+import 'package:beesports/core/result.dart';
 
 abstract class LobbyRepository {
-  Future<List<LobbyEntity>> getLobbies({
+  Future<Result<List<LobbyEntity>>> getLobbies({
     SportType? sport,
     LobbyStatus? status,
     String? sortBy,
+    String? searchQuery,
   });
 
-  Future<LobbyEntity?> getLobbyById(String lobbyId);
+  Future<Result<LobbyEntity?>> getLobbyById(String lobbyId);
 
-  Future<List<LobbyParticipantEntity>> getParticipants(String lobbyId);
+  Stream<LobbyEntity?> watchLobby(String lobbyId);
 
-  Future<LobbyEntity> createLobby(LobbyEntity lobby);
+  Future<Result<List<LobbyParticipantEntity>>> getParticipants(String lobbyId);
 
-  Future<void> joinLobby({
+  Stream<List<LobbyParticipantEntity>> watchParticipants(String lobbyId);
+
+  Future<Result<LobbyEntity>> createLobby(LobbyEntity lobby);
+
+  Future<Result<void>> joinLobby({
     required String lobbyId,
     required String userId,
   });
 
-  Future<void> leaveLobby({
+  Future<Result<void>> leaveLobby({
     required String lobbyId,
     required String userId,
   });
 
-  Future<void> updateLobbyStatus({
+  Future<Result<void>> updateLobbyStatus({
     required String lobbyId,
     required LobbyStatus status,
   });
 
-  Future<List<LobbyEntity>> getMyLobbies(String userId);
+  Future<Result<List<LobbyEntity>>> getMyLobbies(String userId);
 }

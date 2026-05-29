@@ -1,9 +1,10 @@
 import 'package:beesports/models/chat_message_entity.dart';
+import 'package:beesports/core/result.dart';
 
 abstract class ChatRepository {
-  Future<List<ChatMessageEntity>> getMessages(String lobbyId);
+  Future<Result<List<ChatMessageEntity>>> getMessages(String lobbyId);
 
-  Future<void> sendMessage({
+  Future<Result<void>> sendMessage({
     required String lobbyId,
     required String senderId,
     required String content,

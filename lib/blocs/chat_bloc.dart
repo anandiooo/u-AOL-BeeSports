@@ -52,36 +52,42 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   Future<void> _onLoad(LoadMessages event, Emitter<ChatState> emit) async {
     emit(ChatLoading());
-    try {
-      final messages = await _repository.getMessages(event.lobbyId);
+    final result = await _repository.getMessages(event.lobbyId);
 
-      if (_currentLobbyId != null && _currentLobbyId != event.lobbyId) {
+    result.when(
+      success: (messages) {
+        if (_currentLobbyId != null && _currentLobbyId != event.lobbyId) {
+          _subscription?.cancel();
+          _repository.unsubscribe(_currentLobbyId!);
+        }
+
+        _currentLobbyId = event.lobbyId;
         _subscription?.cancel();
-        _repository.unsubscribe(_currentLobbyId!);
-      }
+        _subscription = _repository
+            .subscribeToMessages(event.lobbyId)
+            .listen((msg) => add(NewMessageReceived(msg)));
 
-      _currentLobbyId = event.lobbyId;
-      _subscription?.cancel();
-      _subscription = _repository
-          .subscribeToMessages(event.lobbyId)
-          .listen((msg) => add(NewMessageReceived(msg)));
-
-      emit(ChatLoaded(messages));
-    } catch (e) {
-      emit(ChatError(e.toString()));
-    }
+        emit(ChatLoaded(messages));
+      },
+      failure: (f) {
+        emit(ChatError(f.message));
+      },
+    );
   }
 
   Future<void> _onSend(SendMessage event, Emitter<ChatState> emit) async {
-    try {
-      await _repository.sendMessage(
-        lobbyId: event.lobbyId,
-        senderId: event.senderId,
-        content: event.content,
-      );
-    } catch (e) {
-      emit(ChatError(e.toString()));
-    }
+    final result = await _repository.sendMessage(
+      lobbyId: event.lobbyId,
+      senderId: event.senderId,
+      content: event.content,
+    );
+
+    result.when(
+      success: (_) {},
+      failure: (f) {
+        emit(ChatError(f.message));
+      },
+    );
   }
 
   void _onNewMessage(NewMessageReceived event, Emitter<ChatState> emit) {

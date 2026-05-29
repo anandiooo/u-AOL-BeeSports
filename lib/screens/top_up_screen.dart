@@ -1,3 +1,4 @@
+import 'package:beesports/core/feedback_service.dart';
 import 'package:beesports/app/app_colors.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:beesports/blocs/wallet_bloc.dart';
@@ -16,7 +17,14 @@ class TopUpScreen extends StatefulWidget {
 class _TopUpScreenState extends State<TopUpScreen> {
   final _customController = TextEditingController();
   double? _selectedAmount;
-  static const _presets = [10000.0, 25000.0, 50000.0, 100000.0, 200000.0, 500000.0];
+  static const _presets = [
+    10000.0,
+    25000.0,
+    50000.0,
+    100000.0,
+    200000.0,
+    500000.0
+  ];
 
   @override
   void dispose() {
@@ -27,37 +35,36 @@ class _TopUpScreenState extends State<TopUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.foursier,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text('Top Up',
             style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500, color: AppColors.primary)),
-        backgroundColor: AppColors.foursier,
+                fontWeight: FontWeight.w500, color: AppColors.neonGreen)),
+        backgroundColor: AppColors.background,
         elevation: 0,
         scrolledUnderElevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.primary),
+        iconTheme: const IconThemeData(color: AppColors.neonGreen),
       ),
       body: BlocListener<WalletBloc, WalletState>(
         listener: (context, state) {
           if (state is TopUpSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Rp${state.amount.toStringAsFixed(0)} added!'),
-                backgroundColor: AppColors.secondary));
+            FeedbackService.showSuccess(
+                context, 'Rp${state.amount.toStringAsFixed(0)} added!');
             context.pop();
           }
           if (state is WalletError) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.tersierDark));
+            FeedbackService.showError(context, state.message);
           }
         },
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('Select Amount',
                 style: GoogleFonts.inter(
-                    fontSize: 24, fontWeight: FontWeight.w500,
-                    color: AppColors.primary)),
+                    fontSize: 24,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.neonGreen)),
             const SizedBox(height: 18),
             Wrap(
               spacing: 8,
@@ -74,15 +81,17 @@ class _TopUpScreenState extends State<TopUpScreen> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 14),
                     decoration: BoxDecoration(
-                      color: sel ? AppColors.primary : AppColors.foursier,
+                      color: sel ? AppColors.neonGreen : AppColors.background,
                       borderRadius: BorderRadius.circular(30),
                       border: Border.all(
-                          color: sel ? AppColors.primary : AppColors.foursierDark),
+                          color: sel ? AppColors.neonGreen : AppColors.border),
                     ),
                     child: Text('Rp${_formatNumber(amount)}',
                         style: GoogleFonts.inter(
                             fontWeight: FontWeight.w500,
-                            color: sel ? AppColors.foursierLight : AppColors.primary)),
+                            color: sel
+                                ? AppColors.onAccent
+                                : AppColors.neonGreen)),
                   ),
                 );
               }).toList(),
@@ -90,37 +99,40 @@ class _TopUpScreenState extends State<TopUpScreen> {
             const SizedBox(height: 24),
             Text('Or enter custom amount',
                 style: GoogleFonts.inter(
-                    fontSize: 14, fontWeight: FontWeight.w500,
-                    color: AppColors.primaryLight)),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textSecondary)),
             const SizedBox(height: 10),
-             TextFormField(
-               controller: _customController,
-               inputFormatters: [
-                 FilteringTextInputFormatter.digitsOnly,
-                 _RupiahInputFormatter(),
-               ],
-               decoration: const InputDecoration(
-                   prefixText: 'Rp ', hintText: 'Enter amount',
-                   prefixIcon: Icon(Icons.edit)),
-               style: GoogleFonts.inter(color: AppColors.primary),
-               keyboardType: TextInputType.number,
-               onChanged: (v) {
-                 final clean = v.replaceAll('.', '');
-                 setState(() => _selectedAmount = double.tryParse(clean));
-               },
-             ),
+            TextFormField(
+              controller: _customController,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                _RupiahInputFormatter(),
+              ],
+              decoration: const InputDecoration(
+                  prefixText: 'Rp ',
+                  hintText: 'Enter amount',
+                  prefixIcon: Icon(Icons.edit)),
+              style: GoogleFonts.inter(color: AppColors.neonGreen),
+              keyboardType: TextInputType.number,
+              onChanged: (v) {
+                final clean = v.replaceAll('.', '');
+                setState(() => _selectedAmount = double.tryParse(clean));
+              },
+            ),
             const Spacer(),
             Container(
               padding: const EdgeInsets.all(16),
-              color: AppColors.secondaryLight,
+              color: AppColors.surfaceVariant,
               child: Row(children: [
-                const Icon(Icons.info_outline, size: 18, color: AppColors.primaryLight),
+                const Icon(Icons.info_outline,
+                    size: 18, color: AppColors.textSecondary),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                       'This is a simulated top-up for testing. No real payment will be processed.',
                       style: GoogleFonts.inter(
-                          fontSize: 12, color: AppColors.primaryLight)),
+                          fontSize: 12, color: AppColors.textSecondary)),
                 ),
               ]),
             ),
@@ -130,7 +142,8 @@ class _TopUpScreenState extends State<TopUpScreen> {
               height: 48,
               child: ElevatedButton(
                 onPressed: _selectedAmount != null && _selectedAmount! > 0
-                    ? _submit : null,
+                    ? _submit
+                    : null,
                 child: Text(_selectedAmount != null && _selectedAmount! > 0
                     ? 'Top Up'
                     : 'Select an amount'),
@@ -146,8 +159,8 @@ class _TopUpScreenState extends State<TopUpScreen> {
   void _submit() {
     final authState = context.read<AuthBloc>().state;
     if (authState is! Authenticated || _selectedAmount == null) return;
-    context.read<WalletBloc>().add(TopUpRequested(
-        userId: authState.user.id, amount: _selectedAmount!));
+    context.read<WalletBloc>().add(
+        TopUpRequested(userId: authState.user.id, amount: _selectedAmount!));
   }
 
   String _formatNumber(double n) {

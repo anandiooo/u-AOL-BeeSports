@@ -7,18 +7,18 @@ class LoggerService {
 
   static Future<void> init() async {
     if (kIsWeb) {
-      debugPrint("LoggerService: Web platform detected. File logging disabled.");
+      debugPrint(
+          "LoggerService: Web platform detected. File logging disabled.");
       return;
     }
 
     try {
       String logDirPath;
 
-      if (kDebugMode && (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
-
+      if (kDebugMode &&
+          (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
         logDirPath = Directory.current.path;
       } else {
-
         final dir = await getApplicationDocumentsDirectory();
         logDirPath = dir.path;
       }
@@ -52,7 +52,8 @@ class LoggerService {
 
   static Future<void> logError(String error, [String? stack]) async {
     final time = DateTime.now().toIso8601String();
-    final logEntry = "[$time] [ERROR] $error\n${stack != null ? 'Stack Trace:\n$stack\n' : ''}----------------------------------------\n";
+    final logEntry =
+        "[$time] [ERROR] $error\n${stack != null ? 'Stack Trace:\n$stack\n' : ''}----------------------------------------\n";
 
     debugPrint(logEntry);
 
@@ -67,7 +68,8 @@ class LoggerService {
 
   static Future<void> logInfo(String message) async {
     final time = DateTime.now().toIso8601String();
-    final logEntry = "[$time] [INFO] $message\n----------------------------------------\n";
+    final logEntry =
+        "[$time] [INFO] $message\n----------------------------------------\n";
 
     debugPrint(logEntry);
 

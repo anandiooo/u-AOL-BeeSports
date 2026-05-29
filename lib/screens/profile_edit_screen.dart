@@ -1,3 +1,4 @@
+import 'package:beesports/core/feedback_service.dart';
 import 'package:beesports/app/app_colors.dart';
 import 'package:beesports/models/profile_entity.dart';
 import 'package:beesports/blocs/profile_bloc.dart';
@@ -48,9 +49,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         // Read bytes from XFile (works on both web and mobile)
         final bytes = await image.readAsBytes();
         // Generate filename with extension
-        final extension = image.name.contains('.')
-            ? image.name.split('.').last
-            : 'jpg';
+        final extension =
+            image.name.contains('.') ? image.name.split('.').last : 'jpg';
         final fileName =
             'profile_${DateTime.now().millisecondsSinceEpoch}.$extension';
 
@@ -70,7 +70,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to pick image: $e'),
-            backgroundColor: AppColors.tersierDark,
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -115,28 +115,25 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.foursier,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text('Edit Profile',
             style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500, color: AppColors.primary)),
-        backgroundColor: AppColors.foursier,
+                fontWeight: FontWeight.w500, color: AppColors.neonGreen)),
+        backgroundColor: AppColors.background,
         elevation: 0,
         scrolledUnderElevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.primary),
+        iconTheme: const IconThemeData(color: AppColors.neonGreen),
       ),
       body: BlocConsumer<ProfileBloc, ProfileState>(
         listener: (context, state) {
           if (state is ProfileUpdateSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text('Profile updated successfully'),
-                backgroundColor: AppColors.secondary));
+            FeedbackService.showSuccess(
+                context, 'Profile updated successfully');
             context.pop();
           }
           if (state is ProfileError) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.tersierDark));
+            FeedbackService.showError(context, state.message);
           }
         },
         builder: (context, state) {
@@ -145,19 +142,18 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           if (state is ProfileUpdateSuccess) _currentProfile = state.profile;
           if (_currentProfile == null) {
             return const Center(
-                child: CircularProgressIndicator(color: AppColors.primary));
+                child: CircularProgressIndicator(color: AppColors.neonGreen));
           }
           _initFromProfile(_currentProfile!);
 
           return Column(children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 24, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
                       Center(
                         child: Column(children: [
                           GestureDetector(
@@ -166,14 +162,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                               width: 90,
                               height: 90,
                               decoration: const BoxDecoration(
-                                  color: AppColors.primary,
+                                  color: AppColors.neonGreen,
                                   shape: BoxShape.circle),
                               child: Stack(
                                 children: [
                                   ClipOval(
                                     child: _currentProfile!.avatarUrl != null &&
-                                            _currentProfile!.avatarUrl!
-                                                .isNotEmpty
+                                            _currentProfile!
+                                                .avatarUrl!.isNotEmpty
                                         ? Image.network(
                                             _currentProfile!.avatarUrl!,
                                             fit: BoxFit.cover,
@@ -194,8 +190,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                                       .toUpperCase(),
                                                   style: GoogleFonts.bebasNeue(
                                                     fontSize: 32,
-                                                    color: AppColors
-                                                        .foursierLight,
+                                                    color: AppColors.onAccent,
                                                   ),
                                                 ),
                                               );
@@ -214,8 +209,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                                   .toUpperCase(),
                                               style: GoogleFonts.bebasNeue(
                                                 fontSize: 32,
-                                                color:
-                                                    AppColors.foursierLight,
+                                                color: AppColors.onAccent,
                                               ),
                                             ),
                                           ),
@@ -227,11 +221,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                         color: Colors.black.withOpacity(0.24),
                                       ),
                                       child: const Center(
-                                          child: Icon(
-                                            Icons.camera_alt,
-                                            color: Colors.white,
-                                            size: 24,
-                                          ),
+                                        child: Icon(
+                                          Icons.camera_alt,
+                                          color: Colors.white,
+                                          size: 24,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -243,58 +237,58 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                           TextField(
                             controller: _nameController,
                             style: GoogleFonts.inter(
-                                color: AppColors.primary, fontSize: 16),
+                                color: AppColors.neonGreen, fontSize: 16),
                             decoration: InputDecoration(
                               labelText: 'Display name',
                               hintText: 'Enter your username',
                               labelStyle: GoogleFonts.inter(
-                                  color: AppColors.primaryLight, fontSize: 12),
+                                  color: AppColors.textSecondary, fontSize: 12),
                             ),
                             onChanged: (_) => setState(() {}),
                           ),
                           const SizedBox(height: 8),
-                          Text('Click on the profile picture to change your avatar',
+                          Text(
+                              'Click on the profile picture to change your avatar',
                               style: GoogleFonts.inter(
                                   fontSize: 12,
-                                  color: AppColors.primaryLight,
+                                  color: AppColors.textSecondary,
                                   height: 1.3)),
                           const SizedBox(height: 12),
                           Text(_currentProfile!.email,
                               style: GoogleFonts.inter(
-                                  fontSize: 12, color: AppColors.primaryLight)),
+                                  fontSize: 12,
+                                  color: AppColors.textSecondary)),
                         ]),
                       ),
                       const SizedBox(height: 32),
-
                       Text('Bio',
                           style: GoogleFonts.inter(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: AppColors.primaryLight)),
+                              color: AppColors.textSecondary)),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _bioController,
                         maxLines: 3,
                         maxLength: 150,
                         style: GoogleFonts.inter(
-                            color: AppColors.primary, fontSize: 14),
+                            color: AppColors.neonGreen, fontSize: 14),
                         decoration: InputDecoration(
                           hintText: 'Write a short bio here',
                           counterStyle: GoogleFonts.inter(
-                              color: AppColors.primaryLight, fontSize: 10),
+                              color: AppColors.textSecondary, fontSize: 10),
                         ),
                       ),
                       const SizedBox(height: 48),
-
                       Text('Sports Preferences',
                           style: GoogleFonts.inter(
                               fontSize: 24,
                               fontWeight: FontWeight.w500,
-                              color: AppColors.primary)),
+                              color: AppColors.neonGreen)),
                       const SizedBox(height: 8),
                       Text('Select the sports you want to play',
                           style: GoogleFonts.inter(
-                              fontSize: 14, color: AppColors.primaryLight)),
+                              fontSize: 14, color: AppColors.textSecondary)),
                       const SizedBox(height: 18),
                       Wrap(
                         spacing: 8,
@@ -316,13 +310,13 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                   horizontal: 16, vertical: 10),
                               decoration: BoxDecoration(
                                 color: sel
-                                    ? AppColors.primary
-                                    : AppColors.foursier,
+                                    ? AppColors.neonGreen
+                                    : AppColors.background,
                                 borderRadius: BorderRadius.circular(30),
                                 border: Border.all(
                                     color: sel
-                                        ? AppColors.primary
-                                        : AppColors.foursierDark),
+                                        ? AppColors.neonGreen
+                                        : AppColors.border),
                               ),
                               child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -330,33 +324,32 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                     Icon(sport.icon,
                                         size: 14,
                                         color: sel
-                                            ? AppColors.foursierLight
-                                            : AppColors.primary),
+                                            ? AppColors.onAccent
+                                            : AppColors.neonGreen),
                                     const SizedBox(width: 6),
                                     Text(sport.label,
                                         style: GoogleFonts.inter(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w500,
                                             color: sel
-                                                ? AppColors.foursierLight
-                                                : AppColors.primary)),
+                                                ? AppColors.onAccent
+                                                : AppColors.neonGreen)),
                                   ]),
                             ),
                           );
                         }).toList(),
                       ),
                       const SizedBox(height: 48),
-
                       if (_selectedSports.isNotEmpty) ...[
                         Text('Skill Levels',
                             style: GoogleFonts.inter(
                                 fontSize: 24,
                                 fontWeight: FontWeight.w500,
-                                color: AppColors.primary)),
+                                color: AppColors.neonGreen)),
                         const SizedBox(height: 8),
                         Text('Set your experience level for each sport',
                             style: GoogleFonts.inter(
-                                fontSize: 14, color: AppColors.primaryLight)),
+                                fontSize: 14, color: AppColors.textSecondary)),
                         const SizedBox(height: 18),
                         ..._selectedSports.map((sport) {
                           final isMissing = _attemptedSave &&
@@ -365,21 +358,20 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                             margin: const EdgeInsets.only(bottom: 12),
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: AppColors.secondaryLight,
+                              color: AppColors.surfaceVariant,
                               border: isMissing
                                   ? Border.all(
                                       color: AppColors.sale, width: 1.5)
                                   : null,
                             ),
                             child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(children: [
                                     Icon(sport.icon,
                                         color: isMissing
                                             ? AppColors.sale
-                                            : AppColors.primary,
+                                            : AppColors.neonGreen,
                                         size: 18),
                                     const SizedBox(width: 8),
                                     Text(sport.label,
@@ -388,8 +380,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                             fontSize: 14,
                                             color: isMissing
                                                 ? AppColors.sale
-                                                : AppColors.primary)),
-                                    if (isMissing) ...[ 
+                                                : AppColors.neonGreen)),
+                                    if (isMissing) ...[
                                       const Spacer(),
                                       Text('Required',
                                           style: GoogleFonts.inter(
@@ -400,31 +392,29 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                   ]),
                                   const SizedBox(height: 12),
                                   Row(
-                                      children:
-                                          SkillLevel.values.map((level) {
-                                    final active =
-                                        _skillLevels[sport] == level;
+                                      children: SkillLevel.values.map((level) {
+                                    final active = _skillLevels[sport] == level;
                                     return Expanded(
                                       child: GestureDetector(
-                                        onTap: () => setState(() =>
-                                            _skillLevels[sport] = level),
+                                        onTap: () => setState(
+                                            () => _skillLevels[sport] = level),
                                         child: AnimatedContainer(
-                                          duration: const Duration(
-                                              milliseconds: 200),
-                                          margin: const EdgeInsets
-                                              .symmetric(horizontal: 3),
-                                          padding: const EdgeInsets
-                                              .symmetric(vertical: 8),
+                                          duration:
+                                              const Duration(milliseconds: 200),
+                                          margin: const EdgeInsets.symmetric(
+                                              horizontal: 3),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 8),
                                           decoration: BoxDecoration(
                                             color: active
-                                                ? AppColors.primary
-                                                : AppColors.foursier,
+                                                ? AppColors.neonGreen
+                                                : AppColors.background,
                                             borderRadius:
                                                 BorderRadius.circular(30),
                                             border: Border.all(
                                                 color: active
-                                                    ? AppColors.primary
-                                                    : AppColors.foursierDark),
+                                                    ? AppColors.neonGreen
+                                                    : AppColors.border),
                                           ),
                                           child: Center(
                                             child: Text(
@@ -435,9 +425,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                                         ? FontWeight.w500
                                                         : FontWeight.w400,
                                                     color: active
-                                                        ? AppColors
-                                                            .onPrimary
-                                                        : AppColors.primaryLight)),
+                                                        ? AppColors.onPrimary
+                                                        : AppColors
+                                                            .textSecondary)),
                                           ),
                                         ),
                                       ),
@@ -448,8 +438,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                     Text(
                                       'Please select your skill level for ${sport.label}',
                                       style: GoogleFonts.inter(
-                                          fontSize: 11,
-                                          color: AppColors.sale),
+                                          fontSize: 11, color: AppColors.sale),
                                     ),
                                   ],
                                 ]),
@@ -459,13 +448,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     ]),
               ),
             ),
-
             Container(
               padding: const EdgeInsets.all(24),
               decoration: const BoxDecoration(
-                color: AppColors.foursier,
-                border: Border(
-                    top: BorderSide(color: AppColors.tersierLight)),
+                color: AppColors.background,
+                border: Border(top: BorderSide(color: AppColors.divider)),
               ),
               child: SafeArea(
                 top: false,
@@ -485,8 +472,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                             height: 18,
                             width: 18,
                             child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppColors.foursierLight))
+                                strokeWidth: 2, color: AppColors.onAccent))
                         : const Text('Save Changes'),
                   ),
                 ),

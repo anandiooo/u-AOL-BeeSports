@@ -1,3 +1,4 @@
+import 'package:beesports/core/feedback_service.dart';
 import 'package:beesports/app/app_colors.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:beesports/models/credit_transaction_entity.dart';
@@ -35,18 +36,18 @@ class _WalletScreenState extends State<WalletScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('My Wallet', style: GoogleFonts.inter(fontWeight: FontWeight.w500))),
+      appBar: AppBar(
+          title: Text('My Wallet',
+              style: GoogleFonts.inter(fontWeight: FontWeight.w500))),
       body: BlocConsumer<WalletBloc, WalletState>(
         listener: (context, state) {
           if (state is TopUpSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Top-up of Rp${_formatRupiah(state.amount)} successful!'), backgroundColor: AppColors.neonGreen),
-            );
+            FeedbackService.showSuccess(context,
+                'Top-up of Rp${_formatRupiah(state.amount)} successful!');
           }
           if (state is WithdrawSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Withdrawal of Rp${_formatRupiah(state.amount)} successful!'), backgroundColor: AppColors.neonGreen),
-            );
+            FeedbackService.showSuccess(context,
+                'Withdrawal of Rp${_formatRupiah(state.amount)} successful!');
           }
         },
         builder: (context, state) {
@@ -67,11 +68,15 @@ class _WalletScreenState extends State<WalletScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.error_outline, size: 48, color: AppColors.mute),
+                  const Icon(Icons.error_outline,
+                      size: 48, color: AppColors.mute),
                   const SizedBox(height: 12),
                   Text(state.message),
                   const SizedBox(height: 18),
-                  SizedBox(height: 48, child: ElevatedButton(onPressed: _loadWallet, child: const Text('Retry'))),
+                  SizedBox(
+                      height: 48,
+                      child: ElevatedButton(
+                          onPressed: _loadWallet, child: const Text('Retry'))),
                 ],
               ),
             );
@@ -82,15 +87,27 @@ class _WalletScreenState extends State<WalletScreen> {
               color: AppColors.neonGreen,
               onRefresh: () async => _loadWallet(),
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics()),
                 children: [
-                  _BalanceSection(balance: wallet.balance, available: wallet.available, held: wallet.held)
+                  _BalanceSection(
+                          balance: wallet.balance,
+                          available: wallet.available,
+                          held: wallet.held)
                       .animate()
                       .fadeIn(duration: 400.ms)
-                      .slideY(begin: -0.03, duration: 400.ms, curve: Curves.easeOutCubic),
+                      .slideY(
+                          begin: -0.03,
+                          duration: 400.ms,
+                          curve: Curves.easeOutCubic),
                   const SizedBox(height: 48),
-                  Text('Recent Transactions', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w500, color: AppColors.charcoal))
+                  Text('Recent Transactions',
+                          style: GoogleFonts.inter(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.charcoal))
                       .animate()
                       .fadeIn(delay: 150.ms, duration: 350.ms),
                   const SizedBox(height: 18),
@@ -102,8 +119,15 @@ class _WalletScreenState extends State<WalletScreen> {
                       final t = entry.value;
                       return _TransactionTile(transaction: t)
                           .animate()
-                          .fadeIn(delay: (200 + 60 * index).ms, duration: 350.ms, curve: Curves.easeOutCubic)
-                          .slideX(begin: 0.05, delay: (200 + 60 * index).ms, duration: 350.ms, curve: Curves.easeOutCubic);
+                          .fadeIn(
+                              delay: (200 + 60 * index).ms,
+                              duration: 350.ms,
+                              curve: Curves.easeOutCubic)
+                          .slideX(
+                              begin: 0.05,
+                              delay: (200 + 60 * index).ms,
+                              duration: 350.ms,
+                              curve: Curves.easeOutCubic);
                     }),
                 ],
               ),
@@ -121,7 +145,8 @@ class _BalanceSection extends StatelessWidget {
   final double available;
   final double held;
 
-  const _BalanceSection({required this.balance, required this.available, required this.held});
+  const _BalanceSection(
+      {required this.balance, required this.available, required this.held});
 
   @override
   Widget build(BuildContext context) {
@@ -129,9 +154,18 @@ class _BalanceSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const SizedBox(height: 20),
-        Text('Total Balance', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.mute)),
+        Text('Total Balance',
+            style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: AppColors.mute)),
         const SizedBox(height: 8),
-        Text('Rp ${_formatRupiah(balance)}', style: GoogleFonts.inter(fontSize: 42, fontWeight: FontWeight.w500, color: AppColors.neonGreen, height: 1.2)),
+        Text('Rp ${_formatRupiah(balance)}',
+            style: GoogleFonts.inter(
+                fontSize: 42,
+                fontWeight: FontWeight.w500,
+                color: AppColors.neonGreen,
+                height: 1.2)),
         const SizedBox(height: 32),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -145,7 +179,9 @@ class _BalanceSection extends StatelessWidget {
                     context.push('/wallet/topup');
                   },
                   icon: const Icon(Icons.add_circle_outline, size: 20),
-                  label: Text('Top Up', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500)),
+                  label: Text('Top Up',
+                      style: GoogleFonts.inter(
+                          fontSize: 16, fontWeight: FontWeight.w500)),
                 ),
               ),
             ),
@@ -159,7 +195,9 @@ class _BalanceSection extends StatelessWidget {
                     context.push('/wallet/withdraw');
                   },
                   icon: const Icon(Icons.arrow_circle_down_outlined, size: 20),
-                  label: Text('Withdraw', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500)),
+                  label: Text('Withdraw',
+                      style: GoogleFonts.inter(
+                          fontSize: 16, fontWeight: FontWeight.w500)),
                 ),
               ),
             ),
@@ -168,7 +206,9 @@ class _BalanceSection extends StatelessWidget {
         const SizedBox(height: 24),
         Container(
           padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
-          decoration: BoxDecoration(color: AppColors.softCloud, borderRadius: BorderRadius.circular(16)),
+          decoration: BoxDecoration(
+              color: AppColors.softCloud,
+              borderRadius: BorderRadius.circular(16)),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -193,9 +233,17 @@ class _BalanceDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(label, style: GoogleFonts.inter(fontSize: 14, color: AppColors.mute, fontWeight: FontWeight.w500)),
+        Text(label,
+            style: GoogleFonts.inter(
+                fontSize: 14,
+                color: AppColors.mute,
+                fontWeight: FontWeight.w500)),
         const SizedBox(height: 6),
-        Text('Rp ${_formatRupiah(value)}', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.charcoal)),
+        Text('Rp ${_formatRupiah(value)}',
+            style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: AppColors.charcoal)),
       ],
     );
   }
@@ -215,7 +263,8 @@ class _TransactionTile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 1),
       padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 0),
-      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.hairline))),
+      decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: AppColors.hairline))),
       child: Row(
         children: [
           Icon(transaction.type.icon, size: 22, color: transaction.type.color),
@@ -224,10 +273,18 @@ class _TransactionTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(transaction.type.label, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.charcoal)),
+                Text(transaction.type.label,
+                    style: GoogleFonts.inter(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.charcoal)),
                 if (transaction.description.isNotEmpty) ...[
                   const SizedBox(height: 2),
-                  Text(transaction.description, style: GoogleFonts.inter(fontSize: 14, color: AppColors.mute), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  Text(transaction.description,
+                      style: GoogleFonts.inter(
+                          fontSize: 14, color: AppColors.mute),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis),
                 ],
               ],
             ),
@@ -235,9 +292,15 @@ class _TransactionTile extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('$sign Rp ${_formatRupiah(transaction.amount)}', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500, color: amountColor)),
+              Text('$sign Rp ${_formatRupiah(transaction.amount)}',
+                  style: GoogleFonts.inter(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: amountColor)),
               const SizedBox(height: 2),
-              Text(_formatDateTime(transaction.createdAt), style: GoogleFonts.inter(fontSize: 12, color: AppColors.mute)),
+              Text(_formatDateTime(transaction.createdAt),
+                  style:
+                      GoogleFonts.inter(fontSize: 12, color: AppColors.mute)),
             ],
           ),
         ],

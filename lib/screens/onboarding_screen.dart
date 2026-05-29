@@ -1,4 +1,5 @@
 import 'package:beesports/app/di.dart';
+import 'package:beesports/core/feedback_service.dart';
 import 'package:beesports/app/app_colors.dart';
 import 'package:beesports/models/campus.dart';
 import 'package:beesports/models/user_entity.dart';
@@ -69,8 +70,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         nim: _nimController.text.trim(),
         campus: _detectedCampus.label,
         sportPreferences: _selectedSports.map((s) => s.name).toList(),
-        skillLevels:
-            _skillLevels.map((s, l) => MapEntry(s.name, l.name)),
+        skillLevels: _skillLevels.map((s, l) => MapEntry(s.name, l.name)),
       );
       if (mounted) {
         context.read<AuthBloc>().add(OnboardingCompleted(widget.user.copyWith(
@@ -81,8 +81,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Error: $e'), backgroundColor: AppColors.tersierDark));
+        FeedbackService.showError(context, 'Error: $e');
       }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
@@ -92,7 +91,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.foursier,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(children: [
           Padding(
@@ -105,8 +104,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           height: 3,
                           margin: const EdgeInsets.symmetric(horizontal: 4),
                           color: i <= _currentPage
-                              ? AppColors.primary
-                              : AppColors.tersierLight,
+                              ? AppColors.neonGreen
+                              : AppColors.divider,
                         ),
                       )),
             ),
@@ -130,18 +129,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const Spacer(),
           Text('ENTER YOUR NIM',
               style: GoogleFonts.bebasNeue(
-                  fontSize: 48, height: 0.9, color: AppColors.primary)),
+                  fontSize: 48, height: 0.9, color: AppColors.neonGreen)),
           const SizedBox(height: 12),
           Text("We'll auto-detect your campus",
-              style: GoogleFonts.inter(color: AppColors.primaryLight, fontSize: 14)),
+              style: GoogleFonts.inter(
+                  color: AppColors.textSecondary, fontSize: 14)),
           const SizedBox(height: 32),
           TextFormField(
             controller: _nimController,
             keyboardType: TextInputType.number,
             maxLength: 10,
             style: GoogleFonts.inter(
-                fontSize: 24, fontWeight: FontWeight.w500,
-                color: AppColors.primary, letterSpacing: 3),
+                fontSize: 24,
+                fontWeight: FontWeight.w500,
+                color: AppColors.neonGreen,
+                letterSpacing: 3),
             decoration: const InputDecoration(
                 hintText: '2502000000',
                 counterText: '',
@@ -156,16 +158,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     key: ValueKey(_detectedCampus),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 12),
-                    color: AppColors.secondaryLight,
+                    color: AppColors.surfaceVariant,
                     child: Row(children: [
                       const Icon(Icons.location_on,
-                          color: AppColors.primary, size: 20),
+                          color: AppColors.neonGreen, size: 20),
                       const SizedBox(width: 8),
-                      Text(
-                          '${_detectedCampus.label} — ${_detectedCampus.city}',
+                      Text('${_detectedCampus.label} — ${_detectedCampus.city}',
                           style: GoogleFonts.inter(
                               fontWeight: FontWeight.w500,
-                              color: AppColors.primary)),
+                              color: AppColors.neonGreen)),
                     ]))
                 : const SizedBox.shrink(),
           ),
@@ -185,10 +186,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const SizedBox(height: 16),
           Text('WHAT DO\nYOU PLAY?',
               style: GoogleFonts.bebasNeue(
-                  fontSize: 48, height: 0.9, color: AppColors.primary)),
+                  fontSize: 48, height: 0.9, color: AppColors.neonGreen)),
           const SizedBox(height: 12),
           Text('Select one or more sports',
-              style: GoogleFonts.inter(color: AppColors.primaryLight, fontSize: 14)),
+              style: GoogleFonts.inter(
+                  color: AppColors.textSecondary, fontSize: 14)),
           const SizedBox(height: 24),
           Expanded(
             child: GridView.builder(
@@ -204,28 +206,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 return GestureDetector(
                   onTap: () => setState(() {
                     sel
-                        ? (_selectedSports.remove(sport),
-                            _skillLevels.remove(sport))
+                        ? (
+                            _selectedSports.remove(sport),
+                            _skillLevels.remove(sport)
+                          )
                         : _selectedSports.add(sport);
                   }),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    color: sel ? AppColors.primary : AppColors.secondaryLight,
+                    color: sel ? AppColors.neonGreen : AppColors.surfaceVariant,
                     child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(sport.icon,
                               size: 28,
                               color: sel
-                                  ? AppColors.foursierLight
-                                  : AppColors.primary),
+                                  ? AppColors.onAccent
+                                  : AppColors.neonGreen),
                           const SizedBox(height: 8),
                           Text(sport.label,
                               style: GoogleFonts.inter(
                                   fontWeight: FontWeight.w500,
                                   color: sel
-                                      ? AppColors.foursierLight
-                                      : AppColors.primary)),
+                                      ? AppColors.onAccent
+                                      : AppColors.neonGreen)),
                         ]),
                   ),
                 );
@@ -237,14 +241,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 onPressed: _prevPage,
                 child: Text('Back',
                     style: GoogleFonts.inter(
-                        color: AppColors.primary,
+                        color: AppColors.neonGreen,
                         decoration: TextDecoration.underline))),
             const Spacer(),
             SizedBox(
                 height: 48,
                 child: ElevatedButton(
-                    onPressed:
-                        _selectedSports.isNotEmpty ? _nextPage : null,
+                    onPressed: _selectedSports.isNotEmpty ? _nextPage : null,
                     child: const Text('Continue'))),
           ]),
           const SizedBox(height: 24),
@@ -259,10 +262,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         const SizedBox(height: 16),
         Text('RATE YOUR\nSKILLS',
             style: GoogleFonts.bebasNeue(
-                fontSize: 48, height: 0.9, color: AppColors.primary)),
+                fontSize: 48, height: 0.9, color: AppColors.neonGreen)),
         const SizedBox(height: 12),
         Text('Be honest — this helps with fair matchmaking!',
-            style: GoogleFonts.inter(color: AppColors.primaryLight, fontSize: 14)),
+            style: GoogleFonts.inter(
+                color: AppColors.textSecondary, fontSize: 14)),
         const SizedBox(height: 24),
         Expanded(
           child: ListView.separated(
@@ -273,18 +277,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               final cur = _skillLevels[sport];
               return Container(
                 padding: const EdgeInsets.all(16),
-                color: AppColors.secondaryLight,
+                color: AppColors.surfaceVariant,
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(children: [
-                        Icon(sport.icon, color: AppColors.primary, size: 22),
+                        Icon(sport.icon, color: AppColors.neonGreen, size: 22),
                         const SizedBox(width: 8),
                         Text(sport.label,
                             style: GoogleFonts.inter(
                                 fontWeight: FontWeight.w500,
                                 fontSize: 16,
-                                color: AppColors.primary)),
+                                color: AppColors.neonGreen)),
                       ]),
                       const SizedBox(height: 12),
                       Row(
@@ -296,19 +300,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 setState(() => _skillLevels[sport] = level),
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 3),
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 10),
+                              margin: const EdgeInsets.symmetric(horizontal: 3),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
                               decoration: BoxDecoration(
                                 color: sel
-                                    ? AppColors.primary
-                                    : AppColors.foursier,
+                                    ? AppColors.neonGreen
+                                    : AppColors.background,
                                 borderRadius: BorderRadius.circular(30),
                                 border: Border.all(
                                     color: sel
-                                        ? AppColors.primary
-                                        : AppColors.foursierDark),
+                                        ? AppColors.neonGreen
+                                        : AppColors.border),
                               ),
                               child: Column(children: [
                                 Text(level.emoji,
@@ -319,8 +321,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                         fontSize: 10,
                                         fontWeight: FontWeight.w500,
                                         color: sel
-                                            ? AppColors.foursierLight
-                                            : AppColors.primaryLight)),
+                                            ? AppColors.onAccent
+                                            : AppColors.textSecondary)),
                               ]),
                             ),
                           ),
@@ -336,7 +338,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               onPressed: _prevPage,
               child: Text('Back',
                   style: GoogleFonts.inter(
-                      color: AppColors.primary,
+                      color: AppColors.neonGreen,
                       decoration: TextDecoration.underline))),
           const Spacer(),
           SizedBox(
@@ -348,7 +350,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       width: 24,
                       height: 24,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: AppColors.foursierLight))
+                          strokeWidth: 2, color: AppColors.onAccent))
                   : const Text("Let's Go!"),
             ),
           ),

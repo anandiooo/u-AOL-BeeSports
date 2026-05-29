@@ -27,7 +27,9 @@ Future<bool?> showConfirmationSheet(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 48, color: isDestructive ? AppColors.error : AppColors.neonGreen),
+              Icon(icon,
+                  size: 48,
+                  color: isDestructive ? AppColors.error : AppColors.neonGreen),
               const SizedBox(height: 16),
             ],
             Text(
@@ -73,8 +75,10 @@ Future<bool?> showConfirmationSheet(
                       Navigator.pop(context, true);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isDestructive ? AppColors.error : AppColors.neonGreen,
-                      foregroundColor: isDestructive ? Colors.white : AppColors.onPrimary,
+                      backgroundColor:
+                          isDestructive ? AppColors.error : AppColors.neonGreen,
+                      foregroundColor:
+                          isDestructive ? Colors.white : AppColors.onPrimary,
                     ),
                     child: Text(confirmLabel),
                   ),

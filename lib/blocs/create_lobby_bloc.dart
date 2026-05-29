@@ -90,28 +90,30 @@ class CreateLobbyBloc extends Bloc<CreateLobbyEvent, CreateLobbyState> {
     Emitter<CreateLobbyState> emit,
   ) async {
     emit(CreateLobbyLoading());
-    try {
-      final lobby = LobbyEntity(
-        id: '',
-        hostId: event.hostId,
-        title: event.title,
-        sport: event.sport,
-        description: event.description,
-        scheduledAt: event.scheduledAt,
-        durationMinutes: event.durationMinutes,
-        minPlayers: event.minPlayers,
-        maxPlayers: event.maxPlayers,
-        depositAmount: event.depositAmount,
-        minElo: event.minElo,
-        maxElo: event.maxElo,
-        createdAt: DateTime.now(),
-      );
+    final lobby = LobbyEntity(
+      id: '',
+      hostId: event.hostId,
+      title: event.title,
+      sport: event.sport,
+      description: event.description,
+      scheduledAt: event.scheduledAt,
+      durationMinutes: event.durationMinutes,
+      minPlayers: event.minPlayers,
+      maxPlayers: event.maxPlayers,
+      depositAmount: event.depositAmount,
+      minElo: event.minElo,
+      maxElo: event.maxElo,
+      createdAt: DateTime.now(),
+    );
 
-      final created = await _lobbyRepository.createLobby(lobby);
-      emit(CreateLobbySuccess(created));
-    } catch (e, st) {
-      debugPrint('CreateLobbyBloc._onSubmit error: $e\n$st');
-      emit(CreateLobbyError(e.toString()));
-    }
+    final result = await _lobbyRepository.createLobby(lobby);
+    result.when(
+      success: (created) {
+        emit(CreateLobbySuccess(created));
+      },
+      failure: (f) {
+        emit(CreateLobbyError(f.message));
+      },
+    );
   }
 }

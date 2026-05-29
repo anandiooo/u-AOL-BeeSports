@@ -1,18 +1,20 @@
 import 'package:beesports/models/match_entity.dart';
 import 'package:beesports/models/match_participant_entity.dart';
+import 'package:beesports/core/result.dart';
 
 abstract class MatchRepository {
-  Future<MatchEntity> submitResult({
+  Future<Result<MatchEntity>> submitResult({
     required String lobbyId,
     required int teamAScore,
     required int teamBScore,
   });
 
-  Future<MatchEntity?> getMatchByLobby(String lobbyId);
+  Future<Result<MatchEntity?>> getMatchByLobby(String lobbyId);
 
-  Future<List<MatchParticipantEntity>> getMatchParticipants(String matchId);
+  Future<Result<List<MatchParticipantEntity>>> getMatchParticipants(
+      String matchId);
 
-  Future<List<MatchEntity>> getMyMatches(String userId);
+  Future<Result<List<MatchEntity>>> getMyMatches(String userId);
 
-  Future<void> settleMatch(String matchId);
+  Future<Result<void>> settleMatch(String matchId);
 }

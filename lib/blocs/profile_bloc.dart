@@ -83,16 +83,19 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     Emitter<ProfileState> emit,
   ) async {
     emit(ProfileLoading());
-    try {
-      final profile = await _profileRepository.getProfile(event.userId);
-      if (profile != null) {
-        emit(ProfileLoaded(profile));
-      } else {
-        emit(const ProfileError('Profile not found.'));
-      }
-    } catch (e) {
-      emit(ProfileError(e.toString()));
-    }
+    final result = await _profileRepository.getProfile(event.userId);
+    result.when(
+      success: (profile) {
+        if (profile != null) {
+          emit(ProfileLoaded(profile));
+        } else {
+          emit(const ProfileError('Profile not found.'));
+        }
+      },
+      failure: (f) {
+        emit(ProfileError(f.message));
+      },
+    );
   }
 
   Future<void> _onUpdate(
@@ -100,12 +103,15 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     Emitter<ProfileState> emit,
   ) async {
     emit(ProfileLoading());
-    try {
-      await _profileRepository.updateProfile(event.profile);
-      emit(ProfileUpdateSuccess(event.profile));
-    } catch (e) {
-      emit(ProfileError('Failed to update profile: ${e.toString()}'));
-    }
+    final result = await _profileRepository.updateProfile(event.profile);
+    result.when(
+      success: (_) {
+        emit(ProfileUpdateSuccess(event.profile));
+      },
+      failure: (f) {
+        emit(ProfileError(f.message));
+      },
+    );
   }
 
   Future<void> _onAvatarUpload(
@@ -113,17 +119,28 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     Emitter<ProfileState> emit,
   ) async {
     emit(ProfileLoading());
-    try {
-      final avatarUrl = await _profileRepository.uploadProfileAvatar(
-        event.userId,
-        event.imageBytes,
-        event.fileName,
-      );
-      final updated = event.currentProfile.copyWith(avatarUrl: avatarUrl);
-      await _profileRepository.updateProfile(updated);
-      emit(ProfileUpdateSuccess(updated));
-    } catch (e) {
-      emit(ProfileError('Failed to upload avatar: ${e.toString()}'));
-    }
+    final result = await _profileRepository.uploadProfileAvatar(
+      event.userId,
+      event.imageBytes,
+      event.fileName,
+    );
+
+    await result.when(
+      success: (avatarUrl) async {
+        final updated = event.currentProfile.copyWith(avatarUrl: avatarUrl);
+        final updateResult = await _profileRepository.updateProfile(updated);
+        updateResult.when(
+          success: (_) {
+            emit(ProfileUpdateSuccess(updated));
+          },
+          failure: (f) {
+            emit(ProfileError(f.message));
+          },
+        );
+      },
+      failure: (f) async {
+        emit(ProfileError(f.message));
+      },
+    );
   }
 }

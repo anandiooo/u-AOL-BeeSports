@@ -45,10 +45,8 @@ class _LobbyChatScreenState extends State<LobbyChatScreen> {
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
       Future.delayed(const Duration(milliseconds: 100), () {
-        _scrollController.animateTo(
-            _scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeOut);
+        _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
       });
     }
   }
@@ -56,15 +54,15 @@ class _LobbyChatScreenState extends State<LobbyChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.foursier,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text('Lobby Chat',
             style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500, color: AppColors.primary)),
-        backgroundColor: AppColors.foursier,
+                fontWeight: FontWeight.w500, color: AppColors.neonGreen)),
+        backgroundColor: AppColors.background,
         elevation: 0,
         scrolledUnderElevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.primary),
+        iconTheme: const IconThemeData(color: AppColors.neonGreen),
       ),
       body: Column(children: [
         Expanded(
@@ -75,18 +73,20 @@ class _LobbyChatScreenState extends State<LobbyChatScreen> {
             builder: (context, state) {
               if (state is ChatLoading) {
                 return const Center(
-                    child: CircularProgressIndicator(color: AppColors.primary));
+                    child:
+                        CircularProgressIndicator(color: AppColors.neonGreen));
               }
               if (state is ChatError) {
                 return Center(
                     child: Text(state.message,
-                        style: GoogleFonts.inter(color: AppColors.tersierDark)));
+                        style: GoogleFonts.inter(color: AppColors.error)));
               }
               if (state is ChatLoaded) {
                 if (state.messages.isEmpty) {
                   return Center(
                     child: Text('No messages yet. Say hi! 👋',
-                        style: GoogleFonts.inter(color: AppColors.primaryLight)),
+                        style:
+                            GoogleFonts.inter(color: AppColors.textSecondary)),
                   );
                 }
                 return ListView.builder(
@@ -122,11 +122,11 @@ class _MessageBubble extends StatelessWidget {
         child: Center(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            color: AppColors.secondaryLight,
+            color: AppColors.surfaceVariant,
             child: Text(message.content,
                 style: GoogleFonts.inter(
                     fontSize: 12,
-                    color: AppColors.primaryLight,
+                    color: AppColors.textSecondary,
                     fontStyle: FontStyle.italic)),
           ),
         ),
@@ -144,13 +144,12 @@ class _MessageBubble extends StatelessWidget {
               width: 28,
               height: 28,
               decoration: const BoxDecoration(
-                  color: AppColors.primary, shape: BoxShape.circle),
+                  color: AppColors.neonGreen, shape: BoxShape.circle),
               child: Center(
-                child: Text(
-                    (message.senderName ?? '?')[0].toUpperCase(),
+                child: Text((message.senderName ?? '?')[0].toUpperCase(),
                     style: GoogleFonts.inter(
                         fontSize: 12,
-                        color: AppColors.foursierLight,
+                        color: AppColors.onAccent,
                         fontWeight: FontWeight.w500)),
               ),
             ),
@@ -158,19 +157,14 @@ class _MessageBubble extends StatelessWidget {
           ],
           Flexible(
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: isOwn ? AppColors.primary : AppColors.secondaryLight,
+                color: isOwn ? AppColors.neonGreen : AppColors.surfaceVariant,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
-                  bottomLeft: isOwn
-                      ? const Radius.circular(16)
-                      : Radius.zero,
-                  bottomRight: isOwn
-                      ? Radius.zero
-                      : const Radius.circular(16),
+                  bottomLeft: isOwn ? const Radius.circular(16) : Radius.zero,
+                  bottomRight: isOwn ? Radius.zero : const Radius.circular(16),
                 ),
               ),
               child: Column(
@@ -183,21 +177,21 @@ class _MessageBubble extends StatelessWidget {
                             style: GoogleFonts.inter(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500,
-                                color: AppColors.primary)),
+                                color: AppColors.neonGreen)),
                       ),
                     Text(message.content,
                         style: GoogleFonts.inter(
                             color: isOwn
-                                ? AppColors.foursierLight
-                                : AppColors.primary)),
+                                ? AppColors.onAccent
+                                : AppColors.neonGreen)),
                     const SizedBox(height: 4),
                     Text(
                         '${message.createdAt.hour.toString().padLeft(2, '0')}:${message.createdAt.minute.toString().padLeft(2, '0')}',
                         style: GoogleFonts.inter(
                             fontSize: 10,
                             color: isOwn
-                                ? AppColors.foursierLight.withValues(alpha: 0.6)
-                                : AppColors.primaryLight)),
+                                ? AppColors.onAccent.withValues(alpha: 0.6)
+                                : AppColors.textSecondary)),
                   ]),
             ),
           ),
@@ -217,8 +211,8 @@ class _InputBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 8, 16),
       decoration: const BoxDecoration(
-        color: AppColors.foursier,
-        border: Border(top: BorderSide(color: AppColors.tersierLight)),
+        color: AppColors.background,
+        border: Border(top: BorderSide(color: AppColors.divider)),
       ),
       child: SafeArea(
         top: false,
@@ -228,16 +222,16 @@ class _InputBar extends StatelessWidget {
               controller: controller,
               decoration: InputDecoration(
                 hintText: 'Type a message...',
-                hintStyle: GoogleFonts.inter(color: AppColors.primaryLight),
+                hintStyle: GoogleFonts.inter(color: AppColors.textSecondary),
                 filled: true,
-                fillColor: AppColors.secondaryLight,
+                fillColor: AppColors.surfaceVariant,
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
                     borderSide: BorderSide.none),
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 10),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               ),
-              style: GoogleFonts.inter(color: AppColors.primary),
+              style: GoogleFonts.inter(color: AppColors.neonGreen),
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => onSend(),
             ),
@@ -245,10 +239,9 @@ class _InputBar extends StatelessWidget {
           const SizedBox(width: 8),
           Container(
             decoration: const BoxDecoration(
-                color: AppColors.primary, shape: BoxShape.circle),
+                color: AppColors.neonGreen, shape: BoxShape.circle),
             child: IconButton(
-              icon: const Icon(Icons.send,
-                  color: AppColors.foursierLight, size: 20),
+              icon: const Icon(Icons.send, color: AppColors.onAccent, size: 20),
               onPressed: onSend,
             ),
           ),

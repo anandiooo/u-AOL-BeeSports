@@ -63,16 +63,19 @@ class MatchBloc extends Bloc<MatchEvent, MatchState> {
     Emitter<MatchState> emit,
   ) async {
     emit(MatchLoading());
-    try {
-      final match = await _repository.submitResult(
-        lobbyId: event.lobbyId,
-        teamAScore: event.teamAScore,
-        teamBScore: event.teamBScore,
-      );
-      emit(MatchSubmitted(match));
-    } catch (e) {
-      emit(MatchError(e.toString()));
-    }
+    final result = await _repository.submitResult(
+      lobbyId: event.lobbyId,
+      teamAScore: event.teamAScore,
+      teamBScore: event.teamBScore,
+    );
+    result.when(
+      success: (match) {
+        emit(MatchSubmitted(match));
+      },
+      failure: (f) {
+        emit(MatchError(f.message));
+      },
+    );
   }
 
   Future<void> _onLoadDetail(
@@ -80,17 +83,29 @@ class MatchBloc extends Bloc<MatchEvent, MatchState> {
     Emitter<MatchState> emit,
   ) async {
     emit(MatchLoading());
-    try {
-      final match = await _repository.getMatchByLobby(event.lobbyId);
-      if (match == null) {
-        emit(MatchError('No match found for this lobby'));
-        return;
-      }
-      final participants = await _repository.getMatchParticipants(match.id);
-      emit(MatchDetailLoaded(match, participants));
-    } catch (e) {
-      emit(MatchError(e.toString()));
-    }
+    final matchResult = await _repository.getMatchByLobby(event.lobbyId);
+
+    await matchResult.when(
+      success: (match) async {
+        if (match == null) {
+          emit(MatchError('No match found for this lobby'));
+          return;
+        }
+        final participantsResult =
+            await _repository.getMatchParticipants(match.id);
+        participantsResult.when(
+          success: (participants) {
+            emit(MatchDetailLoaded(match, participants));
+          },
+          failure: (f) {
+            emit(MatchError(f.message));
+          },
+        );
+      },
+      failure: (f) async {
+        emit(MatchError(f.message));
+      },
+    );
   }
 
   Future<void> _onLoadHistory(
@@ -98,11 +113,14 @@ class MatchBloc extends Bloc<MatchEvent, MatchState> {
     Emitter<MatchState> emit,
   ) async {
     emit(MatchLoading());
-    try {
-      final matches = await _repository.getMyMatches(event.userId);
-      emit(MatchHistoryLoaded(matches));
-    } catch (e) {
-      emit(MatchError(e.toString()));
-    }
+    final result = await _repository.getMyMatches(event.userId);
+    result.when(
+      success: (matches) {
+        emit(MatchHistoryLoaded(matches));
+      },
+      failure: (f) {
+        emit(MatchError(f.message));
+      },
+    );
   }
 }

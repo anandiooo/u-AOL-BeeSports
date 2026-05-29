@@ -12,7 +12,8 @@ class FadeTransitionPage<T> extends CustomTransitionPage<T> {
   }) : super(
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(
-              opacity: CurveTween(curve: AppAnimations.smoothCurve).animate(animation),
+              opacity: CurveTween(curve: AppAnimations.smoothCurve)
+                  .animate(animation),
               child: child,
             );
           },

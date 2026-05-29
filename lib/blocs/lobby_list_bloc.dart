@@ -1,3 +1,5 @@
+import 'dart:async'; // For Timer
+
 import 'package:beesports/models/lobby_entity.dart';
 import 'package:beesports/repos/lobby_repository.dart';
 import 'package:beesports/models/sport_type.dart';
@@ -13,9 +15,19 @@ abstract class LobbyListEvent extends Equatable {
 class LoadLobbies extends LobbyListEvent {
   final SportType? sport;
   final String? sortBy;
-  const LoadLobbies({this.sport, this.sortBy});
+  final String? searchQuery;
+  const LoadLobbies({this.sport, this.sortBy, this.searchQuery});
   @override
-  List<Object?> get props => [sport, sortBy];
+  List<Object?> get props => [sport, sortBy, searchQuery];
+}
+
+class SearchLobbies extends LobbyListEvent {
+  final String query;
+  final SportType? sport;
+  final String? sortBy;
+  const SearchLobbies(this.query, {this.sport, this.sortBy});
+  @override
+  List<Object?> get props => [query, sport, sortBy];
 }
 
 class LoadMyLobbies extends LobbyListEvent {
@@ -39,10 +51,12 @@ class LobbyListLoaded extends LobbyListState {
   final List<LobbyEntity> lobbies;
   final SportType? activeSportFilter;
   final String? activeSort;
+  final String? activeSearch;
   const LobbyListLoaded(this.lobbies,
-      {this.activeSportFilter, this.activeSort});
+      {this.activeSportFilter, this.activeSort, this.activeSearch});
   @override
-  List<Object?> get props => [lobbies, activeSportFilter, activeSort];
+  List<Object?> get props =>
+      [lobbies, activeSportFilter, activeSort, activeSearch];
 }
 
 class LobbyListError extends LobbyListState {
@@ -54,10 +68,12 @@ class LobbyListError extends LobbyListState {
 
 class LobbyListBloc extends Bloc<LobbyListEvent, LobbyListState> {
   final LobbyRepository _lobbyRepository;
+  Timer? _debounceTimer;
 
   LobbyListBloc(this._lobbyRepository) : super(LobbyListInitial()) {
     on<LoadLobbies>(_onLoadLobbies);
     on<LoadMyLobbies>(_onLoadMyLobbies);
+    on<SearchLobbies>(_onSearchLobbies);
   }
 
   Future<void> _onLoadLobbies(
@@ -65,19 +81,38 @@ class LobbyListBloc extends Bloc<LobbyListEvent, LobbyListState> {
     Emitter<LobbyListState> emit,
   ) async {
     emit(LobbyListLoading());
-    try {
-      final lobbies = await _lobbyRepository.getLobbies(
+    final result = await _lobbyRepository.getLobbies(
+      sport: event.sport,
+      sortBy: event.sortBy,
+      searchQuery: event.searchQuery,
+    );
+    result.when(
+      success: (lobbies) {
+        emit(LobbyListLoaded(
+          lobbies,
+          activeSportFilter: event.sport,
+          activeSort: event.sortBy,
+          activeSearch: event.searchQuery,
+        ));
+      },
+      failure: (f) {
+        emit(LobbyListError(f.message));
+      },
+    );
+  }
+
+  void _onSearchLobbies(
+    SearchLobbies event,
+    Emitter<LobbyListState> emit,
+  ) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      add(LoadLobbies(
         sport: event.sport,
         sortBy: event.sortBy,
-      );
-      emit(LobbyListLoaded(
-        lobbies,
-        activeSportFilter: event.sport,
-        activeSort: event.sortBy,
+        searchQuery: event.query,
       ));
-    } catch (e) {
-      emit(LobbyListError(e.toString()));
-    }
+    });
   }
 
   Future<void> _onLoadMyLobbies(
@@ -85,11 +120,14 @@ class LobbyListBloc extends Bloc<LobbyListEvent, LobbyListState> {
     Emitter<LobbyListState> emit,
   ) async {
     emit(LobbyListLoading());
-    try {
-      final lobbies = await _lobbyRepository.getMyLobbies(event.userId);
-      emit(LobbyListLoaded(lobbies));
-    } catch (e) {
-      emit(LobbyListError(e.toString()));
-    }
+    final result = await _lobbyRepository.getMyLobbies(event.userId);
+    result.when(
+      success: (lobbies) {
+        emit(LobbyListLoaded(lobbies));
+      },
+      failure: (f) {
+        emit(LobbyListError(f.message));
+      },
+    );
   }
 }

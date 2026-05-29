@@ -1,3 +1,4 @@
+import 'package:beesports/core/feedback_service.dart';
 import 'package:beesports/app/app_colors.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:beesports/blocs/create_lobby_bloc.dart';
@@ -42,28 +43,24 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.foursier,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text('Create Lobby',
             style: GoogleFonts.inter(
-                color: AppColors.primary, fontWeight: FontWeight.w500)),
-        backgroundColor: AppColors.foursier,
+                color: AppColors.neonGreen, fontWeight: FontWeight.w500)),
+        backgroundColor: AppColors.background,
         elevation: 0,
         scrolledUnderElevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.primary),
+        iconTheme: const IconThemeData(color: AppColors.neonGreen),
       ),
       body: BlocConsumer<CreateLobbyBloc, CreateLobbyState>(
         listener: (context, state) {
           if (state is CreateLobbySuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text('Lobby created successfully!'),
-                backgroundColor: AppColors.secondary));
+            FeedbackService.showSuccess(context, 'Lobby created successfully!');
             context.go('/lobbies/${state.lobby.id}');
           }
           if (state is CreateLobbyError) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.tersierDark));
+            FeedbackService.showError(context, state.message);
           }
         },
         builder: (context, state) {
@@ -79,7 +76,7 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                       style: GoogleFonts.inter(
                           fontSize: 24,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.primary)),
+                          color: AppColors.neonGreen)),
                   const SizedBox(height: 18),
                   Wrap(
                     spacing: 8,
@@ -93,25 +90,27 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(
-                            color: sel ? AppColors.primary : AppColors.foursier,
+                            color: sel
+                                ? AppColors.neonGreen
+                                : AppColors.background,
                             borderRadius: BorderRadius.circular(30),
                             border: Border.all(
                                 color: sel
-                                    ? AppColors.primary
-                                    : AppColors.foursierDark),
+                                    ? AppColors.neonGreen
+                                    : AppColors.border),
                           ),
                           child: Row(mainAxisSize: MainAxisSize.min, children: [
                             Icon(sport.icon,
                                 size: 18,
                                 color: sel
-                                    ? AppColors.foursierLight
-                                    : AppColors.primary),
+                                    ? AppColors.onAccent
+                                    : AppColors.neonGreen),
                             const SizedBox(width: 8),
                             Text(sport.label,
                                 style: GoogleFonts.inter(
                                     color: sel
-                                        ? AppColors.foursierLight
-                                        : AppColors.primary,
+                                        ? AppColors.onAccent
+                                        : AppColors.neonGreen,
                                     fontWeight: FontWeight.w500)),
                           ]),
                         ),
@@ -123,11 +122,11 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                       style: GoogleFonts.inter(
                           fontSize: 24,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.primary)),
+                          color: AppColors.neonGreen)),
                   const SizedBox(height: 18),
                   Container(
                     padding: const EdgeInsets.all(20),
-                    color: AppColors.secondaryLight,
+                    color: AppColors.surfaceVariant,
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -135,15 +134,16 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                               style: GoogleFonts.inter(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
-                                  color: AppColors.primaryLight)),
+                                  color: AppColors.textSecondary)),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _titleController,
-                            style: GoogleFonts.inter(color: AppColors.primary),
+                            style:
+                                GoogleFonts.inter(color: AppColors.neonGreen),
                             decoration: const InputDecoration(
                                 hintText: 'e.g. Friendly Futsal Match',
                                 prefixIcon: Icon(Icons.title),
-                                fillColor: AppColors.foursier),
+                                fillColor: AppColors.background),
                             validator: (v) => (v == null || v.trim().isEmpty)
                                 ? 'Required'
                                 : null,
@@ -153,16 +153,17 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                               style: GoogleFonts.inter(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
-                                  color: AppColors.primaryLight)),
+                                  color: AppColors.textSecondary)),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _descController,
                             maxLines: 3,
-                            style: GoogleFonts.inter(color: AppColors.primary),
+                            style:
+                                GoogleFonts.inter(color: AppColors.neonGreen),
                             decoration: const InputDecoration(
                                 hintText: 'Any extra info for players...',
                                 prefixIcon: Icon(Icons.description),
-                                fillColor: AppColors.foursier),
+                                fillColor: AppColors.background),
                           ),
                         ]),
                   ),
@@ -171,11 +172,11 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                       style: GoogleFonts.inter(
                           fontSize: 24,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.primary)),
+                          color: AppColors.neonGreen)),
                   const SizedBox(height: 18),
                   Container(
                     padding: const EdgeInsets.all(20),
-                    color: AppColors.secondaryLight,
+                    color: AppColors.surfaceVariant,
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -200,7 +201,7 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                               style: GoogleFonts.inter(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
-                                  color: AppColors.primaryLight)),
+                                  color: AppColors.textSecondary)),
                           const SizedBox(height: 12),
                           Row(
                             children: [30, 60, 90, 120].map((d) {
@@ -216,21 +217,21 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                                         vertical: 12),
                                     decoration: BoxDecoration(
                                       color: sel
-                                          ? AppColors.primary
-                                          : AppColors.foursier,
+                                          ? AppColors.neonGreen
+                                          : AppColors.background,
                                       borderRadius: BorderRadius.circular(30),
                                       border: Border.all(
                                           color: sel
-                                              ? AppColors.primary
-                                              : AppColors.foursierDark),
+                                              ? AppColors.neonGreen
+                                              : AppColors.border),
                                     ),
                                     child: Center(
                                       child: Text('${d}m',
                                           style: GoogleFonts.inter(
                                               fontWeight: FontWeight.w500,
                                               color: sel
-                                                  ? AppColors.foursierLight
-                                                  : AppColors.primary)),
+                                                  ? AppColors.onAccent
+                                                  : AppColors.neonGreen)),
                                     ),
                                   ),
                                 ),
@@ -244,11 +245,11 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                       style: GoogleFonts.inter(
                           fontSize: 24,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.primary)),
+                          color: AppColors.neonGreen)),
                   const SizedBox(height: 18),
                   Container(
                     padding: const EdgeInsets.all(20),
-                    color: AppColors.secondaryLight,
+                    color: AppColors.surfaceVariant,
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -273,18 +274,18 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                           ]),
                           const Padding(
                               padding: EdgeInsets.symmetric(vertical: 20),
-                              child: Divider(
-                                  height: 1, color: AppColors.tersierLight)),
+                              child:
+                                  Divider(height: 1, color: AppColors.divider)),
                           Text('Deposit (Rp)',
                               style: GoogleFonts.inter(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
-                                  color: AppColors.primaryLight)),
+                                  color: AppColors.textSecondary)),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _depositController,
                             style: GoogleFonts.inter(
-                                color: AppColors.primary,
+                                color: AppColors.neonGreen,
                                 fontWeight: FontWeight.w500),
                             keyboardType: TextInputType.number,
                             inputFormatters: [
@@ -294,26 +295,26 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                             decoration: const InputDecoration(
                                 hintText: '0 for no deposit',
                                 prefixIcon: Icon(Icons.monetization_on),
-                                fillColor: AppColors.foursier),
+                                fillColor: AppColors.background),
                           ),
                           const SizedBox(height: 20),
                           Text('Elo Range',
                               style: GoogleFonts.inter(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
-                                  color: AppColors.primaryLight)),
+                                  color: AppColors.textSecondary)),
                           const SizedBox(height: 8),
                           Row(children: [
                             Expanded(
                               child: TextFormField(
                                 controller: _minEloController,
-                                style:
-                                    GoogleFonts.inter(color: AppColors.primary),
+                                style: GoogleFonts.inter(
+                                    color: AppColors.neonGreen),
                                 keyboardType: TextInputType.number,
                                 decoration: const InputDecoration(
                                     hintText: 'Min',
                                     prefixIcon: Icon(Icons.arrow_downward),
-                                    fillColor: AppColors.foursier),
+                                    fillColor: AppColors.background),
                               ),
                             ),
                             Padding(
@@ -321,18 +322,18 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                                     const EdgeInsets.symmetric(horizontal: 8),
                                 child: Text('—',
                                     style: GoogleFonts.inter(
-                                        color: AppColors.primaryLight,
+                                        color: AppColors.textSecondary,
                                         fontSize: 18))),
                             Expanded(
                               child: TextFormField(
                                 controller: _maxEloController,
-                                style:
-                                    GoogleFonts.inter(color: AppColors.primary),
+                                style: GoogleFonts.inter(
+                                    color: AppColors.neonGreen),
                                 keyboardType: TextInputType.number,
                                 decoration: const InputDecoration(
                                     hintText: 'Max',
                                     prefixIcon: Icon(Icons.arrow_upward),
-                                    fillColor: AppColors.foursier),
+                                    fillColor: AppColors.background),
                               ),
                             ),
                           ]),
@@ -349,8 +350,7 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
                               height: 24,
                               width: 24,
                               child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: AppColors.foursierLight))
+                                  strokeWidth: 2, color: AppColors.onAccent))
                           : const Text('Create Lobby'),
                     ),
                   ),
@@ -395,7 +395,9 @@ class _CreateLobbyScreenState extends State<CreateLobbyScreen> {
           durationMinutes: _duration,
           minPlayers: _minPlayers,
           maxPlayers: _maxPlayers,
-          depositAmount: double.tryParse(_depositController.text.replaceAll('.', '').trim()) ?? 0,
+          depositAmount: double.tryParse(
+                  _depositController.text.replaceAll('.', '').trim()) ??
+              0,
           minElo: int.tryParse(_minEloController.text.trim()),
           maxElo: int.tryParse(_maxEloController.text.trim()),
         ));
@@ -420,22 +422,22 @@ class _PickerField extends StatelessWidget {
           style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: AppColors.primaryLight)),
+              color: AppColors.textSecondary)),
       const SizedBox(height: 8),
       GestureDetector(
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           decoration: BoxDecoration(
-            color: AppColors.foursier,
+            color: AppColors.background,
             borderRadius: BorderRadius.circular(24),
           ),
           child: Row(children: [
-            Icon(icon, color: AppColors.primary, size: 18),
+            Icon(icon, color: AppColors.neonGreen, size: 18),
             const SizedBox(width: 10),
             Text(value,
                 style: GoogleFonts.inter(
-                    color: AppColors.primary,
+                    color: AppColors.neonGreen,
                     fontWeight: FontWeight.w500,
                     fontSize: 14)),
           ]),
@@ -465,12 +467,12 @@ class _CounterField extends StatelessWidget {
           style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: AppColors.primaryLight)),
+              color: AppColors.textSecondary)),
       const SizedBox(height: 8),
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
         decoration: BoxDecoration(
-          color: AppColors.foursier,
+          color: AppColors.background,
           borderRadius: BorderRadius.circular(30),
         ),
         child:
@@ -483,7 +485,7 @@ class _CounterField extends StatelessWidget {
               style: GoogleFonts.inter(
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.primary)),
+                  color: AppColors.neonGreen)),
           _RoundButton(
               icon: Icons.add,
               enabled: value < max,
@@ -509,12 +511,12 @@ class _RoundButton extends StatelessWidget {
         width: 32,
         height: 32,
         decoration: BoxDecoration(
-          color: enabled ? AppColors.primary : AppColors.tersierLight,
+          color: enabled ? AppColors.neonGreen : AppColors.divider,
           shape: BoxShape.circle,
         ),
         child: Icon(icon,
             size: 16,
-            color: enabled ? AppColors.foursierLight : AppColors.primaryLight),
+            color: enabled ? AppColors.onAccent : AppColors.textSecondary),
       ),
     );
   }

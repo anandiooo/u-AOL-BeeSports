@@ -1,3 +1,4 @@
+import 'package:beesports/core/feedback_service.dart';
 import 'package:beesports/app/app_colors.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:beesports/models/friendship_entity.dart';
@@ -46,12 +47,12 @@ class _FriendsScreenState extends State<FriendsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.foursier,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text('Friends',
             style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500, color: AppColors.primary)),
-        backgroundColor: AppColors.foursier,
+                fontWeight: FontWeight.w500, color: AppColors.neonGreen)),
+        backgroundColor: AppColors.background,
         elevation: 0,
         scrolledUnderElevation: 0,
         bottom: TabBar(
@@ -61,14 +62,14 @@ class _FriendsScreenState extends State<FriendsScreen>
             Tab(text: 'Requests'),
             Tab(text: 'Search'),
           ],
-          indicatorColor: AppColors.primary,
-          labelColor: AppColors.primary,
-          unselectedLabelColor: AppColors.primaryLight,
+          indicatorColor: AppColors.neonGreen,
+          labelColor: AppColors.neonGreen,
+          unselectedLabelColor: AppColors.textSecondary,
           labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w500),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.person_search, color: AppColors.primary),
+            icon: const Icon(Icons.person_search, color: AppColors.neonGreen),
             onPressed: () => context.push('/users/search'),
           ),
         ],
@@ -93,7 +94,7 @@ class _FriendsTab extends StatelessWidget {
     return BlocBuilder<SocialBloc, SocialState>(builder: (context, state) {
       if (state is SocialLoading) {
         return const Center(
-            child: CircularProgressIndicator(color: AppColors.primary));
+            child: CircularProgressIndicator(color: AppColors.neonGreen));
       }
       if (state is FriendsLoaded) {
         if (state.friends.isEmpty) {
@@ -105,8 +106,7 @@ class _FriendsTab extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           itemCount: state.friends.length,
           itemBuilder: (context, index) => _FriendTile(
-              friendship: state.friends[index],
-              currentUserId: currentUserId),
+              friendship: state.friends[index], currentUserId: currentUserId),
         );
       }
       return const SizedBox.shrink();
@@ -122,7 +122,7 @@ class _RequestsTab extends StatelessWidget {
     return BlocBuilder<SocialBloc, SocialState>(builder: (context, state) {
       if (state is SocialLoading) {
         return const Center(
-            child: CircularProgressIndicator(color: AppColors.primary));
+            child: CircularProgressIndicator(color: AppColors.neonGreen));
       }
       if (state is PendingRequestsLoaded) {
         if (state.requests.isEmpty) {
@@ -137,17 +137,17 @@ class _RequestsTab extends StatelessWidget {
             return Container(
               margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.all(16),
-              color: AppColors.secondaryLight,
+              color: AppColors.surfaceVariant,
               child: Row(children: [
                 Container(
-                  width: 40, height: 40,
+                  width: 40,
+                  height: 40,
                   decoration: const BoxDecoration(
-                      color: AppColors.primary, shape: BoxShape.circle),
+                      color: AppColors.neonGreen, shape: BoxShape.circle),
                   child: Center(
-                    child: Text(
-                        (request.requesterName ?? '?')[0].toUpperCase(),
+                    child: Text((request.requesterName ?? '?')[0].toUpperCase(),
                         style: GoogleFonts.inter(
-                            color: AppColors.foursierLight,
+                            color: AppColors.onAccent,
                             fontWeight: FontWeight.w500)),
                   ),
                 ),
@@ -159,24 +159,22 @@ class _RequestsTab extends StatelessWidget {
                         Text(request.requesterName ?? 'Unknown',
                             style: GoogleFonts.inter(
                                 fontWeight: FontWeight.w500,
-                                color: AppColors.primary)),
+                                color: AppColors.neonGreen)),
                         Text('Wants to be your friend',
                             style: GoogleFonts.inter(
-                                fontSize: 12, color: AppColors.primaryLight)),
+                                fontSize: 12, color: AppColors.textSecondary)),
                       ]),
                 ),
                 IconButton(
                   icon: const Icon(Icons.check_circle,
-                      color: AppColors.secondary),
+                      color: AppColors.neonGreen),
                   onPressed: () => context.read<SocialBloc>().add(
-                      RespondToRequest(
-                          request.id, true, currentUserId ?? '')),
+                      RespondToRequest(request.id, true, currentUserId ?? '')),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.cancel, color: AppColors.secondaryDark),
+                  icon: const Icon(Icons.cancel, color: AppColors.accentOrange),
                   onPressed: () => context.read<SocialBloc>().add(
-                      RespondToRequest(
-                          request.id, false, currentUserId ?? '')),
+                      RespondToRequest(request.id, false, currentUserId ?? '')),
                 ),
               ]),
             );
@@ -212,7 +210,7 @@ class _SearchTab extends StatelessWidget {
         child: BlocBuilder<SocialBloc, SocialState>(builder: (context, state) {
           if (state is SocialLoading) {
             return const Center(
-                child: CircularProgressIndicator(color: AppColors.primary));
+                child: CircularProgressIndicator(color: AppColors.neonGreen));
           }
           if (state is UserSearchResults) {
             if (state.users.isEmpty) {
@@ -227,17 +225,17 @@ class _SearchTab extends StatelessWidget {
                 return Container(
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.all(14),
-                  color: AppColors.secondaryLight,
+                  color: AppColors.surfaceVariant,
                   child: Row(children: [
                     Container(
-                      width: 40, height: 40,
+                      width: 40,
+                      height: 40,
                       decoration: const BoxDecoration(
-                          color: AppColors.primary, shape: BoxShape.circle),
+                          color: AppColors.neonGreen, shape: BoxShape.circle),
                       child: Center(
-                        child: Text(
-                            (user.fullName ?? '?')[0].toUpperCase(),
+                        child: Text((user.fullName ?? '?')[0].toUpperCase(),
                             style: GoogleFonts.inter(
-                                color: AppColors.foursierLight,
+                                color: AppColors.onAccent,
                                 fontWeight: FontWeight.w500)),
                       ),
                     ),
@@ -249,23 +247,23 @@ class _SearchTab extends StatelessWidget {
                             Text(user.fullName ?? 'Unknown',
                                 style: GoogleFonts.inter(
                                     fontWeight: FontWeight.w500,
-                                    color: AppColors.primary)),
+                                    color: AppColors.neonGreen)),
                             Text(user.campus ?? '',
                                 style: GoogleFonts.inter(
-                                    fontSize: 12, color: AppColors.primaryLight)),
+                                    fontSize: 12,
+                                    color: AppColors.textSecondary)),
                           ]),
                     ),
                     IconButton(
                       icon: const Icon(Icons.person_add,
-                          color: AppColors.primary),
+                          color: AppColors.neonGreen),
                       onPressed: () {
                         if (currentUserId != null) {
-                          context.read<SocialBloc>().add(
-                              SendFriendRequest(currentUserId!, user.id));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Friend request sent!'),
-                                  backgroundColor: AppColors.secondary));
+                          context
+                              .read<SocialBloc>()
+                              .add(SendFriendRequest(currentUserId!, user.id));
+                          FeedbackService.showSuccess(
+                              context, 'Friend request sent!');
                         }
                       },
                     ),
@@ -296,30 +294,31 @@ class _FriendTile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(14),
-      color: AppColors.secondaryLight,
+      color: AppColors.surfaceVariant,
       child: Row(children: [
         Container(
-          width: 40, height: 40,
+          width: 40,
+          height: 40,
           decoration: const BoxDecoration(
-              color: AppColors.primary, shape: BoxShape.circle),
+              color: AppColors.neonGreen, shape: BoxShape.circle),
           child: Center(
             child: Text((friendName ?? '?')[0].toUpperCase(),
                 style: GoogleFonts.inter(
-                    color: AppColors.foursierLight,
-                    fontWeight: FontWeight.w500)),
+                    color: AppColors.onAccent, fontWeight: FontWeight.w500)),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: Text(friendName ?? 'Unknown',
               style: GoogleFonts.inter(
-                  fontWeight: FontWeight.w500, color: AppColors.primary)),
+                  fontWeight: FontWeight.w500, color: AppColors.neonGreen)),
         ),
         PopupMenuButton<String>(
           onSelected: (value) {
             if (value == 'remove') {
-              context.read<SocialBloc>().add(
-                  RemoveFriend(friendship.id, currentUserId ?? ''));
+              context
+                  .read<SocialBloc>()
+                  .add(RemoveFriend(friendship.id, currentUserId ?? ''));
             }
           },
           itemBuilder: (context) => [
@@ -327,10 +326,10 @@ class _FriendTile extends StatelessWidget {
               value: 'remove',
               child: Row(children: [
                 const Icon(Icons.person_remove,
-                    color: AppColors.secondaryDark, size: 18),
+                    color: AppColors.accentOrange, size: 18),
                 const SizedBox(width: 8),
                 Text('Remove Friend',
-                    style: GoogleFonts.inter(color: AppColors.primary)),
+                    style: GoogleFonts.inter(color: AppColors.neonGreen)),
               ]),
             ),
           ],
@@ -345,9 +344,9 @@ Widget _emptyState({required IconData icon, required String label}) {
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(icon, size: 64, color: AppColors.tersierLight),
+        Icon(icon, size: 64, color: AppColors.divider),
         const SizedBox(height: 12),
-        Text(label, style: GoogleFonts.inter(color: AppColors.primaryLight)),
+        Text(label, style: GoogleFonts.inter(color: AppColors.textSecondary)),
       ],
     ),
   );

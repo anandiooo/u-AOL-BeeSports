@@ -84,12 +84,15 @@ class SocialBloc extends Bloc<SocialEvent, SocialState> {
     Emitter<SocialState> emit,
   ) async {
     emit(SocialLoading());
-    try {
-      final friends = await _repository.getFriends(event.userId);
-      emit(FriendsLoaded(friends));
-    } catch (e) {
-      emit(SocialError(e.toString()));
-    }
+    final result = await _repository.getFriends(event.userId);
+    result.when(
+      success: (friends) {
+        emit(FriendsLoaded(friends));
+      },
+      failure: (f) {
+        emit(SocialError(f.message));
+      },
+    );
   }
 
   Future<void> _onLoadPending(
@@ -97,39 +100,49 @@ class SocialBloc extends Bloc<SocialEvent, SocialState> {
     Emitter<SocialState> emit,
   ) async {
     emit(SocialLoading());
-    try {
-      final requests = await _repository.getPendingRequests(event.userId);
-      emit(PendingRequestsLoaded(requests));
-    } catch (e) {
-      emit(SocialError(e.toString()));
-    }
+    final result = await _repository.getPendingRequests(event.userId);
+    result.when(
+      success: (requests) {
+        emit(PendingRequestsLoaded(requests));
+      },
+      failure: (f) {
+        emit(SocialError(f.message));
+      },
+    );
   }
 
   Future<void> _onSendRequest(
     SendFriendRequest event,
     Emitter<SocialState> emit,
   ) async {
-    try {
-      await _repository.sendFriendRequest(
-        event.requesterId,
-        event.addresseeId,
-      );
-      emit(FriendRequestSent());
-    } catch (e) {
-      emit(SocialError(e.toString()));
-    }
+    final result = await _repository.sendFriendRequest(
+      event.requesterId,
+      event.addresseeId,
+    );
+    result.when(
+      success: (_) {
+        emit(FriendRequestSent());
+      },
+      failure: (f) {
+        emit(SocialError(f.message));
+      },
+    );
   }
 
   Future<void> _onRespond(
     RespondToRequest event,
     Emitter<SocialState> emit,
   ) async {
-    try {
-      await _repository.respondToRequest(event.friendshipId, event.accept);
-      add(LoadPendingRequests(event.userId));
-    } catch (e) {
-      emit(SocialError(e.toString()));
-    }
+    final result =
+        await _repository.respondToRequest(event.friendshipId, event.accept);
+    result.when(
+      success: (_) {
+        add(LoadPendingRequests(event.userId));
+      },
+      failure: (f) {
+        emit(SocialError(f.message));
+      },
+    );
   }
 
   Future<void> _onSearch(
@@ -137,23 +150,29 @@ class SocialBloc extends Bloc<SocialEvent, SocialState> {
     Emitter<SocialState> emit,
   ) async {
     emit(SocialLoading());
-    try {
-      final users = await _repository.searchUsers(event.query);
-      emit(UserSearchResults(users));
-    } catch (e) {
-      emit(SocialError(e.toString()));
-    }
+    final result = await _repository.searchUsers(event.query);
+    result.when(
+      success: (users) {
+        emit(UserSearchResults(users));
+      },
+      failure: (f) {
+        emit(SocialError(f.message));
+      },
+    );
   }
 
   Future<void> _onRemove(
     RemoveFriend event,
     Emitter<SocialState> emit,
   ) async {
-    try {
-      await _repository.removeFriend(event.friendshipId);
-      add(LoadFriends(event.userId));
-    } catch (e) {
-      emit(SocialError(e.toString()));
-    }
+    final result = await _repository.removeFriend(event.friendshipId);
+    result.when(
+      success: (_) {
+        add(LoadFriends(event.userId));
+      },
+      failure: (f) {
+        emit(SocialError(f.message));
+      },
+    );
   }
 }

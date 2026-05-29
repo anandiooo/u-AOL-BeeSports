@@ -87,47 +87,58 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     Emitter<WalletState> emit,
   ) async {
     emit(WalletLoading());
-    try {
-      final wallet = await _walletRepository.getWallet(event.userId);
-      final transactions =
-          await _walletRepository.getTransactions(event.userId);
-      emit(WalletLoaded(wallet: wallet, transactions: transactions));
-    } catch (e) {
-      emit(WalletError(e.toString()));
-    }
+    final walletResult = await _walletRepository.getWallet(event.userId);
+    final txResult = await _walletRepository.getTransactions(event.userId);
+
+    walletResult.when(
+      success: (wallet) {
+        final transactions = txResult.when(
+          success: (tx) => tx,
+          failure: (_) => <CreditTransactionEntity>[],
+        );
+        emit(WalletLoaded(wallet: wallet, transactions: transactions));
+      },
+      failure: (f) {
+        emit(WalletError(f.message));
+      },
+    );
   }
 
   Future<void> _onTopUp(
     TopUpRequested event,
     Emitter<WalletState> emit,
   ) async {
-    try {
-      await _walletRepository.topUp(
-        userId: event.userId,
-        amount: event.amount,
-      );
-      emit(TopUpSuccess(event.amount));
-      add(LoadWallet(event.userId));
-    } catch (e, st) {
-      debugPrint('WalletBloc._onTopUp error: $e\n$st');
-      emit(WalletError(e.toString()));
-    }
+    final result = await _walletRepository.topUp(
+      userId: event.userId,
+      amount: event.amount,
+    );
+    result.when(
+      success: (_) {
+        emit(TopUpSuccess(event.amount));
+        add(LoadWallet(event.userId));
+      },
+      failure: (f) {
+        emit(WalletError(f.message));
+      },
+    );
   }
 
   Future<void> _onWithdraw(
     WithdrawRequested event,
     Emitter<WalletState> emit,
   ) async {
-    try {
-      await _walletRepository.withdraw(
-        userId: event.userId,
-        amount: event.amount,
-      );
-      emit(WithdrawSuccess(event.amount));
-      add(LoadWallet(event.userId));
-    } catch (e, st) {
-      debugPrint('WalletBloc._onWithdraw error: $e\n$st');
-      emit(WalletError(e.toString()));
-    }
+    final result = await _walletRepository.withdraw(
+      userId: event.userId,
+      amount: event.amount,
+    );
+    result.when(
+      success: (_) {
+        emit(WithdrawSuccess(event.amount));
+        add(LoadWallet(event.userId));
+      },
+      failure: (f) {
+        emit(WalletError(f.message));
+      },
+    );
   }
 }

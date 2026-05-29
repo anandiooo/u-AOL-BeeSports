@@ -16,25 +16,25 @@ class MatchHistoryScreen extends StatelessWidget {
       context.read<MatchBloc>().add(LoadMatchHistory(authState.user.id));
     }
     return Scaffold(
-      backgroundColor: AppColors.foursier,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text('Match History',
             style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500, color: AppColors.primary)),
-        backgroundColor: AppColors.foursier,
+                fontWeight: FontWeight.w500, color: AppColors.neonGreen)),
+        backgroundColor: AppColors.background,
         elevation: 0,
         scrolledUnderElevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.primary),
+        iconTheme: const IconThemeData(color: AppColors.neonGreen),
       ),
       body: BlocBuilder<MatchBloc, MatchState>(builder: (context, state) {
         if (state is MatchLoading) {
           return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary));
+              child: CircularProgressIndicator(color: AppColors.neonGreen));
         }
         if (state is MatchError) {
           return Center(
               child: Text(state.message,
-                  style: GoogleFonts.inter(color: AppColors.tersierDark)));
+                  style: GoogleFonts.inter(color: AppColors.error)));
         }
         if (state is MatchHistoryLoaded) {
           if (state.matches.isEmpty) {
@@ -43,10 +43,11 @@ class MatchHistoryScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(Icons.sports_outlined,
-                        size: 64, color: AppColors.tersierLight),
+                        size: 64, color: AppColors.divider),
                     const SizedBox(height: 12),
                     Text('No matches played yet',
-                        style: GoogleFonts.inter(color: AppColors.primaryLight)),
+                        style:
+                            GoogleFonts.inter(color: AppColors.textSecondary)),
                   ]),
             );
           }
@@ -71,8 +72,18 @@ class _MatchCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final d = match.playedAt;
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
     final dateStr =
         '${d.day.toString().padLeft(2, '0')} ${months[d.month - 1]} ${d.year}';
@@ -80,35 +91,34 @@ class _MatchCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(20),
-      color: AppColors.secondaryLight,
+      color: AppColors.surfaceVariant,
       child: Row(children: [
-        Icon(match.sport.icon, color: AppColors.primary, size: 28),
+        Icon(match.sport.icon, color: AppColors.neonGreen, size: 28),
         const SizedBox(width: 14),
         Expanded(
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(match.sport.label,
-                    style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
-                        color: AppColors.primary)),
-                const SizedBox(height: 4),
-                Text(dateStr,
-                    style: GoogleFonts.inter(
-                        fontSize: 12, color: AppColors.primaryLight)),
-              ]),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(match.sport.label,
+                style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                    color: AppColors.neonGreen)),
+            const SizedBox(height: 4),
+            Text(dateStr,
+                style: GoogleFonts.inter(
+                    fontSize: 12, color: AppColors.textSecondary)),
+          ]),
         ),
         Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Text('${match.teamAScore} - ${match.teamBScore}',
               style: GoogleFonts.inter(
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.primary)),
+                  color: AppColors.neonGreen)),
           const SizedBox(height: 4),
           Text(match.resultLabel,
               style: GoogleFonts.inter(
-                  fontSize: 11, color: AppColors.primaryLight)),
+                  fontSize: 11, color: AppColors.textSecondary)),
         ]),
       ]),
     );

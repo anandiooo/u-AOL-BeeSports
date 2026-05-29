@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:beesports/models/chat_message_entity.dart';
 import 'package:beesports/repos/chat_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:beesports/core/result.dart';
+import 'package:beesports/core/retry_helper.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
   final SupabaseClient _client;
@@ -11,28 +13,32 @@ class ChatRepositoryImpl implements ChatRepository {
   ChatRepositoryImpl(this._client);
 
   @override
-  Future<List<ChatMessageEntity>> getMessages(String lobbyId) async {
-    final data = await _client
-        .from('chat_messages')
-        .select('*, profile:profiles!chat_messages_sender_id_fkey(full_name)')
-        .eq('lobby_id', lobbyId)
-        .order('created_at', ascending: true)
-        .limit(100);
+  Future<Result<List<ChatMessageEntity>>> getMessages(String lobbyId) async {
+    return withRetry(() async {
+      final data = await _client
+          .from('chat_messages')
+          .select('*, profile:profiles!chat_messages_sender_id_fkey(full_name)')
+          .eq('lobby_id', lobbyId)
+          .order('created_at', ascending: true)
+          .limit(100);
 
-    return (data as List).map((e) => ChatMessageEntity.fromMap(e)).toList();
+      return (data as List).map((e) => ChatMessageEntity.fromMap(e)).toList();
+    });
   }
 
   @override
-  Future<void> sendMessage({
+  Future<Result<void>> sendMessage({
     required String lobbyId,
     required String senderId,
     required String content,
   }) async {
-    await _client.from('chat_messages').insert({
-      'lobby_id': lobbyId,
-      'sender_id': senderId,
-      'content': content,
-      'is_system': false,
+    return withRetry(() async {
+      await _client.from('chat_messages').insert({
+        'lobby_id': lobbyId,
+        'sender_id': senderId,
+        'content': content,
+        'is_system': false,
+      });
     });
   }
 
@@ -51,9 +57,15 @@ class ChatRepositoryImpl implements ChatRepository {
             column: 'lobby_id',
             value: lobbyId,
           ),
-          callback: (payload) {
+          callback: (payload) async {
             final newRow = payload.newRecord;
             if (newRow.isNotEmpty) {
+              final profileData = await _client
+                  .from('profiles')
+                  .select('full_name')
+                  .eq('id', newRow['sender_id'])
+                  .maybeSingle();
+              newRow['sender_name'] = profileData?['full_name'];
               controller.add(ChatMessageEntity.fromMap(newRow));
             }
           },

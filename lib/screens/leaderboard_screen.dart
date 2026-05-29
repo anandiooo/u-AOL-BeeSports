@@ -13,12 +13,12 @@ class LeaderboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     context.read<LeaderboardBloc>().add(LoadLeaderboard(SportType.futsal));
     return Scaffold(
-      backgroundColor: AppColors.foursier,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text('Leaderboard',
             style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500, color: AppColors.primary)),
-        backgroundColor: AppColors.foursier,
+                fontWeight: FontWeight.w500, color: AppColors.neonGreen)),
+        backgroundColor: AppColors.background,
         elevation: 0,
         scrolledUnderElevation: 0,
       ),
@@ -45,25 +45,26 @@ class LeaderboardScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 10),
                         decoration: BoxDecoration(
-                          color: sel ? AppColors.primary : AppColors.foursier,
+                          color:
+                              sel ? AppColors.neonGreen : AppColors.background,
                           borderRadius: BorderRadius.circular(30),
                           border: Border.all(
                               color:
-                                  sel ? AppColors.primary : AppColors.foursierDark),
+                                  sel ? AppColors.neonGreen : AppColors.border),
                         ),
                         child: Row(mainAxisSize: MainAxisSize.min, children: [
                           Icon(sport.icon,
                               size: 16,
                               color: sel
-                                  ? AppColors.foursierLight
-                                  : AppColors.primary),
+                                  ? AppColors.onAccent
+                                  : AppColors.neonGreen),
                           const SizedBox(width: 6),
                           Text(sport.label,
                               style: GoogleFonts.inter(
                                   fontWeight: FontWeight.w500,
                                   color: sel
-                                      ? AppColors.foursierLight
-                                      : AppColors.primary)),
+                                      ? AppColors.onAccent
+                                      : AppColors.neonGreen)),
                         ]),
                       ),
                     ),
@@ -81,30 +82,28 @@ class LeaderboardScreen extends StatelessWidget {
   Widget _buildBody(BuildContext context, LeaderboardState state) {
     if (state is LeaderboardLoading) {
       return const Center(
-          child: CircularProgressIndicator(color: AppColors.primary));
+          child: CircularProgressIndicator(color: AppColors.neonGreen));
     }
     if (state is LeaderboardError) {
       return Center(
           child: Text(state.message,
-              style: GoogleFonts.inter(color: AppColors.tersierDark)));
+              style: GoogleFonts.inter(color: AppColors.error)));
     }
     if (state is LeaderboardLoaded) {
       if (state.entries.isEmpty) {
         return Center(
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.leaderboard_outlined,
-                    size: 64, color: AppColors.tersierLight),
-                const SizedBox(height: 12),
-                Text('No rankings yet for ${state.selectedSport.label}',
-                    style: GoogleFonts.inter(color: AppColors.primaryLight)),
-              ]),
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            const Icon(Icons.leaderboard_outlined,
+                size: 64, color: AppColors.divider),
+            const SizedBox(height: 12),
+            Text('No rankings yet for ${state.selectedSport.label}',
+                style: GoogleFonts.inter(color: AppColors.textSecondary)),
+          ]),
         );
       }
       return RefreshIndicator(
-        color: AppColors.primary,
-        backgroundColor: AppColors.foursier,
+        color: AppColors.neonGreen,
+        backgroundColor: AppColors.background,
         onRefresh: () async => context
             .read<LeaderboardBloc>()
             .add(LoadLeaderboard(state.selectedSport)),
@@ -133,22 +132,23 @@ class _LeaderboardTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 4),
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 0),
       decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.tersierLight)),
+        border: Border(bottom: BorderSide(color: AppColors.divider)),
       ),
       child: Row(children: [
         SizedBox(
           width: 40,
           child: isTop3
               ? Container(
-                  width: 32, height: 32,
+                  width: 32,
+                  height: 32,
                   decoration: const BoxDecoration(
-                      color: AppColors.primary, shape: BoxShape.circle),
+                      color: AppColors.neonGreen, shape: BoxShape.circle),
                   child: Center(
                     child: Text('#$rank',
                         style: GoogleFonts.inter(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.foursierLight)),
+                            color: AppColors.onAccent)),
                   ),
                 )
               : Center(
@@ -156,36 +156,33 @@ class _LeaderboardTile extends StatelessWidget {
                       style: GoogleFonts.inter(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.primaryLight)),
+                          color: AppColors.textSecondary)),
                 ),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(entry.fullName ?? 'Unknown',
-                    style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w500, color: AppColors.primary)),
-                const SizedBox(height: 2),
-                Text(
-                    '${entry.campus ?? ""} · ${entry.matchesPlayed} matches · ${entry.winRate.toStringAsFixed(0)}% WR',
-                    style: GoogleFonts.inter(
-                        fontSize: 12, color: AppColors.primaryLight)),
-              ]),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(entry.fullName ?? 'Unknown',
+                style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w500, color: AppColors.neonGreen)),
+            const SizedBox(height: 2),
+            Text(
+                '${entry.campus ?? ""} · ${entry.matchesPlayed} matches · ${entry.winRate.toStringAsFixed(0)}% WR',
+                style: GoogleFonts.inter(
+                    fontSize: 12, color: AppColors.textSecondary)),
+          ]),
         ),
-        Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text('${entry.eloRating}',
-                  style: GoogleFonts.inter(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.primary)),
-              Text('ELO',
-                  style: GoogleFonts.inter(
-                      fontSize: 10, color: AppColors.primaryLight)),
-            ]),
+        Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+          Text('${entry.eloRating}',
+              style: GoogleFonts.inter(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.neonGreen)),
+          Text('ELO',
+              style: GoogleFonts.inter(
+                  fontSize: 10, color: AppColors.textSecondary)),
+        ]),
       ]),
     );
   }

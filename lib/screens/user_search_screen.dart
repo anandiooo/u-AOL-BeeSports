@@ -1,3 +1,4 @@
+import 'package:beesports/core/feedback_service.dart';
 import 'package:beesports/app/app_colors.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:beesports/blocs/social_bloc.dart';
@@ -31,15 +32,15 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.foursier,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text('Find Players',
             style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500, color: AppColors.primary)),
-        backgroundColor: AppColors.foursier,
+                fontWeight: FontWeight.w500, color: AppColors.neonGreen)),
+        backgroundColor: AppColors.background,
         elevation: 0,
         scrolledUnderElevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.primary),
+        iconTheme: const IconThemeData(color: AppColors.neonGreen),
       ),
       body: Column(children: [
         Padding(
@@ -51,7 +52,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
               hintText: 'Search by name or NIM...',
               prefixIcon: Icon(Icons.search),
             ),
-            style: GoogleFonts.inter(color: AppColors.primary),
+            style: GoogleFonts.inter(color: AppColors.neonGreen),
             onChanged: (value) {
               if (value.length >= 2) {
                 context.read<SocialBloc>().add(SearchUsers(value));
@@ -63,15 +64,14 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
           child: BlocConsumer<SocialBloc, SocialState>(
             listener: (context, state) {
               if (state is FriendRequestSent) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('Friend request sent!'),
-                    backgroundColor: AppColors.secondary));
+                FeedbackService.showSuccess(context, 'Friend request sent!');
               }
             },
             builder: (context, state) {
               if (state is SocialLoading) {
                 return const Center(
-                    child: CircularProgressIndicator(color: AppColors.primary));
+                    child:
+                        CircularProgressIndicator(color: AppColors.neonGreen));
               }
               if (state is UserSearchResults) {
                 if (state.users.isEmpty) {
@@ -80,10 +80,11 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Icon(Icons.search_off,
-                              size: 64, color: AppColors.tersierLight),
+                              size: 64, color: AppColors.divider),
                           const SizedBox(height: 12),
                           Text('No users found',
-                              style: GoogleFonts.inter(color: AppColors.primaryLight)),
+                              style: GoogleFonts.inter(
+                                  color: AppColors.textSecondary)),
                         ]),
                   );
                 }
@@ -96,17 +97,18 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
                     return Container(
                       margin: const EdgeInsets.only(bottom: 8),
                       padding: const EdgeInsets.all(14),
-                      color: AppColors.secondaryLight,
+                      color: AppColors.surfaceVariant,
                       child: Row(children: [
                         Container(
-                          width: 40, height: 40,
+                          width: 40,
+                          height: 40,
                           decoration: const BoxDecoration(
-                              color: AppColors.primary, shape: BoxShape.circle),
+                              color: AppColors.neonGreen,
+                              shape: BoxShape.circle),
                           child: Center(
-                            child: Text(
-                                (user.fullName ?? '?')[0].toUpperCase(),
+                            child: Text((user.fullName ?? '?')[0].toUpperCase(),
                                 style: GoogleFonts.inter(
-                                    color: AppColors.foursierLight,
+                                    color: AppColors.onAccent,
                                     fontWeight: FontWeight.w500)),
                           ),
                         ),
@@ -118,10 +120,11 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
                                 Text(user.fullName ?? 'Unknown',
                                     style: GoogleFonts.inter(
                                         fontWeight: FontWeight.w500,
-                                        color: AppColors.primary)),
+                                        color: AppColors.neonGreen)),
                                 Text(user.campus ?? '',
                                     style: GoogleFonts.inter(
-                                        fontSize: 12, color: AppColors.primaryLight)),
+                                        fontSize: 12,
+                                        color: AppColors.textSecondary)),
                               ]),
                         ),
                         if (isSelf)
@@ -129,20 +132,20 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: AppColors.foursier,
+                              color: AppColors.background,
                               borderRadius: BorderRadius.circular(30),
-                              border: Border.all(color: AppColors.foursierDark),
+                              border: Border.all(color: AppColors.border),
                             ),
                             child: Text('You',
                                 style: GoogleFonts.inter(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
-                                    color: AppColors.primaryLight)),
+                                    color: AppColors.textSecondary)),
                           )
                         else
                           IconButton(
                             icon: const Icon(Icons.person_add,
-                                color: AppColors.primary),
+                                color: AppColors.neonGreen),
                             onPressed: () {
                               if (_currentUserId != null) {
                                 context.read<SocialBloc>().add(
@@ -161,10 +164,11 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Icon(Icons.person_search,
-                          size: 64, color: AppColors.tersierLight),
+                          size: 64, color: AppColors.divider),
                       const SizedBox(height: 12),
                       Text('Search for players to connect with',
-                          style: GoogleFonts.inter(color: AppColors.primaryLight)),
+                          style: GoogleFonts.inter(
+                              color: AppColors.textSecondary)),
                     ]),
               );
             },

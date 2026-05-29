@@ -1,6 +1,6 @@
-# Environment & Secrets (NEVER commit these)
-DESIGN.md
-*.env
+# environment & secrets (never commit these)
+# keep real secrets, env files, and platform keystores out of git
+.env
 .env.*
 !.env.example
 *.jks
@@ -13,7 +13,7 @@ GoogleService-Info.plist
 **/android/key.properties
 firebase_options.dart
 
-# IDE / Editor
+# ide / editor
 .idea/
 .vscode/
 *.iml
@@ -22,25 +22,24 @@ firebase_options.dart
 *.swp
 *.swo
 *~
-.atom/
+*.sublime-workspace
+*.sublime-project
 
-# OS-generated files
+# os-generated files
 .DS_Store
-.DS_Store?
-._*
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# Flutter / Dart / Pub
+# dart / flutter
 .dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
 .packages
 .packages.generated
-.pub-preload-cache/
-.pub-cache/
 .pub/
+.pub-cache/
+.pub-preload-cache/
+.flutter-plugins
+.flutter-plugins-dependencies
 build/
 **/doc/api/
 **/generated_plugin_registrant.dart
@@ -49,79 +48,57 @@ linked_*.ds
 unlinked.ds
 unlinked_spec.ds
 
-# Android
+# android
 .gradle/
 **/android/**/gradle-wrapper.jar
 **/android/captures/
-**/android/gradlew
-**/android/gradlew.bat
 **/android/local.properties
 **/android/**/GeneratedPluginRegistrant.java
+**/android/**/app/*.keystore
 
-# iOS / Xcode
-**/ios/**/*.mode1v3
-**/ios/**/*.mode2v3
-**/ios/**/*.moved-aside
-**/ios/**/*.pbxuser
-**/ios/**/*.perspectivev3
-**/ios/**/*sync/
-**/ios/**/.sconsign.dblite
-**/ios/**/.tags*
-**/ios/**/.vagrant/
-**/ios/**/DerivedData/
-**/ios/**/Icon?
+# ios / xcode
 **/ios/**/Pods/
 **/ios/**/.symlinks/
-**/ios/**/profile
-**/ios/**/xcuserdata
-**/ios/.generated/
-**/ios/Flutter/.last_build_id
+**/ios/Flutter/ephemeral
 **/ios/Flutter/App.framework
 **/ios/Flutter/Flutter.framework
-**/ios/Flutter/Flutter.podspec
 **/ios/Flutter/Generated.xcconfig
-**/ios/Flutter/ephemeral
-**/ios/Flutter/app.flx
-**/ios/Flutter/app.zip
-**/ios/Flutter/flutter_assets/
-**/ios/Flutter/flutter_export_environment.sh
-**/ios/ServiceDefinitions.json
-**/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/**/xcuserdata
+**/ios/**/DerivedData/
+**/ios/**/Runner/GeneratedPluginRegistrant.*
 **/ios/Podfile.lock
 
-# macOS
-**/Flutter/ephemeral/
+# macos
+**/macos/Flutter/ephemeral/
 **/Pods/
-**/macos/Flutter/GeneratedPluginRegistrant.swift
-**/macos/Flutter/ephemeral
 **/xcuserdata/
 
-# Windows
+# windows
 **/windows/flutter/generated_plugin_registrant.cc
 **/windows/flutter/generated_plugin_registrant.h
 **/windows/flutter/generated_plugins.cmake
 
-# Linux
+# linux
 **/linux/flutter/generated_plugin_registrant.cc
 **/linux/flutter/generated_plugin_registrant.h
 **/linux/flutter/generated_plugins.cmake
 
-# Web
+# web
 **/web/favicon.png
 
-# Testing & Coverage
+# testing & coverage
 coverage/
 *.lcov
 test-results/
 
-# Build artifacts & Symbols
+# build artifacts & symbols
 app.*.symbols
 *.apk
 *.aab
 *.ipa
 *.app.dSYM.zip
 
-# Logs & Crash reports
+# logs & crash reports
 *.log
 *.class
 *.pyc
@@ -129,9 +106,12 @@ app.*.symbols
 .history
 crash_log_*.txt
 
-# Exceptions (keep these tracked)
+# keep these iOS files tracked
 !**/ios/**/default.mode1v3
 !**/ios/**/default.mode2v3
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
+
+# vercel
 .vercel
+.vercelignore

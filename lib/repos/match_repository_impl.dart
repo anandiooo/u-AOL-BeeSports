@@ -4,6 +4,8 @@ import 'package:beesports/models/match_entity.dart';
 import 'package:beesports/models/match_participant_entity.dart';
 import 'package:beesports/repos/match_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:beesports/core/result.dart';
+import 'package:beesports/core/retry_helper.dart';
 
 class MatchRepositoryImpl implements MatchRepository {
   final SupabaseClient _client;
@@ -11,222 +13,232 @@ class MatchRepositoryImpl implements MatchRepository {
   MatchRepositoryImpl(this._client);
 
   @override
-  Future<MatchEntity> submitResult({
+  Future<Result<MatchEntity>> submitResult({
     required String lobbyId,
     required int teamAScore,
     required int teamBScore,
   }) async {
-    final lobby = await _client
-        .from('lobbies')
-        .select('sport, duration_minutes, scheduled_at')
-        .eq('id', lobbyId)
-        .single();
+    return withRetry(() async {
+      final lobby = await _client
+          .from('lobbies')
+          .select('sport, duration_minutes, scheduled_at')
+          .eq('id', lobbyId)
+          .single();
 
-    final participants = await _client
-        .from('lobby_participants')
-        .select('user_id, team')
-        .eq('lobby_id', lobbyId)
-        .inFilter('status', ['joined', 'confirmed']);
+      final participants = await _client
+          .from('lobby_participants')
+          .select('user_id, team')
+          .eq('lobby_id', lobbyId)
+          .inFilter('status', ['joined', 'confirmed']);
 
-    final sport = lobby['sport'] as String;
+      final sport = lobby['sport'] as String;
 
-    final ratings = await _client
-        .from('user_sport_ratings')
-        .select()
-        .eq('sport', sport)
-        .inFilter(
-          'user_id',
-          participants.map((p) => p['user_id']).toList(),
+      final ratings = await _client
+          .from('user_sport_ratings')
+          .select()
+          .eq('sport', sport)
+          .inFilter(
+            'user_id',
+            participants.map((p) => p['user_id']).toList(),
+          );
+
+      final ratingMap = <String, int>{};
+      for (final r in ratings) {
+        ratingMap[r['user_id']] = r['elo_rating'] as int;
+      }
+
+      final teamA = participants.where((p) => p['team'] == 'A').toList();
+      final teamB = participants.where((p) => p['team'] == 'B').toList();
+
+      String teamResult(String team) {
+        if (teamAScore == teamBScore) return 'draw';
+        if (team == 'A') return teamAScore > teamBScore ? 'win' : 'loss';
+        return teamBScore > teamAScore ? 'win' : 'loss';
+      }
+
+      int avgElo(List<Map<String, dynamic>> team) {
+        if (team.isEmpty) return 1000;
+        final total = team.fold<int>(
+          0,
+          (sum, p) => sum + (ratingMap[p['user_id']] ?? 1000),
         );
+        return total ~/ team.length;
+      }
 
-    final ratingMap = <String, int>{};
-    for (final r in ratings) {
-      ratingMap[r['user_id']] = r['elo_rating'] as int;
-    }
+      final avgA = avgElo(teamA);
+      final avgB = avgElo(teamB);
 
-    final teamA = participants.where((p) => p['team'] == 'A').toList();
-    final teamB = participants.where((p) => p['team'] == 'B').toList();
+      final eloChanges = <String, dynamic>{};
+      final participantRecords = <Map<String, dynamic>>[];
 
-    String teamResult(String team) {
-      if (teamAScore == teamBScore) return 'draw';
-      if (team == 'A') return teamAScore > teamBScore ? 'win' : 'loss';
-      return teamBScore > teamAScore ? 'win' : 'loss';
-    }
+      for (final p in participants) {
+        final userId = p['user_id'] as String;
+        final team = p['team'] as String?;
+        final currentElo = ratingMap[userId] ?? 1000;
+        final opponentAvg = team == 'A' ? avgB : avgA;
+        final result = teamResult(team ?? 'A');
 
-    int avgElo(List<Map<String, dynamic>> team) {
-      if (team.isEmpty) return 1000;
-      final total = team.fold<int>(
-        0,
-        (sum, p) => sum + (ratingMap[p['user_id']] ?? 1000),
-      );
-      return total ~/ team.length;
-    }
+        final newElo = _calculateElo(currentElo, opponentAvg, result);
+        final delta = newElo - currentElo;
 
-    final avgA = avgElo(teamA);
-    final avgB = avgElo(teamB);
+        eloChanges[userId] = {
+          'before': currentElo,
+          'after': newElo,
+          'delta': delta,
+        };
 
-    final eloChanges = <String, dynamic>{};
-    final participantRecords = <Map<String, dynamic>>[];
-
-    for (final p in participants) {
-      final userId = p['user_id'] as String;
-      final team = p['team'] as String?;
-      final currentElo = ratingMap[userId] ?? 1000;
-      final opponentAvg = team == 'A' ? avgB : avgA;
-      final result = teamResult(team ?? 'A');
-
-      final newElo = _calculateElo(currentElo, opponentAvg, result);
-      final delta = newElo - currentElo;
-
-      eloChanges[userId] = {
-        'before': currentElo,
-        'after': newElo,
-        'delta': delta,
-      };
-
-      participantRecords.add({
-        'user_id': userId,
-        'team': team,
-        'result': result,
-        'elo_before': currentElo,
-        'elo_after': newElo,
-        'elo_delta': delta,
-      });
-    }
-
-    final matchData = await _client
-        .from('matches')
-        .insert({
-          'lobby_id': lobbyId,
-          'sport': sport,
-          'played_at': (lobby['scheduled_at'] as String),
-          'duration_minutes': lobby['duration_minutes'],
-          'team_a_score': teamAScore,
-          'team_b_score': teamBScore,
-          'elo_changes': eloChanges,
-          'settled': false,
-        })
-        .select()
-        .single();
-
-    final matchId = matchData['id'] as String;
-
-    for (final record in participantRecords) {
-      record['match_id'] = matchId;
-    }
-    await _client.from('match_participants').insert(participantRecords);
-
-    for (final p in participantRecords) {
-      final userId = p['user_id'] as String;
-      final newElo = p['elo_after'] as int;
-      final result = p['result'] as String;
-      final existing = ratingMap.containsKey(userId);
-
-      if (existing) {
-        await _client
-            .from('user_sport_ratings')
-            .update({
-              'elo_rating': newElo,
-              'matches_played': ratings.firstWhere(
-                    (r) => r['user_id'] == userId,
-                    orElse: () => <String, dynamic>{'matches_played': 0},
-                  )['matches_played'] +
-                  1,
-              if (result == 'win')
-                'wins': ratings.firstWhere(
-                      (r) => r['user_id'] == userId,
-                      orElse: () => <String, dynamic>{'wins': 0},
-                    )['wins'] +
-                    1,
-              if (result == 'loss')
-                'losses': ratings.firstWhere(
-                      (r) => r['user_id'] == userId,
-                      orElse: () => <String, dynamic>{'losses': 0},
-                    )['losses'] +
-                    1,
-            })
-            .eq('user_id', userId)
-            .eq('sport', sport);
-      } else {
-        await _client.from('user_sport_ratings').insert({
+        participantRecords.add({
           'user_id': userId,
-          'sport': sport,
-          'elo_rating': newElo,
-          'matches_played': 1,
-          'wins': result == 'win' ? 1 : 0,
-          'losses': result == 'loss' ? 1 : 0,
+          'team': team,
+          'result': result,
+          'elo_before': currentElo,
+          'elo_after': newElo,
+          'elo_delta': delta,
         });
       }
-    }
 
-    await _client.from('lobbies').update({
-      'status': 'finished',
-      'finished_at': DateTime.now().toIso8601String()
-    }).eq('id', lobbyId);
+      final matchData = await _client
+          .from('matches')
+          .insert({
+            'lobby_id': lobbyId,
+            'sport': sport,
+            'played_at': (lobby['scheduled_at'] as String),
+            'duration_minutes': lobby['duration_minutes'],
+            'team_a_score': teamAScore,
+            'team_b_score': teamBScore,
+            'elo_changes': eloChanges,
+            'settled': false,
+          })
+          .select()
+          .single();
 
-    return MatchEntity.fromMap(matchData);
+      final matchId = matchData['id'] as String;
+
+      for (final record in participantRecords) {
+        record['match_id'] = matchId;
+      }
+      await _client.from('match_participants').insert(participantRecords);
+
+      for (final p in participantRecords) {
+        final userId = p['user_id'] as String;
+        final newElo = p['elo_after'] as int;
+        final result = p['result'] as String;
+        final existing = ratingMap.containsKey(userId);
+
+        if (existing) {
+          await _client
+              .from('user_sport_ratings')
+              .update({
+                'elo_rating': newElo,
+                'matches_played': ratings.firstWhere(
+                      (r) => r['user_id'] == userId,
+                      orElse: () => <String, dynamic>{'matches_played': 0},
+                    )['matches_played'] +
+                    1,
+                if (result == 'win')
+                  'wins': ratings.firstWhere(
+                        (r) => r['user_id'] == userId,
+                        orElse: () => <String, dynamic>{'wins': 0},
+                      )['wins'] +
+                      1,
+                if (result == 'loss')
+                  'losses': ratings.firstWhere(
+                        (r) => r['user_id'] == userId,
+                        orElse: () => <String, dynamic>{'losses': 0},
+                      )['losses'] +
+                      1,
+              })
+              .eq('user_id', userId)
+              .eq('sport', sport);
+        } else {
+          await _client.from('user_sport_ratings').insert({
+            'user_id': userId,
+            'sport': sport,
+            'elo_rating': newElo,
+            'matches_played': 1,
+            'wins': result == 'win' ? 1 : 0,
+            'losses': result == 'loss' ? 1 : 0,
+          });
+        }
+      }
+
+      await _client.from('lobbies').update({
+        'status': 'finished',
+        'finished_at': DateTime.now().toIso8601String()
+      }).eq('id', lobbyId);
+
+      return MatchEntity.fromMap(matchData);
+    });
   }
 
   @override
-  Future<MatchEntity?> getMatchByLobby(String lobbyId) async {
-    final data = await _client
-        .from('matches')
-        .select()
-        .eq('lobby_id', lobbyId)
-        .maybeSingle();
-    if (data == null) return null;
-    return MatchEntity.fromMap(data);
+  Future<Result<MatchEntity?>> getMatchByLobby(String lobbyId) async {
+    return withRetry(() async {
+      final data = await _client
+          .from('matches')
+          .select()
+          .eq('lobby_id', lobbyId)
+          .maybeSingle();
+      if (data == null) return null;
+      return MatchEntity.fromMap(data);
+    });
   }
 
   @override
-  Future<List<MatchParticipantEntity>> getMatchParticipants(
+  Future<Result<List<MatchParticipantEntity>>> getMatchParticipants(
     String matchId,
   ) async {
-    final data = await _client
-        .from('match_participants')
-        .select(
-            '*, profile:profiles!match_participants_user_id_fkey(full_name, avatar_url)')
-        .eq('match_id', matchId);
-    return (data as List)
-        .map((e) => MatchParticipantEntity.fromMap(e))
-        .toList();
+    return withRetry(() async {
+      final data = await _client
+          .from('match_participants')
+          .select(
+              '*, profile:profiles!match_participants_user_id_fkey(full_name, avatar_url)')
+          .eq('match_id', matchId);
+      return (data as List)
+          .map((e) => MatchParticipantEntity.fromMap(e))
+          .toList();
+    });
   }
 
   @override
-  Future<List<MatchEntity>> getMyMatches(String userId) async {
-    final participations = await _client
-        .from('match_participants')
-        .select('match_id')
-        .eq('user_id', userId);
+  Future<Result<List<MatchEntity>>> getMyMatches(String userId) async {
+    return withRetry(() async {
+      final participations = await _client
+          .from('match_participants')
+          .select('match_id')
+          .eq('user_id', userId);
 
-    if (participations.isEmpty) return [];
+      if (participations.isEmpty) return [];
 
-    final matchIds =
-        participations.map((p) => p['match_id'] as String).toList();
+      final matchIds =
+          participations.map((p) => p['match_id'] as String).toList();
 
-    final data = await _client
-        .from('matches')
-        .select()
-        .inFilter('id', matchIds)
-        .order('played_at', ascending: false);
+      final data = await _client
+          .from('matches')
+          .select()
+          .inFilter('id', matchIds)
+          .order('played_at', ascending: false);
 
-    return (data as List).map((e) => MatchEntity.fromMap(e)).toList();
+      return (data as List).map((e) => MatchEntity.fromMap(e)).toList();
+    });
   }
 
   @override
-  Future<void> settleMatch(String matchId) async {
-    await _client.from('matches').update({'settled': true}).eq('id', matchId);
+  Future<Result<void>> settleMatch(String matchId) async {
+    return withRetry(() async {
+      await _client.from('matches').update({'settled': true}).eq('id', matchId);
 
-    final match = await _client
-        .from('matches')
-        .select('lobby_id')
-        .eq('id', matchId)
-        .single();
+      final match = await _client
+          .from('matches')
+          .select('lobby_id')
+          .eq('id', matchId)
+          .single();
 
-    await _client.from('lobbies').update({
-      'status': 'settled',
-      'settled_at': DateTime.now().toIso8601String()
-    }).eq('id', match['lobby_id']);
+      await _client.from('lobbies').update({
+        'status': 'settled',
+        'settled_at': DateTime.now().toIso8601String()
+      }).eq('id', match['lobby_id']);
+    });
   }
 
   int _calculateElo(int playerElo, int opponentElo, String result) {

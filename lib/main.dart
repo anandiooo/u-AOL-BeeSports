@@ -44,7 +44,7 @@ class BeeSportsApp extends StatelessWidget {
           return MaterialApp.router(
             title: 'BeeSports',
             debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightTheme,
+            theme: AppTheme.darkTheme,
             routerConfig: appRouter.router,
             builder: (context, child) {
               return Center(

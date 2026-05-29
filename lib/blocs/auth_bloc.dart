@@ -107,18 +107,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(AuthLoading());
-    try {
-      final user = await _authRepository.getCurrentUser();
-      if (user == null) {
+    final result = await _authRepository.getCurrentUser();
+    result.when(
+      success: (user) {
+        if (user == null) {
+          emit(Unauthenticated());
+        } else if (!user.isOnboarded) {
+          emit(NeedsOnboarding(user));
+        } else {
+          emit(Authenticated(user));
+        }
+      },
+      failure: (_) {
         emit(Unauthenticated());
-      } else if (!user.isOnboarded) {
-        emit(NeedsOnboarding(user));
-      } else {
-        emit(Authenticated(user));
-      }
-    } catch (e) {
-      emit(Unauthenticated());
-    }
+      },
+    );
   }
 
   Future<void> _onSignIn(
@@ -126,21 +129,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(AuthLoading());
-    try {
-      final user = await _authRepository.signIn(
-        email: event.email,
-        password: event.password,
-      );
-      if (!user.isOnboarded) {
-        emit(NeedsOnboarding(user));
-      } else {
-        emit(Authenticated(user));
-      }
-    } catch (e, st) {
-      debugPrint('AuthBloc._onSignIn error: $e');
-      debugPrint('$st');
-      emit(AuthError(_friendlyError(e)));
-    }
+    final result = await _authRepository.signIn(
+      email: event.email,
+      password: event.password,
+    );
+    result.when(
+      success: (user) {
+        if (!user.isOnboarded) {
+          emit(NeedsOnboarding(user));
+        } else {
+          emit(Authenticated(user));
+        }
+      },
+      failure: (f) {
+        emit(AuthError(f.message));
+      },
+    );
   }
 
   Future<void> _onSignUp(
@@ -148,18 +152,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(AuthLoading());
-    try {
-      await _authRepository.signUp(
-        email: event.email,
-        password: event.password,
-        fullName: event.fullName,
-      );
-      emit(NeedsOtpVerification(event.email));
-    } catch (e, st) {
-      debugPrint('AuthBloc._onSignUp error: $e');
-      debugPrint('$st');
-      emit(AuthError(_friendlyError(e)));
-    }
+    final result = await _authRepository.signUp(
+      email: event.email,
+      password: event.password,
+      fullName: event.fullName,
+    );
+    result.when(
+      success: (_) {
+        emit(NeedsOtpVerification(event.email));
+      },
+      failure: (f) {
+        emit(AuthError(f.message));
+      },
+    );
   }
 
   Future<void> _onOtpVerification(
@@ -167,17 +172,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(AuthLoading());
-    try {
-      final user = await _authRepository.verifyOtp(
-        email: event.email,
-        token: event.token,
-      );
-      emit(NeedsOnboarding(user));
-    } catch (e, st) {
-      debugPrint('AuthBloc._onOtpVerification error: $e');
-      debugPrint('$st');
-      emit(AuthError(_friendlyError(e)));
-    }
+    final result = await _authRepository.verifyOtp(
+      email: event.email,
+      token: event.token,
+    );
+    result.when(
+      success: (user) {
+        emit(NeedsOnboarding(user));
+      },
+      failure: (f) {
+        emit(AuthError(f.message));
+      },
+    );
   }
 
   Future<void> _onSignOut(
@@ -194,25 +200,5 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(Authenticated(event.user));
-  }
-
-  String _friendlyError(Object e) {
-    final msg = e.toString();
-    if (msg.contains('binus.ac.id')) {
-      return 'Only @binus.ac.id emails are allowed.';
-    }
-    if (msg.contains('Invalid login')) {
-      return 'Invalid email or password.';
-    }
-    if (msg.contains('Email not confirmed')) {
-      return 'Please verify your email first.';
-    }
-    if (msg.contains('already registered')) {
-      return 'This email is already registered. Try signing in.';
-    }
-    if (msg.contains('rate limit') || msg.contains('429')) {
-      return 'Too many attempts. Please wait a moment and try again.';
-    }
-    return 'Something went wrong. Please try again.';
   }
 }

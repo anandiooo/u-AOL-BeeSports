@@ -23,7 +23,11 @@ class ShimmerListView extends StatelessWidget {
           children: [
             Row(
               children: [
-                Container(width: 24, height: 24, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
+                Container(
+                    width: 24,
+                    height: 24,
+                    decoration: const BoxDecoration(
+                        color: Colors.white, shape: BoxShape.circle)),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -35,7 +39,12 @@ class ShimmerListView extends StatelessWidget {
                     ],
                   ),
                 ),
-                Container(width: 60, height: 24, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12))),
+                Container(
+                    width: 60,
+                    height: 24,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12))),
               ],
             ),
             const SizedBox(height: 18),
@@ -61,7 +70,11 @@ class ShimmerListView extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 18),
         child: Row(
           children: [
-            Container(width: 24, height: 24, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
+            Container(
+                width: 24,
+                height: 24,
+                decoration: const BoxDecoration(
+                    color: Colors.white, shape: BoxShape.circle)),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
@@ -94,13 +107,18 @@ class ShimmerListView extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
         child: Row(
           children: [
-            Container(width: 40, height: 40, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
+            Container(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(
+                    color: Colors.white, shape: BoxShape.circle)),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(width: double.infinity, height: 16, color: Colors.white),
+                  Container(
+                      width: double.infinity, height: 16, color: Colors.white),
                   const SizedBox(height: 8),
                   Container(width: 150, height: 12, color: Colors.white),
                 ],
@@ -139,7 +157,11 @@ class ShimmerProfileHeader extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            Container(width: 96, height: 96, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
+            Container(
+                width: 96,
+                height: 96,
+                decoration: const BoxDecoration(
+                    color: Colors.white, shape: BoxShape.circle)),
             const SizedBox(height: 18),
             Container(width: 150, height: 24, color: Colors.white),
             const SizedBox(height: 8),
@@ -148,9 +170,19 @@ class ShimmerProfileHeader extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(width: 80, height: 32, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16))),
+                Container(
+                    width: 80,
+                    height: 32,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16))),
                 const SizedBox(width: 8),
-                Container(width: 100, height: 32, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16))),
+                Container(
+                    width: 100,
+                    height: 32,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16))),
               ],
             ),
           ],
