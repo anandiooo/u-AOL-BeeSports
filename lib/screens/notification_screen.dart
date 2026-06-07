@@ -66,8 +66,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
       ),
       body: BlocBuilder<NotificationBloc, NotificationState>(
         builder: (context, state) {
-          if (state is NotificationLoading)
+          if (state is NotificationLoading) {
             return ShimmerListView.notifications(count: 6);
+          }
           if (state is NotificationError) {
             return Center(
                 child: Text(state.message,

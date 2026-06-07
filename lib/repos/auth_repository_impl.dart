@@ -4,7 +4,6 @@ import 'package:beesports/models/user_entity.dart';
 import 'package:beesports/repos/auth_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:beesports/core/result.dart';
-import 'package:beesports/core/error_mapper.dart';
 import 'package:beesports/core/retry_helper.dart';
 
 class AuthRepositoryImpl implements AuthRepository {

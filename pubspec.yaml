@@ -36,9 +36,9 @@ flutter:
   uses-material-design: true
   assets:
     - .env
-    - icon.jpg
+    - assets/images/icon.jpg
 
 flutter_launcher_icons:
   android: launcher_icon
   ios: true
-  image_path: icon.jpg
+  image_path: assets/images/icon.jpg

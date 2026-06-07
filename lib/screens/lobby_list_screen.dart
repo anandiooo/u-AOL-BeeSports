@@ -419,8 +419,9 @@ class _LobbyCard extends StatelessWidget {
     final now = DateTime.now();
     final diff = dt.difference(now);
     if (diff.inDays == 0 && dt.day == now.day) return 'Today';
-    if (diff.inDays == 1 || (diff.inDays == 0 && dt.day == now.day + 1))
+    if (diff.inDays == 1 || (diff.inDays == 0 && dt.day == now.day + 1)) {
       return 'Tomorrow';
+    }
     return '${dt.day}/${dt.month}';
   }
 

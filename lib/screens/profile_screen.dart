@@ -65,8 +65,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         builder: (context, state) {
           if (state is ProfileLoading) return const ShimmerProfileHeader();
           if (state is ProfileLoaded) return _buildProfile(state.profile);
-          if (state is ProfileUpdateSuccess)
+          if (state is ProfileUpdateSuccess) {
             return _buildProfile(state.profile);
+          }
           if (state is ProfileError) {
             return Center(
               child: Column(

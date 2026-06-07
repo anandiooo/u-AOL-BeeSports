@@ -308,8 +308,9 @@ class AppTheme {
           return AppColors.stone;
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected))
+          if (states.contains(WidgetState.selected)) {
             return AppColors.neonGreen.withValues(alpha: 0.3);
+          }
           return AppColors.hairline;
         }),
       ),

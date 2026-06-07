@@ -114,8 +114,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       final count = nState is NotificationLoaded
                                           ? nState.unreadCount
                                           : 0;
-                                      if (count == 0)
+                                      if (count == 0) {
                                         return const SizedBox.shrink();
+                                      }
                                       return Positioned(
                                         top: 8,
                                         right: 8,

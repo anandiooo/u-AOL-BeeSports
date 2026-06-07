@@ -1,7 +1,6 @@
 import 'package:beesports/models/user_entity.dart';
 import 'package:beesports/repos/auth_repository.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class AuthEvent extends Equatable {
