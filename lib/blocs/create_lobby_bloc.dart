@@ -126,12 +126,12 @@ class CreateLobbyBloc extends Bloc<CreateLobbyEvent, CreateLobbyState> {
             lobbyId: created.id,
             amount: event.depositAmount,
           );
-          
+
           bool holdSuccess = false;
           holdResult.when(
             success: (_) => holdSuccess = true,
             failure: (f) {
-              emit(CreateLobbyError('Lobby created but failed to hold deposit: \${f.message}'));
+              emit(const CreateLobbyError('Lobby created but failed to hold deposit: \${f.message}'));
             },
           );
 

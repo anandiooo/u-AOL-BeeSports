@@ -268,25 +268,8 @@ class MatchRepositoryImpl implements MatchRepository {
             final balance = (walletData['balance'] as num).toDouble();
             final held = (walletData['held'] as num).toDouble();
 
-            if (status == 'confirmed' || status == 'joined') {
-              // Deduct deposit as payment for playing
-              final newBalance = (balance - depositAmount).clamp(0.0, double.infinity);
-              final newHeld = (held - depositAmount).clamp(0.0, double.infinity);
-              await _client
-                  .from('credit_wallets')
-                  .update({'balance': newBalance, 'held': newHeld})
-                  .eq('user_id', userId);
-
-              await _client.from('credit_transactions').insert({
-                'user_id': userId,
-                'type': 'deposit_forfeit',
-                'amount': depositAmount,
-                'balance_after': newBalance,
-                'reference_id': lobbyId,
-                'description': 'Payment for match participation',
-              });
-            } else if (status == 'no_show') {
-              // Forfeit deposit
+            if (status == 'no_show') {
+              // Forfeit deposit for no-show
               final newBalance = (balance - depositAmount).clamp(0.0, double.infinity);
               final newHeld = (held - depositAmount).clamp(0.0, double.infinity);
               await _client
@@ -301,6 +284,22 @@ class MatchRepositoryImpl implements MatchRepository {
                 'balance_after': newBalance,
                 'reference_id': lobbyId,
                 'description': 'Deposit forfeited for no-show',
+              });
+            } else {
+              // Release deposit back for players who attended/confirmed
+              final newHeld = (held - depositAmount).clamp(0.0, double.infinity);
+              await _client
+                  .from('credit_wallets')
+                  .update({'held': newHeld})
+                  .eq('user_id', userId);
+
+              await _client.from('credit_transactions').insert({
+                'user_id': userId,
+                'type': 'deposit_release',
+                'amount': depositAmount,
+                'balance_after': balance,
+                'reference_id': lobbyId,
+                'description': 'Deposit released after match settlement',
               });
             }
 

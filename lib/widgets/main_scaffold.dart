@@ -1,10 +1,15 @@
 import 'package:beesports/app/app_theme.dart';
+import 'package:beesports/blocs/lobby_list_bloc.dart';
+import 'package:beesports/app/di.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class MainScaffold extends StatelessWidget {
   final Widget child;
+
+  static final lobbyListBloc = sl<LobbyListBloc>();
 
   const MainScaffold({super.key, required this.child});
 
@@ -43,62 +48,66 @@ class MainScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final selectedIndex = _calculateSelectedIndex(context);
 
-    return Scaffold(
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 200),
-        switchInCurve: Curves.easeOut,
-        switchOutCurve: Curves.easeIn,
-        child: child,
-      ),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.navBar,
-          border:
-              Border(top: BorderSide(color: AppColors.glassBorder, width: 1)),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: lobbyListBloc),
+      ],
+      child: Scaffold(
+        body: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          switchInCurve: Curves.easeOut,
+          switchOutCurve: Curves.easeIn,
+          child: child,
         ),
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: DesignConfig.spacingSm, vertical: DesignConfig.spacingXs),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _NavItem(
-                    index: 0,
-                    selectedIndex: selectedIndex,
-                    icon: Icons.home_outlined,
-                    activeIcon: Icons.home_rounded,
-                    label: 'Home',
-                    onTap: () => _onItemTapped(0, context)),
-                _NavItem(
-                    index: 1,
-                    selectedIndex: selectedIndex,
-                    icon: Icons.leaderboard_outlined,
-                    activeIcon: Icons.leaderboard_rounded,
-                    label: 'Rank',
-                    onTap: () => _onItemTapped(1, context)),
-                _NavItem(
-                    index: 2,
-                    selectedIndex: selectedIndex,
-                    icon: Icons.sports_soccer_outlined,
-                    activeIcon: Icons.sports_soccer,
-                    label: 'Lobbies',
-                    onTap: () => _onItemTapped(2, context)),
-                _NavItem(
-                    index: 3,
-                    selectedIndex: selectedIndex,
-                    icon: Icons.account_balance_wallet_outlined,
-                    activeIcon: Icons.account_balance_wallet_rounded,
-                    label: 'Wallet',
-                    onTap: () => _onItemTapped(3, context)),
-                _NavItem(
-                    index: 4,
-                    selectedIndex: selectedIndex,
-                    icon: Icons.person_outline,
-                    activeIcon: Icons.person,
-                    label: 'Profile',
-                    onTap: () => _onItemTapped(4, context)),
-              ],
+        bottomNavigationBar: Container(
+          decoration: const BoxDecoration(
+            color: AppColors.navBar,
+            border: Border(top: BorderSide(color: AppColors.glassBorder, width: 1)),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: DesignConfig.spacingSm, vertical: DesignConfig.spacingXs),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _NavItem(
+                      index: 0,
+                      selectedIndex: selectedIndex,
+                      icon: Icons.home_outlined,
+                      activeIcon: Icons.home_rounded,
+                      label: 'Home',
+                      onTap: () => _onItemTapped(0, context)),
+                  _NavItem(
+                      index: 1,
+                      selectedIndex: selectedIndex,
+                      icon: Icons.leaderboard_outlined,
+                      activeIcon: Icons.leaderboard_rounded,
+                      label: 'Rank',
+                      onTap: () => _onItemTapped(1, context)),
+                  _NavItem(
+                      index: 2,
+                      selectedIndex: selectedIndex,
+                      icon: Icons.sports_soccer_outlined,
+                      activeIcon: Icons.sports_soccer,
+                      label: 'Lobbies',
+                      onTap: () => _onItemTapped(2, context)),
+                  _NavItem(
+                      index: 3,
+                      selectedIndex: selectedIndex,
+                      icon: Icons.account_balance_wallet_outlined,
+                      activeIcon: Icons.account_balance_wallet_rounded,
+                      label: 'Wallet',
+                      onTap: () => _onItemTapped(3, context)),
+                  _NavItem(
+                      index: 4,
+                      selectedIndex: selectedIndex,
+                      icon: Icons.person_outline,
+                      activeIcon: Icons.person,
+                      label: 'Profile',
+                      onTap: () => _onItemTapped(4, context)),
+                ],
+              ),
             ),
           ),
         ),

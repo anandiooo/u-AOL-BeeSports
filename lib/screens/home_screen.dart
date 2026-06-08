@@ -18,17 +18,53 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
+  bool _hasLoaded = false;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _tryLoadData();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed && context.mounted) {
+      _reloadIfNeeded();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  void _tryLoadData() {
+    if (_hasLoaded) return;
     final authState = context.read<AuthBloc>().state;
     if (authState is Authenticated) {
+      setState(() => _hasLoaded = true);
       context
           .read<NotificationBloc>()
           .add(LoadNotifications(authState.user.id));
       context.read<ProfileBloc>().add(ProfileLoadRequested(authState.user.id));
       context.read<LobbyListBloc>().add(LoadMyLobbies(authState.user.id));
+    }
+  }
+
+  void _reloadIfNeeded() {
+    final authState = context.read<AuthBloc>().state;
+    if (authState is Authenticated) {
+      context
+          .read<LobbyListBloc>()
+          .add(LoadMyLobbies(authState.user.id));
+      context
+          .read<NotificationBloc>()
+          .add(LoadNotifications(authState.user.id));
+      context.read<ProfileBloc>().add(ProfileLoadRequested(authState.user.id));
     }
   }
 

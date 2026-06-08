@@ -98,10 +98,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Expanded(
                 child: BlocBuilder<ProfileBloc, ProfileState>(
                   builder: (context, state) {
-                    if (state is ProfileLoading)
+                    if (state is ProfileLoading) {
                       return const ShimmerProfileHeader();
-                    if (state is ProfileLoaded)
+                    }
+                    if (state is ProfileLoaded) {
                       return _buildProfile(state.profile);
+                    }
                     if (state is ProfileUpdateSuccess) {
                       return _buildProfile(state.profile);
                     }

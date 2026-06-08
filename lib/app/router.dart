@@ -229,8 +229,8 @@ class AppRouter {
             path: '/home',
             pageBuilder: (context, state) => FadeTransitionPage(
               key: state.pageKey,
-              child: BlocProvider(
-                create: (_) => sl<LobbyListBloc>(),
+              child: BlocProvider.value(
+                value: MainScaffold.lobbyListBloc,
                 child: const HomeScreen(),
               ),
             ),
@@ -239,8 +239,8 @@ class AppRouter {
             path: '/lobbies',
             pageBuilder: (context, state) => FadeTransitionPage(
               key: state.pageKey,
-              child: BlocProvider(
-                create: (_) => sl<LobbyListBloc>(),
+              child: BlocProvider.value(
+                value: MainScaffold.lobbyListBloc,
                 child: const LobbyListScreen(),
               ),
             ),
