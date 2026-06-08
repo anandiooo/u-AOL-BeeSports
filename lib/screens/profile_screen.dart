@@ -88,7 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 const EdgeInsets.all(DesignConfig.spacingSm),
                             constraints: const BoxConstraints(),
                             icon: const Icon(Icons.logout,
-                                color: AppColors.accentOrange),
+                                color: AppColors.error),
                             onPressed: _handleLogout),
                       ],
                     ),

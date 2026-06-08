@@ -237,11 +237,13 @@ class MatchRepositoryImpl implements MatchRepository {
       // Fetch lobby deposit details
       final lobby = await _client
           .from('lobbies')
-          .select('deposit_amount')
+          .select('deposit_amount, host_deposit_amount, host_id')
           .eq('id', lobbyId)
           .single();
 
       final depositAmount = (lobby['deposit_amount'] as num?)?.toDouble() ?? 0.0;
+      final hostDepositAmount = (lobby['host_deposit_amount'] as num?)?.toDouble() ?? 0.0;
+      final hostId = lobby['host_id'] as String;
       final hasDeposit = depositAmount > 0;
 
       if (hasDeposit && depositAmount > 0) {
@@ -269,9 +271,11 @@ class MatchRepositoryImpl implements MatchRepository {
             final held = (walletData['held'] as num).toDouble();
 
             if (status == 'no_show') {
-              // Forfeit deposit for no-show
-              final newBalance = (balance - depositAmount).clamp(0.0, double.infinity);
-              final newHeld = (held - depositAmount).clamp(0.0, double.infinity);
+              final relevantAmount = userId == hostId && hostDepositAmount > 0
+                  ? hostDepositAmount
+                  : depositAmount;
+              final newBalance = (balance - relevantAmount).clamp(0.0, double.infinity);
+              final newHeld = (held - relevantAmount).clamp(0.0, double.infinity);
               await _client
                   .from('credit_wallets')
                   .update({'balance': newBalance, 'held': newHeld})
@@ -280,14 +284,16 @@ class MatchRepositoryImpl implements MatchRepository {
               await _client.from('credit_transactions').insert({
                 'user_id': userId,
                 'type': 'deposit_forfeit',
-                'amount': depositAmount,
+                'amount': relevantAmount,
                 'balance_after': newBalance,
                 'reference_id': lobbyId,
                 'description': 'Deposit forfeited for no-show',
               });
             } else {
-              // Release deposit back for players who attended/confirmed
-              final newHeld = (held - depositAmount).clamp(0.0, double.infinity);
+              final relevantAmount = userId == hostId && hostDepositAmount > 0
+                  ? hostDepositAmount
+                  : depositAmount;
+              final newHeld = (held - relevantAmount).clamp(0.0, double.infinity);
               await _client
                   .from('credit_wallets')
                   .update({'held': newHeld})
@@ -296,7 +302,7 @@ class MatchRepositoryImpl implements MatchRepository {
               await _client.from('credit_transactions').insert({
                 'user_id': userId,
                 'type': 'deposit_release',
-                'amount': depositAmount,
+                'amount': relevantAmount,
                 'balance_after': balance,
                 'reference_id': lobbyId,
                 'description': 'Deposit released after match settlement',
