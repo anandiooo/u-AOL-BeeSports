@@ -1,9 +1,8 @@
 import 'package:beesports/core/feedback_service.dart';
-import 'package:beesports/app/app_colors.dart';
+import 'package:beesports/app/app_theme.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class RegisterScreen extends StatefulWidget {
   final VoidCallback onNavigateToLogin;
@@ -54,7 +53,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
+              padding: const EdgeInsets.fromLTRB(DesignConfig.spacingXl,
+                  DesignConfig.spacingXl, DesignConfig.spacingXl, 0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -63,25 +63,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     size: 48,
                     color: AppColors.neonGreen,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: DesignConfig.spacingMd),
                   Text(
                     'CREATE ACCOUNT',
-                    style: GoogleFonts.bebasNeue(
-                      fontSize: 40,
-                      fontWeight: FontWeight.w400,
-                      height: 0.9,
-                      color: AppColors.neonGreen,
-                    ),
+                    style: AppTextStyles.bebas(DesignConfig.displayMd, height: 0.9),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: DesignConfig.spacingSm),
                   Text(
                     'Join BeeSports with your BINUS email',
-                    style: GoogleFonts.inter(
-                      color: AppColors.textSecondary,
-                      fontSize: 14,
-                    ),
+                    style: AppTextStyles.bodySecondary,
                   ),
-                  const SizedBox(height: 36),
+                  const SizedBox(height: DesignConfig.spacing2xl),
                   Form(
                     key: _formKey,
                     child: Column(
@@ -89,7 +81,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         TextFormField(
                           controller: _nameController,
                           textCapitalization: TextCapitalization.words,
-                          style: GoogleFonts.inter(color: AppColors.neonGreen),
+                          style: AppTextStyles.accentLabel,
                           decoration: const InputDecoration(
                             hintText: 'Full Name',
                             prefixIcon: Icon(Icons.person_outlined),
@@ -98,11 +90,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ? 'Name is required'
                               : null,
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: DesignConfig.spacingLg),
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
-                          style: GoogleFonts.inter(color: AppColors.neonGreen),
+                          style: AppTextStyles.accentLabel,
                           decoration: const InputDecoration(
                             hintText: 'BINUS Email (@binus.ac.id)',
                             prefixIcon: Icon(Icons.email_outlined),
@@ -117,11 +109,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: DesignConfig.spacingLg),
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
-                          style: GoogleFonts.inter(color: AppColors.neonGreen),
+                          style: AppTextStyles.accentLabel,
                           decoration: InputDecoration(
                             hintText: 'Password (min. 6 characters)',
                             prefixIcon: const Icon(Icons.lock_outlined),
@@ -143,11 +135,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: DesignConfig.spacingLg),
                         TextFormField(
                           controller: _confirmPasswordController,
                           obscureText: _obscureConfirm,
-                          style: GoogleFonts.inter(color: AppColors.neonGreen),
+                          style: AppTextStyles.accentLabel,
                           decoration: InputDecoration(
                             hintText: 'Confirm Password',
                             prefixIcon: const Icon(Icons.lock_outlined),
@@ -166,9 +158,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: DesignConfig.spacingXl),
                         _buildRegisterButton(),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: DesignConfig.spacingXl),
                         _buildLoginLink(),
                       ],
                     ),
@@ -213,20 +205,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
       children: [
         Text(
           'Already have an account? ',
-          style: GoogleFonts.inter(color: AppColors.textSecondary),
+          style: AppTextStyles.bodySecondary,
         ),
         GestureDetector(
           onTap: widget.onNavigateToLogin,
           child: Text(
             'Sign In',
-            style: GoogleFonts.inter(
-              color: AppColors.neonGreen,
-              fontWeight: FontWeight.w500,
-              decoration: TextDecoration.underline,
-            ),
+            style: AppTextStyles.linkUnderlined,
           ),
         ),
       ],
     );
   }
 }
+

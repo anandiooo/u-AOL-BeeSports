@@ -94,13 +94,13 @@ class LobbyRepositoryImpl implements LobbyRepository {
   @override
   Future<Result<LobbyEntity>> createLobby(LobbyEntity lobby) async {
     return withRetry(() async {
-      final data = await _client
+      final List<dynamic> insertedLobbies = await _client
           .from('lobbies')
           .insert(lobby.toMap())
           .select(
-              '*, host:profiles!lobbies_host_id_fkey(full_name, avatar_url)')
-          .single();
+              '*, host:profiles!lobbies_host_id_fkey(full_name, avatar_url)');
 
+      final data = insertedLobbies.first;
       final created = LobbyEntity.fromMap(data);
 
       await _client.from('lobby_participants').insert({
@@ -194,7 +194,7 @@ class LobbyRepositoryImpl implements LobbyRepository {
           .select(
               '*, host:profiles!lobbies_host_id_fkey(full_name, avatar_url)')
           .inFilter('id', lobbyIds)
-          .order('scheduled_at', ascending: true);
+          .order('created_at', ascending: false);
 
       return (data as List).map((e) => LobbyEntity.fromMap(e)).toList();
     });

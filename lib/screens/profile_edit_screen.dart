@@ -1,7 +1,7 @@
-import 'package:beesports/core/feedback_service.dart';
-import 'package:beesports/app/app_colors.dart';
-import 'package:beesports/models/profile_entity.dart';
+import 'package:beesports/app/app_theme.dart';
 import 'package:beesports/blocs/profile_bloc.dart';
+import 'package:beesports/core/feedback_service.dart';
+import 'package:beesports/models/profile_entity.dart';
 import 'package:beesports/models/skill_level.dart';
 import 'package:beesports/models/sport_type.dart';
 import 'package:flutter/material.dart';
@@ -116,15 +116,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: Text('Edit Profile',
-            style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500, color: AppColors.neonGreen)),
-        backgroundColor: AppColors.background,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.neonGreen),
-      ),
       body: BlocConsumer<ProfileBloc, ProfileState>(
         listener: (context, state) {
           if (state is ProfileUpdateSuccess) {
@@ -146,14 +137,36 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           }
           _initFromProfile(_currentProfile!);
 
-          return Column(children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(DesignConfig.spacingXl,
+                      DesignConfig.spacingXl, DesignConfig.spacingXl, 0),
+                  child: IconButton(
+                    padding: const EdgeInsets.all(DesignConfig.spacingSm),
+                    constraints: const BoxConstraints(),
+                    icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+                    onPressed: () {
+                      if (Navigator.of(context).canPop()) {
+                        context.pop();
+                      } else {
+                        context.go('/home');
+                      }
+                    },
+                  ),
+                ),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: DesignConfig.spacingXl,
+                      vertical: DesignConfig.spacingMd),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                       Center(
                         child: Column(children: [
                           GestureDetector(
@@ -218,7 +231,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                     child: Container(
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: Colors.black.withOpacity(0.24),
+                                        color: Colors.black
+                                            .withValues(alpha: 0.24),
                                       ),
                                       child: const Center(
                                         child: Icon(
@@ -233,132 +247,146 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 12),
-                          TextField(
-                            controller: _nameController,
-                            style: GoogleFonts.inter(
-                                color: AppColors.neonGreen, fontSize: 16),
-                            decoration: InputDecoration(
-                              labelText: 'Display name',
-                              hintText: 'Enter your username',
-                              labelStyle: GoogleFonts.inter(
-                                  color: AppColors.textSecondary, fontSize: 12),
-                            ),
-                            onChanged: (_) => setState(() {}),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                              'Click on the profile picture to change your avatar',
-                              style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  color: AppColors.textSecondary,
-                                  height: 1.3)),
-                          const SizedBox(height: 12),
-                          Text(_currentProfile!.email,
-                              style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  color: AppColors.textSecondary)),
                         ]),
                       ),
-                      const SizedBox(height: 32),
-                      Text('Bio',
-                          style: GoogleFonts.inter(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.textSecondary)),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _bioController,
-                        maxLines: 3,
-                        maxLength: 150,
-                        style: GoogleFonts.inter(
-                            color: AppColors.neonGreen, fontSize: 14),
-                        decoration: InputDecoration(
-                          hintText: 'Write a short bio here',
-                          counterStyle: GoogleFonts.inter(
-                              color: AppColors.textSecondary, fontSize: 10),
+                      const SizedBox(height: DesignConfig.spacing2xl),
+                      Container(
+                        padding: const EdgeInsets.all(DesignConfig.spacingXl),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceVariant,
+                          borderRadius:
+                              BorderRadius.circular(DesignConfig.roundedXl),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextField(
+                              controller: _nameController,
+                              style: GoogleFonts.inter(
+                                  color: AppColors.neonGreen, fontSize: 16),
+                              decoration: InputDecoration(
+                                labelText: 'Display name',
+                                hintText: 'Enter your username',
+                                labelStyle: GoogleFonts.inter(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 12),
+                              ),
+                              onChanged: (_) => setState(() {}),
+                            ),
+                            const SizedBox(height: DesignConfig.spacingXl),
+                            Text('Bio',
+                                style: GoogleFonts.inter(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.textSecondary)),
+                            const SizedBox(height: DesignConfig.spacingSm),
+                            TextFormField(
+                              controller: _bioController,
+                              maxLines: 3,
+                              maxLength: 150,
+                              style: GoogleFonts.inter(
+                                  color: AppColors.neonGreen, fontSize: 14),
+                              decoration: InputDecoration(
+                                hintText: 'Write a short bio here',
+                                counterStyle: GoogleFonts.inter(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 10),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 48),
+                      const SizedBox(height: DesignConfig.spacing2xl),
                       Text('Sports Preferences',
                           style: GoogleFonts.inter(
                               fontSize: 24,
                               fontWeight: FontWeight.w500,
                               color: AppColors.neonGreen)),
-                      const SizedBox(height: 8),
-                      Text('Select the sports you want to play',
-                          style: GoogleFonts.inter(
-                              fontSize: 14, color: AppColors.textSecondary)),
-                      const SizedBox(height: 18),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: SportType.values.map((sport) {
-                          final sel = _selectedSports.contains(sport);
-                          return GestureDetector(
-                            onTap: () => setState(() {
-                              if (sel) {
-                                _selectedSports.remove(sport);
-                                _skillLevels.remove(sport);
-                              } else {
-                                _selectedSports.add(sport);
-                              }
-                            }),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: sel
-                                    ? AppColors.neonGreen
-                                    : AppColors.background,
-                                borderRadius: BorderRadius.circular(30),
-                                border: Border.all(
-                                    color: sel
-                                        ? AppColors.neonGreen
-                                        : AppColors.border),
-                              ),
-                              child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(sport.icon,
-                                        size: 14,
-                                        color: sel
-                                            ? AppColors.onAccent
-                                            : AppColors.neonGreen),
-                                    const SizedBox(width: 6),
-                                    Text(sport.label,
-                                        style: GoogleFonts.inter(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                            color: sel
-                                                ? AppColors.onAccent
-                                                : AppColors.neonGreen)),
-                                  ]),
+                      const SizedBox(height: DesignConfig.spacingMd),
+                      Container(
+                        padding: const EdgeInsets.all(DesignConfig.spacingXl),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceVariant,
+                          borderRadius:
+                              BorderRadius.circular(DesignConfig.roundedXl),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Wrap(
+                              spacing: DesignConfig.spacingSm,
+                              runSpacing: DesignConfig.spacingSm,
+                              children: SportType.values.map((sport) {
+                                final sel = _selectedSports.contains(sport);
+                                return GestureDetector(
+                                  onTap: () => setState(() {
+                                    if (sel) {
+                                      _selectedSports.remove(sport);
+                                      _skillLevels.remove(sport);
+                                    } else {
+                                      _selectedSports.add(sport);
+                                    }
+                                  }),
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: DesignConfig.spacingLg,
+                                        vertical: DesignConfig.spacingSm),
+                                    decoration: BoxDecoration(
+                                      color: sel
+                                          ? AppColors.neonGreen
+                                          : AppColors.background,
+                                      borderRadius: BorderRadius.circular(30),
+                                      border: Border.all(
+                                          color: sel
+                                              ? AppColors.neonGreen
+                                              : AppColors.border),
+                                    ),
+                                    child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(sport.icon,
+                                              size: 14,
+                                              color: sel
+                                                  ? AppColors.onAccent
+                                                  : AppColors.neonGreen),
+                                          const SizedBox(
+                                              width: DesignConfig.spacingSm),
+                                          Text(sport.label,
+                                              style: GoogleFonts.inter(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: sel
+                                                      ? AppColors.onAccent
+                                                      : AppColors.neonGreen)),
+                                        ]),
+                                  ),
+                                );
+                              }).toList(),
                             ),
-                          );
-                        }).toList(),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 48),
+                      const SizedBox(height: DesignConfig.spacing2xl),
                       if (_selectedSports.isNotEmpty) ...[
                         Text('Skill Levels',
                             style: GoogleFonts.inter(
                                 fontSize: 24,
                                 fontWeight: FontWeight.w500,
                                 color: AppColors.neonGreen)),
-                        const SizedBox(height: 8),
-                        Text('Set your experience level for each sport',
-                            style: GoogleFonts.inter(
-                                fontSize: 14, color: AppColors.textSecondary)),
-                        const SizedBox(height: 18),
+                        const SizedBox(height: DesignConfig.spacingMd),
                         ..._selectedSports.map((sport) {
                           final isMissing = _attemptedSave &&
                               !_skillLevels.containsKey(sport);
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.all(16),
+                            margin: const EdgeInsets.only(
+                                bottom: DesignConfig.spacingSm),
+                            padding:
+                                const EdgeInsets.all(DesignConfig.spacingXl),
                             decoration: BoxDecoration(
                               color: AppColors.surfaceVariant,
+                              borderRadius:
+                                  BorderRadius.circular(DesignConfig.roundedXl),
                               border: isMissing
                                   ? Border.all(
                                       color: AppColors.sale, width: 1.5)
@@ -373,7 +401,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                             ? AppColors.sale
                                             : AppColors.neonGreen,
                                         size: 18),
-                                    const SizedBox(width: 8),
+                                    const SizedBox(
+                                        width: DesignConfig.spacingSm),
                                     Text(sport.label,
                                         style: GoogleFonts.inter(
                                             fontWeight: FontWeight.w500,
@@ -390,7 +419,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                               color: AppColors.sale)),
                                     ],
                                   ]),
-                                  const SizedBox(height: 12),
+                                  const SizedBox(
+                                      height: DesignConfig.spacingMd),
                                   Row(
                                       children: SkillLevel.values.map((level) {
                                     final active = _skillLevels[sport] == level;
@@ -402,9 +432,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                           duration:
                                               const Duration(milliseconds: 200),
                                           margin: const EdgeInsets.symmetric(
-                                              horizontal: 3),
+                                              horizontal:
+                                                  DesignConfig.spacingXs),
                                           padding: const EdgeInsets.symmetric(
-                                              vertical: 8),
+                                              vertical: DesignConfig.spacingSm),
                                           decoration: BoxDecoration(
                                             color: active
                                                 ? AppColors.neonGreen
@@ -417,24 +448,40 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                                     : AppColors.border),
                                           ),
                                           child: Center(
-                                            child: Text(
-                                                '${level.emoji} ${level.label.substring(0, 3)}.',
-                                                style: GoogleFonts.inter(
-                                                    fontSize: 10,
-                                                    fontWeight: active
-                                                        ? FontWeight.w500
-                                                        : FontWeight.w400,
-                                                    color: active
-                                                        ? AppColors.onPrimary
-                                                        : AppColors
-                                                            .textSecondary)),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  level.icon,
+                                                  size: 12,
+                                                  color: active
+                                                      ? AppColors.onAccent
+                                                      : AppColors.textSecondary,
+                                                ),
+                                                const SizedBox(
+                                                    width: DesignConfig
+                                                        .spacingXxs),
+                                                Text(
+                                                    '${level.label.substring(0, 3)}.',
+                                                    style: GoogleFonts.inter(
+                                                        fontSize: 10,
+                                                        fontWeight: active
+                                                            ? FontWeight.w500
+                                                            : FontWeight.w400,
+                                                        color: active
+                                                            ? AppColors.onAccent
+                                                            : AppColors
+                                                                .textSecondary)),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),
                                     );
                                   }).toList()),
                                   if (isMissing) ...[
-                                    const SizedBox(height: 8),
+                                    const SizedBox(
+                                        height: DesignConfig.spacingSm),
                                     Text(
                                       'Please select your skill level for ${sport.label}',
                                       style: GoogleFonts.inter(
@@ -449,7 +496,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               ),
             ),
             Container(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(DesignConfig.spacingXl),
               decoration: const BoxDecoration(
                 color: AppColors.background,
                 border: Border(top: BorderSide(color: AppColors.divider)),

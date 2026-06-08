@@ -1,9 +1,8 @@
 import 'package:beesports/core/feedback_service.dart';
-import 'package:beesports/app/app_colors.dart';
+import 'package:beesports/app/app_theme.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback onNavigateToRegister;
@@ -66,24 +65,25 @@ class _LoginScreenState extends State<LoginScreen>
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
+              padding: const EdgeInsets.fromLTRB(DesignConfig.spacingXl,
+                  DesignConfig.spacingXl, DesignConfig.spacingXl, 0),
               child: FadeTransition(
                 opacity: _fadeAnimation,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _buildLogo(),
-                    const SizedBox(height: 48),
+                    const SizedBox(height: DesignConfig.spacing3xl),
                     Form(
                       key: _formKey,
                       child: Column(
                         children: [
                           _buildEmailField(),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: DesignConfig.spacingLg),
                           _buildPasswordField(),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: DesignConfig.spacingXl),
                           _buildSignInButton(),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: DesignConfig.spacingXl),
                           _buildRegisterLink(),
                         ],
                       ),
@@ -104,8 +104,9 @@ class _LoginScreenState extends State<LoginScreen>
         Container(
           width: 72,
           height: 72,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: AppColors.neonGreen,
+            borderRadius: BorderRadius.circular(DesignConfig.roundedXl),
           ),
           child: const Icon(
             Icons.sports_soccer,
@@ -113,25 +114,15 @@ class _LoginScreenState extends State<LoginScreen>
             color: AppColors.onAccent,
           ),
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: DesignConfig.spacingLg),
         Text(
           'BEESPORTS',
-          style: GoogleFonts.bebasNeue(
-            fontSize: 48,
-            fontWeight: FontWeight.w400,
-            height: 0.9,
-            color: AppColors.neonGreen,
-          ),
+          style: AppTextStyles.bebas(DesignConfig.displayLg, height: 0.9),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: DesignConfig.spacingSm),
         Text(
           'Match. Play. Win.',
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            color: AppColors.textSecondary,
-            letterSpacing: 2,
-            fontWeight: FontWeight.w500,
-          ),
+          style: AppTextStyles.bodySecondaryStrong.copyWith(letterSpacing: 2),
         ),
       ],
     );
@@ -141,7 +132,7 @@ class _LoginScreenState extends State<LoginScreen>
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
-      style: GoogleFonts.inter(color: AppColors.neonGreen),
+      style: AppTextStyles.accentLabel,
       decoration: const InputDecoration(
         hintText: 'BINUS Email (@binus.ac.id)',
         prefixIcon: Icon(Icons.email_outlined),
@@ -160,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen>
     return TextFormField(
       controller: _passwordController,
       obscureText: _obscurePassword,
-      style: GoogleFonts.inter(color: AppColors.neonGreen),
+      style: AppTextStyles.accentLabel,
       decoration: InputDecoration(
         hintText: 'Password',
         prefixIcon: const Icon(Icons.lock_outlined),
@@ -210,20 +201,17 @@ class _LoginScreenState extends State<LoginScreen>
       children: [
         Text(
           "Don't have an account? ",
-          style: GoogleFonts.inter(color: AppColors.textSecondary),
+          style: AppTextStyles.bodySecondary,
         ),
         GestureDetector(
           onTap: widget.onNavigateToRegister,
           child: Text(
             'Register',
-            style: GoogleFonts.inter(
-              color: AppColors.neonGreen,
-              fontWeight: FontWeight.w500,
-              decoration: TextDecoration.underline,
-            ),
+            style: AppTextStyles.linkUnderlined,
           ),
         ),
       ],
     );
   }
 }
+

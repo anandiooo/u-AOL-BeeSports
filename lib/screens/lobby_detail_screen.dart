@@ -1,5 +1,5 @@
 import 'package:beesports/core/feedback_service.dart';
-import 'package:beesports/app/app_colors.dart';
+import 'package:beesports/app/app_theme.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:beesports/models/lobby_participant_entity.dart';
 import 'package:beesports/blocs/lobby_detail_bloc.dart';
@@ -7,7 +7,6 @@ import 'package:beesports/models/lobby_status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:beesports/models/lobby_entity.dart';
@@ -31,7 +30,20 @@ class LobbyDetailScreen extends StatelessWidget {
         if (state is LobbyDetailLoading) {
           return Scaffold(
             backgroundColor: AppColors.background,
-            appBar: AppBar(backgroundColor: AppColors.background, elevation: 0),
+            appBar: AppBar(
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  if (Navigator.of(context).canPop()) {
+                    context.pop();
+                    return;
+                  }
+                  context.go('/home');
+                },
+              ),
+              backgroundColor: AppColors.background,
+              elevation: 0,
+            ),
             body: const Center(
                 child: CircularProgressIndicator(color: AppColors.neonGreen)),
           );
@@ -49,40 +61,46 @@ class LobbyDetailScreen extends StatelessWidget {
           return Scaffold(
             backgroundColor: AppColors.background,
             appBar: AppBar(
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  if (Navigator.of(context).canPop()) {
+                    context.pop();
+                    return;
+                  }
+                  context.go('/home');
+                },
+              ),
               title: Text(lobby.title,
-                  style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w500, color: AppColors.neonGreen)),
+                  style: AppTextStyles.sectionTitle),
               backgroundColor: AppColors.background,
               elevation: 0,
               scrolledUnderElevation: 0,
               iconTheme: const IconThemeData(color: AppColors.neonGreen),
             ),
             body: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.fromLTRB(DesignConfig.spacingXl,
+                  DesignConfig.spacingXl, DesignConfig.spacingXl, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildHeader(lobby),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: DesignConfig.spacingXl),
                   if (lobby.latitude != null && lobby.longitude != null) ...[
                     _buildMapSection(lobby),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: DesignConfig.spacingXl),
                   ],
                   _buildInfoSection(lobby),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: DesignConfig.spacingXl),
                   _buildParticipantsSection(participants, lobby),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: DesignConfig.spacingXl),
                   if (lobby.description.isNotEmpty) ...[
                     Text('Description',
-                        style: GoogleFonts.inter(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.neonGreen)),
-                    const SizedBox(height: 8),
+                        style: AppTextStyles.accentBody),
+                    const SizedBox(height: DesignConfig.spacingSm),
                     Text(lobby.description,
-                        style: GoogleFonts.inter(
-                            color: AppColors.textSecondary, height: 1.5)),
-                    const SizedBox(height: 24),
+                        style: AppTextStyles.bodySecondary.copyWith(height: 1.5)),
+                    const SizedBox(height: DesignConfig.spacingXl),
                   ],
                   _buildActions(
                       context, lobby, isHost, isParticipant, currentUserId),
@@ -93,10 +111,23 @@ class LobbyDetailScreen extends StatelessWidget {
         }
         return Scaffold(
           backgroundColor: AppColors.background,
-          appBar: AppBar(backgroundColor: AppColors.background, elevation: 0),
+          appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  context.pop();
+                  return;
+                }
+                context.go('/home');
+              },
+            ),
+            backgroundColor: AppColors.background,
+            elevation: 0,
+          ),
           body: Center(
               child: Text('Failed to load lobby.',
-                  style: GoogleFonts.inter(color: AppColors.neonGreen))),
+                  style: AppTextStyles.sectionTitle)),
         );
       },
     );
@@ -106,39 +137,35 @@ class LobbyDetailScreen extends StatelessWidget {
     final sport = lobby.sport;
     return Row(children: [
       Icon(sport.icon, color: AppColors.neonGreen, size: 32),
-      const SizedBox(width: 16),
+      const SizedBox(width: DesignConfig.spacingLg),
       Expanded(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(sport.label,
-              style: GoogleFonts.inter(
-                  color: AppColors.neonGreen,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14)),
-          const SizedBox(height: 2),
-          Text('Hosted by ${lobby.hostName ?? 'Unknown'}',
-              style: GoogleFonts.inter(
-                  color: AppColors.textSecondary, fontSize: 14)),
+              style: AppTextStyles.accentLabel),
+          const SizedBox(height: DesignConfig.spacingXxs),
+          Text('Hosted by ${lobby.hostName ?? '[N/A]'}',
+              style: AppTextStyles.bodySecondary),
         ]),
       ),
       Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: DesignConfig.spacingMd, vertical: DesignConfig.spacingSm),
         decoration: BoxDecoration(
           color: AppColors.neonGreen,
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(DesignConfig.rounded2xl),
         ),
         child: Text(lobby.status.label,
-            style: GoogleFonts.inter(
-                color: AppColors.onAccent,
-                fontWeight: FontWeight.w500,
-                fontSize: 12)),
+            style: AppTextStyles.onAccent),
       ),
     ]);
   }
 
   Widget _buildInfoSection(lobby) {
     return Container(
-      padding: const EdgeInsets.all(20),
-      color: AppColors.surfaceVariant,
+      padding: const EdgeInsets.all(DesignConfig.spacingXl),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant,
+        borderRadius: BorderRadius.circular(DesignConfig.roundedXl),
+      ),
       child: Column(children: [
         _InfoRow(
             icon: Icons.calendar_today,
@@ -146,14 +173,14 @@ class LobbyDetailScreen extends StatelessWidget {
             value:
                 '${_formatDate(lobby.scheduledAt)} at ${_formatTime(lobby.scheduledAt)}'),
         const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
+            padding: EdgeInsets.symmetric(vertical: DesignConfig.spacingMd),
             child: Divider(height: 1, color: AppColors.divider)),
         _InfoRow(
             icon: Icons.timer,
             label: 'Duration',
             value: '${lobby.durationMinutes} minutes'),
         const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
+            padding: EdgeInsets.symmetric(vertical: DesignConfig.spacingMd),
             child: Divider(height: 1, color: AppColors.divider)),
         _InfoRow(
             icon: Icons.people,
@@ -162,7 +189,7 @@ class LobbyDetailScreen extends StatelessWidget {
                 '${lobby.currentPlayers}/${lobby.maxPlayers} (min: ${lobby.minPlayers})'),
         if (lobby.hasDeposit) ...[
           const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
+              padding: EdgeInsets.symmetric(vertical: DesignConfig.spacingMd),
               child: Divider(height: 1, color: AppColors.divider)),
           _InfoRow(
               icon: Icons.monetization_on,
@@ -172,7 +199,7 @@ class LobbyDetailScreen extends StatelessWidget {
         ],
         if (lobby.minElo != null || lobby.maxElo != null) ...[
           const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
+              padding: EdgeInsets.symmetric(vertical: DesignConfig.spacingMd),
               child: Divider(height: 1, color: AppColors.divider)),
           _InfoRow(
               icon: Icons.trending_up,
@@ -195,37 +222,33 @@ class LobbyDetailScreen extends StatelessWidget {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
         Text('Participants',
-            style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: AppColors.neonGreen)),
+            style: AppTextStyles.accentBody),
         const Spacer(),
         Text(
             '${participants.where((p) => p.isActive).length}/${lobby.maxPlayers}',
-            style: GoogleFonts.inter(
-                fontSize: 14, color: AppColors.textSecondary)),
+            style: AppTextStyles.bodySecondary),
       ]),
-      const SizedBox(height: 12),
+      const SizedBox(height: DesignConfig.spacingMd),
       if (teamA.isNotEmpty || teamB.isNotEmpty) ...[
         if (teamA.isNotEmpty) ...[
           const _TeamHeader('Team A'),
           ...teamA.map((p) => _ParticipantTile(participant: p)),
-          const SizedBox(height: 8),
+          const SizedBox(height: DesignConfig.spacingSm),
         ],
         if (teamB.isNotEmpty) ...[
           const _TeamHeader('Team B'),
           ...teamB.map((p) => _ParticipantTile(participant: p)),
-          const SizedBox(height: 8),
+          const SizedBox(height: DesignConfig.spacingSm),
         ],
       ],
       if (unassigned.isNotEmpty)
         ...unassigned.map((p) => _ParticipantTile(participant: p)),
       if (participants.where((p) => p.isActive).isEmpty)
         Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(DesignConfig.spacingXl),
           alignment: Alignment.center,
           child: Text('No participants yet',
-              style: GoogleFonts.inter(color: AppColors.textSecondary)),
+              style: AppTextStyles.bodySecondary),
         ),
     ]);
   }
@@ -233,7 +256,6 @@ class LobbyDetailScreen extends StatelessWidget {
   Widget _buildActions(BuildContext context, lobby, bool isHost,
       bool isParticipant, String currentUserId) {
     if (lobby.status == LobbyStatus.cancelled ||
-        lobby.status == LobbyStatus.finished ||
         lobby.status == LobbyStatus.settled) {
       return const SizedBox.shrink();
     }
@@ -267,7 +289,7 @@ class LobbyDetailScreen extends StatelessWidget {
         ),
       ],
       if (isHost && lobby.isOpen) ...[
-        const SizedBox(height: 8),
+        const SizedBox(height: DesignConfig.spacingSm),
         SizedBox(
           width: double.infinity,
           height: 48,
@@ -283,7 +305,7 @@ class LobbyDetailScreen extends StatelessWidget {
             child: const Text('Confirm Lobby'),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: DesignConfig.spacingSm),
         SizedBox(
           width: double.infinity,
           height: 48,
@@ -301,6 +323,22 @@ class LobbyDetailScreen extends StatelessWidget {
               context.pop();
             }),
             child: const Text('Cancel Lobby'),
+          ),
+        ),
+        const SizedBox(height: DesignConfig.spacing2xl),
+      ],
+      if (isHost && lobby.status == LobbyStatus.confirmed) ...[
+        const SizedBox(height: DesignConfig.spacingSm),
+        SizedBox(
+          width: double.infinity,
+          height: 48,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.neonGreen,
+                foregroundColor: AppColors.onAccent),
+            onPressed: () => context.read<LobbyDetailBloc>().add(
+                SettleLobbyRequested(lobby.id)),
+            child: const Text('Finish & Split Bill'),
           ),
         ),
       ],
@@ -358,16 +396,13 @@ class LobbyDetailScreen extends StatelessWidget {
       children: [
         Text(
           'Location',
-          style: GoogleFonts.inter(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: AppColors.neonGreen),
+          style: AppTextStyles.accentBody,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: DesignConfig.spacingSm),
         Container(
           height: 200,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(DesignConfig.roundedXl),
             border: Border.all(color: AppColors.divider),
           ),
           clipBehavior: Clip.antiAlias,
@@ -418,15 +453,13 @@ class _InfoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(children: [
       Icon(icon, size: 18, color: AppColors.textSecondary),
-      const SizedBox(width: 10),
+      const SizedBox(width: DesignConfig.spacingMd),
       Text(label,
           style:
-              GoogleFonts.inter(color: AppColors.textSecondary, fontSize: 14)),
+              AppTextStyles.bodySecondary),
       const Spacer(),
       Text(value,
-          style: GoogleFonts.inter(
-              fontWeight: FontWeight.w500,
-              fontSize: 14,
+          style: AppTextStyles.accentLabel.copyWith(
               color: valueColor ?? AppColors.neonGreen)),
     ]);
   }
@@ -438,12 +471,9 @@ class _TeamHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6, top: 4),
+      padding: const EdgeInsets.only(bottom: DesignConfig.spacingSm, top: DesignConfig.spacingXs),
       child: Text(label,
-          style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: AppColors.neonGreen)),
+          style: AppTextStyles.accentLabel),
     );
   }
 }
@@ -455,9 +485,12 @@ class _ParticipantTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      color: AppColors.surfaceVariant,
+      margin: const EdgeInsets.only(bottom: DesignConfig.spacingXs),
+      padding: const EdgeInsets.symmetric(horizontal: DesignConfig.spacingMd, vertical: DesignConfig.spacingMd),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant,
+        borderRadius: BorderRadius.circular(DesignConfig.roundedXl),
+      ),
       child: Row(children: [
         Container(
           width: 32,
@@ -466,33 +499,26 @@ class _ParticipantTile extends StatelessWidget {
               color: AppColors.neonGreen, shape: BoxShape.circle),
           child: Center(
             child: Text((participant.userName ?? '?')[0].toUpperCase(),
-                style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.onAccent,
-                    fontSize: 14)),
+                style: AppTextStyles.onAccentBody),
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: DesignConfig.spacingMd),
         Expanded(
-          child: Text(participant.userName ?? 'Unknown',
-              style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.neonGreen)),
+          child: Text(participant.userName ?? '[N/A]',
+              style: AppTextStyles.accentLabel),
         ),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: DesignConfig.spacingMd, vertical: DesignConfig.spacingXs),
           decoration: BoxDecoration(
             color: AppColors.background,
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(DesignConfig.rounded2xl),
           ),
           child: Text(participant.status.label,
-              style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.neonGreen)),
+              style: AppTextStyles.accentCaption),
         ),
       ]),
     );
   }
 }
+
+

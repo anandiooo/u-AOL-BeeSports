@@ -21,7 +21,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Result<void>> signUp({
+  Future<Result<UserEntity>> signUp({
     required String email,
     required String password,
     required String fullName,
@@ -50,35 +50,9 @@ class AuthRepositoryImpl implements AuthRepository {
             'held': 0,
           });
         } catch (_) {}
+        return userEntity;
       }
-    });
-  }
-
-  @override
-  Future<Result<UserEntity>> verifyOtp({
-    required String email,
-    required String token,
-  }) async {
-    return withRetry(() async {
-      final response = await _client.auth.verifyOTP(
-        email: email,
-        token: token,
-        type: OtpType.signup,
-      );
-
-      final user = response.user;
-      if (user == null) {
-        throw const AuthException('OTP verification failed.');
-      }
-
-      final userEntity = UserEntity(
-        id: user.id,
-        email: user.email ?? email,
-        fullName: user.userMetadata?['full_name'] as String?,
-      );
-
-      await _upsertProfile(userEntity);
-      return userEntity;
+      throw const AuthException('Sign-up failed.');
     });
   }
 

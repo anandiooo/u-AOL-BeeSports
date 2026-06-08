@@ -16,5 +16,5 @@ abstract class MatchRepository {
 
   Future<Result<List<MatchEntity>>> getMyMatches(String userId);
 
-  Future<Result<void>> settleMatch(String matchId);
+  Future<Result<void>> settleLobby(String lobbyId);
 }

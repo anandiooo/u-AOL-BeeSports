@@ -1,10 +1,9 @@
-import 'package:beesports/app/app_colors.dart';
+import 'package:beesports/app/app_theme.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:beesports/models/match_entity.dart';
 import 'package:beesports/blocs/match_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class MatchHistoryScreen extends StatelessWidget {
   const MatchHistoryScreen({super.key});
@@ -19,8 +18,7 @@ class MatchHistoryScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text('Match History',
-            style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500, color: AppColors.neonGreen)),
+            style: AppTextStyles.sectionTitle),
         backgroundColor: AppColors.background,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -34,7 +32,7 @@ class MatchHistoryScreen extends StatelessWidget {
         if (state is MatchError) {
           return Center(
               child: Text(state.message,
-                  style: GoogleFonts.inter(color: AppColors.error)));
+                  style: AppTextStyles.error));
         }
         if (state is MatchHistoryLoaded) {
           if (state.matches.isEmpty) {
@@ -44,15 +42,16 @@ class MatchHistoryScreen extends StatelessWidget {
                   children: [
                     const Icon(Icons.sports_outlined,
                         size: 64, color: AppColors.divider),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: DesignConfig.spacingMd),
                     Text('No matches played yet',
                         style:
-                            GoogleFonts.inter(color: AppColors.textSecondary)),
+                            AppTextStyles.bodySecondary),
                   ]),
             );
           }
           return ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: const EdgeInsets.fromLTRB(DesignConfig.spacingXl,
+                DesignConfig.spacingXl, DesignConfig.spacingXl, 0),
             itemCount: state.matches.length,
             itemBuilder: (context, index) =>
                 _MatchCard(match: state.matches[index]),
@@ -89,38 +88,34 @@ class _MatchCard extends StatelessWidget {
         '${d.day.toString().padLeft(2, '0')} ${months[d.month - 1]} ${d.year}';
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(20),
-      color: AppColors.surfaceVariant,
+      margin: const EdgeInsets.only(bottom: DesignConfig.spacingSm),
+      padding: const EdgeInsets.all(DesignConfig.spacingXl),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant,
+        borderRadius: BorderRadius.circular(DesignConfig.roundedXl),
+      ),
       child: Row(children: [
         Icon(match.sport.icon, color: AppColors.neonGreen, size: 28),
-        const SizedBox(width: 14),
+        const SizedBox(width: DesignConfig.spacingLg),
         Expanded(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(match.sport.label,
-                style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16,
-                    color: AppColors.neonGreen)),
-            const SizedBox(height: 4),
+                style: AppTextStyles.accentBody),
+            const SizedBox(height: DesignConfig.spacingXs),
             Text(dateStr,
-                style: GoogleFonts.inter(
-                    fontSize: 12, color: AppColors.textSecondary)),
+                style: AppTextStyles.caption),
           ]),
         ),
         Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Text('${match.teamAScore} - ${match.teamBScore}',
-              style: GoogleFonts.inter(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.neonGreen)),
-          const SizedBox(height: 4),
+              style: AppTextStyles.emptyTitle.copyWith(color: AppColors.neonGreen)),
+          const SizedBox(height: DesignConfig.spacingXs),
           Text(match.resultLabel,
-              style: GoogleFonts.inter(
-                  fontSize: 11, color: AppColors.textSecondary)),
+              style: AppTextStyles.chatTimestamp),
         ]),
       ]),
     );
   }
 }
+

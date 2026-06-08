@@ -6,7 +6,7 @@ enum Campus {
   malang('Malang', 'Malang'),
   semarang('Semarang', 'Semarang'),
   online('BINUS Online', 'Online'),
-  unknown('Unknown', '');
+  unknown('[N/A]', '');
 
   final String label;
   final String city;

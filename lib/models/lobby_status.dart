@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:beesports/app/app_colors.dart';
+import 'package:beesports/app/app_theme.dart';
 
 enum LobbyStatus {
   open('Open', AppColors.success),
@@ -42,3 +42,4 @@ enum LobbyStatus {
     }
   }
 }
+

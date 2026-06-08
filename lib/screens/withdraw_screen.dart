@@ -1,12 +1,11 @@
-import 'package:beesports/core/feedback_service.dart';
-import 'package:beesports/app/app_colors.dart';
+import 'package:beesports/app/app_theme.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:beesports/blocs/wallet_bloc.dart';
+import 'package:beesports/core/feedback_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class WithdrawScreen extends StatefulWidget {
   const WithdrawScreen({super.key});
@@ -37,13 +36,11 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Withdraw',
-            style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500, color: AppColors.neonGreen)),
+        title: Text('Withdraw', style: AppTextStyles.sectionTitle),
         backgroundColor: AppColors.background,
         elevation: 0,
         scrolledUnderElevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.neonGreen),
+        iconTheme: const IconThemeData(color: AppColors.error),
       ),
       body: BlocListener<WalletBloc, WalletState>(
         listener: (context, state) {
@@ -57,18 +54,19 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
           }
         },
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.fromLTRB(DesignConfig.spacingXl,
+              DesignConfig.spacingXl, DesignConfig.spacingXl, 0),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Select Amount',
-                style: GoogleFonts.inter(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.neonGreen)),
-            const SizedBox(height: 18),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
+            Text('Select Amount', style: AppTextStyles.sectionTitle),
+            const SizedBox(height: DesignConfig.spacingLg),
+            GridView.count(
+              crossAxisCount: 3,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              childAspectRatio: 2.2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
               children: _presets.map((amount) {
                 final sel = _selectedAmount == amount;
                 return GestureDetector(
@@ -79,41 +77,52 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 14),
+                        horizontal: DesignConfig.spacingSm,
+                        vertical: DesignConfig.spacingSm),
                     decoration: BoxDecoration(
-                      color: sel ? AppColors.neonGreen : AppColors.background,
-                      borderRadius: BorderRadius.circular(30),
+                      color: sel ? AppColors.error : AppColors.background,
+                      borderRadius:
+                          BorderRadius.circular(DesignConfig.roundedLg),
                       border: Border.all(
-                          color: sel ? AppColors.neonGreen : AppColors.border),
+                          color: sel ? AppColors.error : AppColors.border),
                     ),
-                    child: Text('Rp${_formatNumber(amount)}',
-                        style: GoogleFonts.inter(
-                            fontWeight: FontWeight.w500,
-                            color: sel
-                                ? AppColors.onAccent
-                                : AppColors.neonGreen)),
+                    child: Center(
+                      child: Text('Rp${_formatNumber(amount)}',
+                          style: AppTextStyles.selectionLabel(selected: sel)
+                              .copyWith(
+                                  color:
+                                      sel ? AppColors.onAccent : AppColors.error)),
+                    ),
                   ),
                 );
               }).toList(),
             ),
-            const SizedBox(height: 24),
             Text('Or enter custom amount',
-                style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary)),
-            const SizedBox(height: 10),
+                style: AppTextStyles.bodySecondaryStrong),
+            const SizedBox(height: DesignConfig.spacingMd),
             TextFormField(
               controller: _customController,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
                 _RupiahInputFormatter(),
               ],
-              decoration: const InputDecoration(
-                  prefixText: 'Rp ',
-                  hintText: 'Enter amount',
-                  prefixIcon: Icon(Icons.edit)),
-              style: GoogleFonts.inter(color: AppColors.neonGreen),
+              decoration: InputDecoration(
+                prefixIcon: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(width: DesignConfig.spacingLg),
+                    const Icon(Icons.edit),
+                    const SizedBox(width: DesignConfig.spacingSm),
+                    Text('Rp ', style: AppTextStyles.inputHint),
+                  ],
+                ),
+                hintText: 'Enter amount',
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(DesignConfig.roundedMd),
+                  borderSide: const BorderSide(color: AppColors.error, width: 2),
+                ),
+              ),
+              style: AppTextStyles.accentLabel.copyWith(color: AppColors.error),
               keyboardType: TextInputType.number,
               onChanged: (v) {
                 final clean = v.replaceAll('.', '');
@@ -122,25 +131,31 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
             ),
             const Spacer(),
             Container(
-              padding: const EdgeInsets.all(16),
-              color: AppColors.surfaceVariant,
+              padding: const EdgeInsets.all(DesignConfig.spacingLg),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceVariant,
+                borderRadius: BorderRadius.circular(DesignConfig.roundedLg),
+              ),
               child: Row(children: [
                 const Icon(Icons.info_outline,
-                    size: 18, color: AppColors.textSecondary),
-                const SizedBox(width: 10),
+                     size: 18, color: AppColors.textSecondary),
+                const SizedBox(width: DesignConfig.spacingMd),
                 Expanded(
                   child: Text(
                       'This is a simulated withdrawal for testing. No real payout will be processed.',
-                      style: GoogleFonts.inter(
-                          fontSize: 12, color: AppColors.textSecondary)),
+                      style: AppTextStyles.caption),
                 ),
               ]),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: DesignConfig.spacingLg),
             SizedBox(
               width: double.infinity,
               height: 48,
               child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.error,
+                  foregroundColor: AppColors.onAccent,
+                ),
                 onPressed: _selectedAmount != null && _selectedAmount! > 0
                     ? _submit
                     : null,
@@ -149,7 +164,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                     : 'Select an amount'),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: DesignConfig.spacingXl),
           ]),
         ),
       ),

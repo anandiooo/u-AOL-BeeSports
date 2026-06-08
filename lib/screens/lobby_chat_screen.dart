@@ -1,10 +1,9 @@
-import 'package:beesports/app/app_colors.dart';
+import 'package:beesports/app/app_theme.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:beesports/models/chat_message_entity.dart';
 import 'package:beesports/blocs/chat_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class LobbyChatScreen extends StatefulWidget {
   final String lobbyId;
@@ -57,8 +56,7 @@ class _LobbyChatScreenState extends State<LobbyChatScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text('Lobby Chat',
-            style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500, color: AppColors.neonGreen)),
+            style: AppTextStyles.sectionTitle),
         backgroundColor: AppColors.background,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -79,19 +77,20 @@ class _LobbyChatScreenState extends State<LobbyChatScreen> {
               if (state is ChatError) {
                 return Center(
                     child: Text(state.message,
-                        style: GoogleFonts.inter(color: AppColors.error)));
+                        style: AppTextStyles.error));
               }
               if (state is ChatLoaded) {
                 if (state.messages.isEmpty) {
                   return Center(
                     child: Text('No messages yet. Say hi! 👋',
                         style:
-                            GoogleFonts.inter(color: AppColors.textSecondary)),
+                            AppTextStyles.bodySecondary),
                   );
                 }
                 return ListView.builder(
                   controller: _scrollController,
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(DesignConfig.spacingXl,
+                      DesignConfig.spacingXl, DesignConfig.spacingXl, 0),
                   itemCount: state.messages.length,
                   itemBuilder: (context, index) => _MessageBubble(
                     message: state.messages[index],
@@ -118,22 +117,22 @@ class _MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     if (message.isSystem) {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: DesignConfig.spacingSm),
         child: Center(
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            color: AppColors.surfaceVariant,
+            padding: const EdgeInsets.symmetric(horizontal: DesignConfig.spacingMd, vertical: DesignConfig.spacingSm),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceVariant,
+              borderRadius: BorderRadius.circular(DesignConfig.roundedLg),
+            ),
             child: Text(message.content,
-                style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
-                    fontStyle: FontStyle.italic)),
+                style: AppTextStyles.caption.copyWith(fontStyle: FontStyle.italic)),
           ),
         ),
       );
     }
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: DesignConfig.spacingSm),
       child: Row(
         mainAxisAlignment:
             isOwn ? MainAxisAlignment.end : MainAxisAlignment.start,
@@ -147,24 +146,21 @@ class _MessageBubble extends StatelessWidget {
                   color: AppColors.neonGreen, shape: BoxShape.circle),
               child: Center(
                 child: Text((message.senderName ?? '?')[0].toUpperCase(),
-                    style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: AppColors.onAccent,
-                        fontWeight: FontWeight.w500)),
+                    style: AppTextStyles.onAccent),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: DesignConfig.spacingSm),
           ],
           Flexible(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: DesignConfig.spacingLg, vertical: DesignConfig.spacingMd),
               decoration: BoxDecoration(
                 color: isOwn ? AppColors.neonGreen : AppColors.surfaceVariant,
                 borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(16),
-                  topRight: const Radius.circular(16),
-                  bottomLeft: isOwn ? const Radius.circular(16) : Radius.zero,
-                  bottomRight: isOwn ? Radius.zero : const Radius.circular(16),
+                  topLeft: const Radius.circular(DesignConfig.roundedLg),
+                  topRight: const Radius.circular(DesignConfig.roundedLg),
+                  bottomLeft: isOwn ? const Radius.circular(DesignConfig.roundedLg) : Radius.zero,
+                  bottomRight: isOwn ? Radius.zero : const Radius.circular(DesignConfig.roundedLg),
                 ),
               ),
               child: Column(
@@ -172,26 +168,19 @@ class _MessageBubble extends StatelessWidget {
                   children: [
                     if (!isOwn)
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Text(message.senderName ?? 'Unknown',
-                            style: GoogleFonts.inter(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.neonGreen)),
+                        padding: const EdgeInsets.only(bottom: DesignConfig.spacingXs),
+                        child: Text(message.senderName ?? '[N/A]',
+                            style: AppTextStyles.chatTimestamp),
                       ),
                     Text(message.content,
-                        style: GoogleFonts.inter(
-                            color: isOwn
-                                ? AppColors.onAccent
-                                : AppColors.neonGreen)),
-                    const SizedBox(height: 4),
+                        style: (isOwn
+                                ? AppTextStyles.onAccentBody
+                                : AppTextStyles.accentBody)
+                            .copyWith(fontSize: DesignConfig.bodyMd.fontSize)),
+                    const SizedBox(height: DesignConfig.spacingXs),
                     Text(
                         '${message.createdAt.hour.toString().padLeft(2, '0')}:${message.createdAt.minute.toString().padLeft(2, '0')}',
-                        style: GoogleFonts.inter(
-                            fontSize: 10,
-                            color: isOwn
-                                ? AppColors.onAccent.withValues(alpha: 0.6)
-                                : AppColors.textSecondary)),
+                        style: AppTextStyles.chatMeta),
                   ]),
             ),
           ),
@@ -209,7 +198,7 @@ class _InputBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 8, 8, 16),
+      padding: const EdgeInsets.fromLTRB(DesignConfig.spacingLg, DesignConfig.spacingSm, DesignConfig.spacingSm, DesignConfig.spacingLg),
       decoration: const BoxDecoration(
         color: AppColors.background,
         border: Border(top: BorderSide(color: AppColors.divider)),
@@ -222,21 +211,21 @@ class _InputBar extends StatelessWidget {
               controller: controller,
               decoration: InputDecoration(
                 hintText: 'Type a message...',
-                hintStyle: GoogleFonts.inter(color: AppColors.textSecondary),
+                hintStyle: AppTextStyles.bodySecondary,
                 filled: true,
                 fillColor: AppColors.surfaceVariant,
                 border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(DesignConfig.roundedXl),
                     borderSide: BorderSide.none),
                 contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    const EdgeInsets.symmetric(horizontal: DesignConfig.spacingLg, vertical: DesignConfig.spacingMd),
               ),
-              style: GoogleFonts.inter(color: AppColors.neonGreen),
+              style: AppTextStyles.sectionTitle,
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => onSend(),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: DesignConfig.spacingSm),
           Container(
             decoration: const BoxDecoration(
                 color: AppColors.neonGreen, shape: BoxShape.circle),
@@ -250,3 +239,5 @@ class _InputBar extends StatelessWidget {
     );
   }
 }
+
+

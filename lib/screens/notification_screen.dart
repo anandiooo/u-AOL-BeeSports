@@ -1,4 +1,4 @@
-import 'package:beesports/app/app_colors.dart';
+import 'package:beesports/app/app_theme.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
 import 'package:beesports/models/notification_entity.dart';
 import 'package:beesports/blocs/notification_bloc.dart';
@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -35,7 +34,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Notifications',
-            style: GoogleFonts.inter(fontWeight: FontWeight.w500)),
+            style: AppTextStyles.sectionTitle),
         actions: [
           BlocBuilder<NotificationBloc, NotificationState>(
             builder: (context, state) {
@@ -52,10 +51,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   },
                   child: Text(
                     'Mark All Read',
-                    style: GoogleFonts.inter(
-                        color: AppColors.neonGreen,
-                        fontWeight: FontWeight.w500,
-                        decoration: TextDecoration.underline),
+                    style: AppTextStyles.linkUnderlined,
                   ),
                 );
               }
@@ -64,32 +60,35 @@ class _NotificationScreenState extends State<NotificationScreen> {
           ),
         ],
       ),
-      body: BlocBuilder<NotificationBloc, NotificationState>(
-        builder: (context, state) {
-          if (state is NotificationLoading) {
-            return ShimmerListView.notifications(count: 6);
-          }
-          if (state is NotificationError) {
-            return Center(
-                child: Text(state.message,
-                    style: GoogleFonts.inter(color: AppColors.error)));
-          }
-          if (state is NotificationLoaded) {
-            if (state.notifications.isEmpty) return const EmptyNotifications();
-            return RefreshIndicator(
-              color: AppColors.neonGreen,
-              onRefresh: () async {
-                final a = context.read<AuthBloc>().state;
-                if (a is Authenticated) {
-                  context
-                      .read<NotificationBloc>()
-                      .add(LoadNotifications(a.user.id));
-                }
-              },
-              child: ListView.builder(
-                physics: const AlwaysScrollableScrollPhysics(
-                    parent: BouncingScrollPhysics()),
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(DesignConfig.spacingXl,
+            DesignConfig.spacingXl, DesignConfig.spacingXl, 0),
+        child: BlocBuilder<NotificationBloc, NotificationState>(
+          builder: (context, state) {
+            if (state is NotificationLoading) {
+              return ShimmerListView.notifications(count: 6);
+            }
+            if (state is NotificationError) {
+              return Center(
+                  child: Text(state.message,
+                      style: AppTextStyles.error));
+            }
+            if (state is NotificationLoaded) {
+              if (state.notifications.isEmpty) return const EmptyNotifications();
+              return RefreshIndicator(
+                color: AppColors.neonGreen,
+                onRefresh: () async {
+                  final a = context.read<AuthBloc>().state;
+                  if (a is Authenticated) {
+                    context
+                        .read<NotificationBloc>()
+                        .add(LoadNotifications(a.user.id));
+                  }
+                },
+                child: ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics()),
+                  padding: EdgeInsets.zero,
                 itemCount: state.notifications.length,
                 itemBuilder: (context, index) {
                   final n = state.notifications[index];
@@ -120,8 +119,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
           return const SizedBox.shrink();
         },
       ),
-    );
-  }
+    ),
+  );
+}
 
   void _navigateToTarget(
       BuildContext context, NotificationEntity notification) {
@@ -159,9 +159,9 @@ class _NotificationTile extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(DesignConfig.roundedXl),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: const EdgeInsets.symmetric(vertical: DesignConfig.spacingLg),
           decoration: const BoxDecoration(
               border: Border(bottom: BorderSide(color: AppColors.hairline))),
           child: Row(
@@ -178,30 +178,25 @@ class _NotificationTile extends StatelessWidget {
                 child: Icon(_icon,
                     size: 20,
                     color: notification.isRead
-                        ? AppColors.mute
-                        : AppColors.onPrimary),
+                        ? AppColors.textSecondary
+                        : AppColors.onAccent),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: DesignConfig.spacingLg),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       notification.title,
-                      style: GoogleFonts.inter(
-                        fontWeight: notification.isRead
-                            ? FontWeight.w400
-                            : FontWeight.w500,
-                        fontSize: 14,
-                        color: AppColors.charcoal,
+                      style: AppTextStyles.notificationBody(
+                        isRead: notification.isRead,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: DesignConfig.spacingXxs),
                     Text(notification.body,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.inter(
-                            fontSize: 12, color: AppColors.mute)),
+                        style: AppTextStyles.caption),
                   ],
                 ),
               ),
@@ -218,3 +213,5 @@ class _NotificationTile extends StatelessWidget {
     );
   }
 }
+
+

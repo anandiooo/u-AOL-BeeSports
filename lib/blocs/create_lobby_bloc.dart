@@ -1,5 +1,8 @@
 import 'package:beesports/models/lobby_entity.dart';
 import 'package:beesports/repos/lobby_repository.dart';
+import 'package:beesports/repos/wallet_repository.dart';
+import 'package:beesports/blocs/wallet_bloc.dart';
+import 'package:beesports/app/di.dart';
 import 'package:beesports/models/sport_type.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,6 +25,8 @@ class SubmitLobby extends CreateLobbyEvent {
   final double depositAmount;
   final int? minElo;
   final int? maxElo;
+  final double? latitude;
+  final double? longitude;
 
   const SubmitLobby({
     required this.hostId,
@@ -35,6 +40,8 @@ class SubmitLobby extends CreateLobbyEvent {
     this.depositAmount = 0,
     this.minElo,
     this.maxElo,
+    this.latitude,
+    this.longitude,
   });
 
   @override
@@ -50,6 +57,8 @@ class SubmitLobby extends CreateLobbyEvent {
         depositAmount,
         minElo,
         maxElo,
+        latitude,
+        longitude,
       ];
 }
 
@@ -79,8 +88,9 @@ class CreateLobbyError extends CreateLobbyState {
 
 class CreateLobbyBloc extends Bloc<CreateLobbyEvent, CreateLobbyState> {
   final LobbyRepository _lobbyRepository;
+  final WalletRepository _walletRepository;
 
-  CreateLobbyBloc(this._lobbyRepository) : super(CreateLobbyInitial()) {
+  CreateLobbyBloc(this._lobbyRepository, this._walletRepository) : super(CreateLobbyInitial()) {
     on<SubmitLobby>(_onSubmit);
   }
 
@@ -102,12 +112,33 @@ class CreateLobbyBloc extends Bloc<CreateLobbyEvent, CreateLobbyState> {
       depositAmount: event.depositAmount,
       minElo: event.minElo,
       maxElo: event.maxElo,
+      latitude: event.latitude,
+      longitude: event.longitude,
       createdAt: DateTime.now(),
     );
 
     final result = await _lobbyRepository.createLobby(lobby);
-    result.when(
-      success: (created) {
+    await result.when(
+      success: (created) async {
+        if (event.depositAmount > 0) {
+          final holdResult = await _walletRepository.holdDeposit(
+            userId: event.hostId,
+            lobbyId: created.id,
+            amount: event.depositAmount,
+          );
+          
+          bool holdSuccess = false;
+          holdResult.when(
+            success: (_) => holdSuccess = true,
+            failure: (f) {
+              emit(CreateLobbyError('Lobby created but failed to hold deposit: \${f.message}'));
+            },
+          );
+
+          if (!holdSuccess) return;
+        }
+
+        sl<WalletBloc>().add(LoadWallet(event.hostId));
         emit(CreateLobbySuccess(created));
       },
       failure: (f) {

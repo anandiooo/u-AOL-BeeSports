@@ -3,6 +3,10 @@ import 'package:beesports/models/lobby_entity.dart';
 import 'package:beesports/models/lobby_participant_entity.dart';
 import 'package:beesports/models/participant_status.dart';
 import 'package:beesports/repos/lobby_repository.dart';
+import 'package:beesports/repos/wallet_repository.dart';
+import 'package:beesports/repos/match_repository.dart';
+import 'package:beesports/app/di.dart';
+import 'package:beesports/blocs/wallet_bloc.dart';
 import 'package:beesports/models/lobby_status.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -58,6 +62,13 @@ class CancelLobbyRequested extends LobbyDetailEvent {
   List<Object?> get props => [lobbyId];
 }
 
+class SettleLobbyRequested extends LobbyDetailEvent {
+  final String lobbyId;
+  const SettleLobbyRequested(this.lobbyId);
+  @override
+  List<Object?> get props => [lobbyId];
+}
+
 abstract class LobbyDetailState extends Equatable {
   const LobbyDetailState();
   @override
@@ -102,6 +113,7 @@ class LobbyDetailBloc extends Bloc<LobbyDetailEvent, LobbyDetailState> {
     on<LeaveLobbyRequested>(_onLeave);
     on<ConfirmLobbyRequested>(_onConfirm);
     on<CancelLobbyRequested>(_onCancel);
+    on<SettleLobbyRequested>(_onSettle);
   }
 
   void _onUpdate(LobbyDetailUpdated event, Emitter<LobbyDetailState> emit) {
@@ -173,6 +185,31 @@ class LobbyDetailBloc extends Bloc<LobbyDetailEvent, LobbyDetailState> {
     JoinLobbyRequested event,
     Emitter<LobbyDetailState> emit,
   ) async {
+    // Hold deposit first if required
+    double heldAmount = 0;
+    if (state is LobbyDetailLoaded) {
+      final current = state as LobbyDetailLoaded;
+      final lobby = current.lobby;
+      if (lobby.hasDeposit && lobby.depositAmount > 0) {
+        heldAmount = lobby.depositAmount;
+        final holdResult = await sl<WalletRepository>().holdDeposit(
+          userId: event.userId,
+          lobbyId: event.lobbyId,
+          amount: heldAmount,
+        );
+        
+        bool holdSuccess = false;
+        holdResult.when(
+          success: (_) => holdSuccess = true,
+          failure: (f) {
+            emit(LobbyDetailError(f.message));
+          },
+        );
+
+        if (!holdSuccess) return;
+      }
+    }
+
     // Optimistic UI Update
     if (state is LobbyDetailLoaded) {
       final current = state as LobbyDetailLoaded;
@@ -198,13 +235,21 @@ class LobbyDetailBloc extends Bloc<LobbyDetailEvent, LobbyDetailState> {
       lobbyId: event.lobbyId,
       userId: event.userId,
     );
-    result.when(
-      success: (_) {
+    await result.when(
+      success: (_) async {
         emit(const LobbyActionSuccess('Successfully joined the lobby!'));
-        // LoadLobbyDetail will be triggered by stream or we can just fetch it
+        sl<WalletBloc>().add(LoadWallet(event.userId));
         add(LoadLobbyDetail(event.lobbyId));
       },
-      failure: (f) {
+      failure: (f) async {
+        if (heldAmount > 0) {
+          // Release deposit if join failed
+          await sl<WalletRepository>().releaseDeposit(
+            userId: event.userId,
+            lobbyId: event.lobbyId,
+            amount: heldAmount,
+          );
+        }
         emit(LobbyDetailError(f.message));
         add(LoadLobbyDetail(event.lobbyId)); // Revert optimistic update
       },
@@ -215,6 +260,26 @@ class LobbyDetailBloc extends Bloc<LobbyDetailEvent, LobbyDetailState> {
     LeaveLobbyRequested event,
     Emitter<LobbyDetailState> emit,
   ) async {
+    double releaseAmount = 0;
+    if (state is LobbyDetailLoaded) {
+      final current = state as LobbyDetailLoaded;
+      final lobby = current.lobby;
+      final participant = current.participants.firstWhere(
+        (p) => p.userId == event.userId,
+        orElse: () => LobbyParticipantEntity(
+          id: '',
+          lobbyId: '',
+          userId: '',
+          status: ParticipantStatus.left,
+          joinedAt: DateTime.now(),
+        ),
+      );
+      // Only release deposit if it was actually held for this participant
+      if (lobby.hasDeposit && lobby.depositAmount > 0 && participant.depositHeld) {
+        releaseAmount = lobby.depositAmount;
+      }
+    }
+
     // Optimistic UI Update
     if (state is LobbyDetailLoaded) {
       final current = state as LobbyDetailLoaded;
@@ -233,9 +298,17 @@ class LobbyDetailBloc extends Bloc<LobbyDetailEvent, LobbyDetailState> {
       lobbyId: event.lobbyId,
       userId: event.userId,
     );
-    result.when(
-      success: (_) {
-        emit(const LobbyActionSuccess('You have left the lobby.'));
+    await result.when(
+      success: (_) async {
+        if (releaseAmount > 0) {
+          await sl<WalletRepository>().releaseDeposit(
+            userId: event.userId,
+            lobbyId: event.lobbyId,
+            amount: releaseAmount,
+          );
+        }
+        emit(const LobbyActionSuccess('Successfully left the lobby.'));
+        sl<WalletBloc>().add(LoadWallet(event.userId));
         add(LoadLobbyDetail(event.lobbyId));
       },
       failure: (f) {
@@ -279,6 +352,31 @@ class LobbyDetailBloc extends Bloc<LobbyDetailEvent, LobbyDetailState> {
       },
       failure: (f) {
         emit(LobbyDetailError(f.message));
+      },
+    );
+  }
+
+  Future<void> _onSettle(
+    SettleLobbyRequested event,
+    Emitter<LobbyDetailState> emit,
+  ) async {
+    emit(LobbyDetailLoading());
+    final settleResult = await sl<MatchRepository>().settleLobby(event.lobbyId);
+    await settleResult.when(
+      success: (_) async {
+        emit(const LobbyActionSuccess('Lobby settled and bills split!'));
+        if (state is LobbyDetailLoaded) {
+          final loaded = state as LobbyDetailLoaded;
+          sl<WalletBloc>().add(LoadWallet(loaded.lobby.hostId));
+          for (final p in loaded.participants) {
+            sl<WalletBloc>().add(LoadWallet(p.userId));
+          }
+        }
+        add(LoadLobbyDetail(event.lobbyId));
+      },
+      failure: (f) async {
+        emit(LobbyDetailError(f.message));
+        add(LoadLobbyDetail(event.lobbyId));
       },
     );
   }

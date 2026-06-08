@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../app/app_colors.dart';
+import 'package:beesports/app/app_theme.dart';
 
 class FeedbackService {
   FeedbackService._();
@@ -57,14 +57,14 @@ class FeedbackService {
         content: Row(
           children: [
             Icon(icon, color: Colors.white, size: 20),
-            const SizedBox(width: 12),
+            const SizedBox(width: DesignConfig.spacingMd),
             Expanded(
               child: Text(
                 message,
                 style: GoogleFonts.inter(
                   color: Colors.white,
                   fontWeight: FontWeight.w500,
-                  fontSize: 14,
+                  fontSize: DesignConfig.bodySm.fontSize,
                 ),
               ),
             ),
@@ -74,10 +74,11 @@ class FeedbackService {
         behavior: SnackBarBehavior.floating,
         duration: duration,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(DesignConfig.roundedXl),
         ),
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        margin: const EdgeInsets.symmetric(horizontal: DesignConfig.spacingLg, vertical: DesignConfig.spacingMd),
       ),
     );
   }
 }
+

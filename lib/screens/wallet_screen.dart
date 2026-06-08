@@ -1,8 +1,9 @@
-import 'package:beesports/core/feedback_service.dart';
-import 'package:beesports/app/app_colors.dart';
+import 'package:beesports/app/app_theme.dart';
 import 'package:beesports/blocs/auth_bloc.dart';
-import 'package:beesports/models/credit_transaction_entity.dart';
 import 'package:beesports/blocs/wallet_bloc.dart';
+import 'package:beesports/core/feedback_service.dart';
+import 'package:beesports/models/credit_transaction_entity.dart';
+import 'package:beesports/models/transaction_type.dart';
 import 'package:beesports/widgets/empty_states.dart';
 import 'package:beesports/widgets/shimmer_widgets.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +11,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class WalletScreen extends StatefulWidget {
   const WalletScreen({super.key});
@@ -36,105 +36,115 @@ class _WalletScreenState extends State<WalletScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          title: Text('My Wallet',
-              style: GoogleFonts.inter(fontWeight: FontWeight.w500))),
-      body: BlocConsumer<WalletBloc, WalletState>(
-        listener: (context, state) {
-          if (state is TopUpSuccess) {
-            FeedbackService.showSuccess(context,
-                'Top-up of Rp${_formatRupiah(state.amount)} successful!');
-          }
-          if (state is WithdrawSuccess) {
-            FeedbackService.showSuccess(context,
-                'Withdrawal of Rp${_formatRupiah(state.amount)} successful!');
-          }
-        },
-        builder: (context, state) {
-          if (state is WalletLoading) {
-            return Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  const ShimmerProfileHeader(),
-                  const SizedBox(height: 32),
-                  ShimmerListView.transactions(count: 4),
-                ],
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(DesignConfig.spacingXl,
+              DesignConfig.spacingXl, DesignConfig.spacingXl, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Text('My Wallet', style: AppTextStyles.sectionTitle),
               ),
-            );
-          }
-          if (state is WalletError) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.error_outline,
-                      size: 48, color: AppColors.mute),
-                  const SizedBox(height: 12),
-                  Text(state.message),
-                  const SizedBox(height: 18),
-                  SizedBox(
-                      height: 48,
-                      child: ElevatedButton(
-                          onPressed: _loadWallet, child: const Text('Retry'))),
-                ],
+              Expanded(
+                child: BlocConsumer<WalletBloc, WalletState>(
+                  listener: (context, state) {
+                    if (state is TopUpSuccess) {
+                      FeedbackService.showSuccess(context,
+                          'Top-up of Rp${_formatRupiah(state.amount)} successful!');
+                    }
+                    if (state is WithdrawSuccess) {
+                      FeedbackService.showSuccess(context,
+                          'Withdrawal of Rp${_formatRupiah(state.amount)} successful!');
+                    }
+                  },
+                  builder: (context, state) {
+                    if (state is WalletLoading) {
+                      return Column(
+                        children: [
+                          const ShimmerProfileHeader(),
+                          const SizedBox(height: DesignConfig.spacingMd),
+                          ShimmerListView.transactions(count: 4),
+                        ],
+                      );
+                    }
+                    if (state is WalletError) {
+                      return Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.error_outline,
+                                size: 48, color: AppColors.textSecondary),
+                            const SizedBox(height: DesignConfig.spacingMd),
+                            Text(state.message),
+                            const SizedBox(height: DesignConfig.spacingMd),
+                            SizedBox(
+                                height: 48,
+                                child: ElevatedButton(
+                                    onPressed: _loadWallet,
+                                    child: const Text('Retry'))),
+                          ],
+                        ),
+                      );
+                    }
+                    if (state is WalletLoaded) {
+                      final wallet = state.wallet;
+                      return RefreshIndicator(
+                        color: AppColors.neonGreen,
+                        onRefresh: () async => _loadWallet(),
+                        child: ListView(
+                          padding: EdgeInsets.zero,
+                          physics: const AlwaysScrollableScrollPhysics(
+                              parent: BouncingScrollPhysics()),
+                          children: [
+                            _BalanceSection(
+                                    balance: wallet.balance,
+                                    available: wallet.available,
+                                    held: wallet.held)
+                                .animate()
+                                .fadeIn(duration: 400.ms)
+                                .slideY(
+                                    begin: -0.03,
+                                    duration: 400.ms,
+                                    curve: Curves.easeOutCubic),
+                            const SizedBox(height: DesignConfig.spacing2xl),
+                            Text('Recent Transactions',
+                                    style: AppTextStyles.sectionTitle)
+                                .animate()
+                                .fadeIn(delay: 150.ms, duration: 350.ms),
+                            if (state.transactions.isEmpty)
+                              const EmptyTransactions()
+                            else
+                              ...state.transactions
+                                  .asMap()
+                                  .entries
+                                  .map((entry) {
+                                final index = entry.key;
+                                final t = entry.value;
+                                return _TransactionTile(transaction: t)
+                                    .animate()
+                                    .fadeIn(
+                                        delay: (200 + 60 * index).ms,
+                                        duration: 350.ms,
+                                        curve: Curves.easeOutCubic)
+                                    .slideX(
+                                        begin: 0.05,
+                                        delay: (200 + 60 * index).ms,
+                                        duration: 350.ms,
+                                        curve: Curves.easeOutCubic);
+                              }),
+                          ],
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
               ),
-            );
-          }
-          if (state is WalletLoaded) {
-            final wallet = state.wallet;
-            return RefreshIndicator(
-              color: AppColors.neonGreen,
-              onRefresh: () async => _loadWallet(),
-              child: ListView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                physics: const AlwaysScrollableScrollPhysics(
-                    parent: BouncingScrollPhysics()),
-                children: [
-                  _BalanceSection(
-                          balance: wallet.balance,
-                          available: wallet.available,
-                          held: wallet.held)
-                      .animate()
-                      .fadeIn(duration: 400.ms)
-                      .slideY(
-                          begin: -0.03,
-                          duration: 400.ms,
-                          curve: Curves.easeOutCubic),
-                  const SizedBox(height: 48),
-                  Text('Recent Transactions',
-                          style: GoogleFonts.inter(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.charcoal))
-                      .animate()
-                      .fadeIn(delay: 150.ms, duration: 350.ms),
-                  const SizedBox(height: 18),
-                  if (state.transactions.isEmpty)
-                    const EmptyTransactions()
-                  else
-                    ...state.transactions.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final t = entry.value;
-                      return _TransactionTile(transaction: t)
-                          .animate()
-                          .fadeIn(
-                              delay: (200 + 60 * index).ms,
-                              duration: 350.ms,
-                              curve: Curves.easeOutCubic)
-                          .slideX(
-                              begin: 0.05,
-                              delay: (200 + 60 * index).ms,
-                              duration: 350.ms,
-                              curve: Curves.easeOutCubic);
-                    }),
-                ],
-              ),
-            );
-          }
-          return const SizedBox.shrink();
-        },
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -153,20 +163,12 @@ class _BalanceSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const SizedBox(height: 20),
-        Text('Total Balance',
-            style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: AppColors.mute)),
-        const SizedBox(height: 8),
+        const SizedBox(height: DesignConfig.spacingMd),
+        Text('Total Balance', style: AppTextStyles.bodySecondaryStrong),
+        const SizedBox(height: DesignConfig.spacingMd),
         Text('Rp ${_formatRupiah(balance)}',
-            style: GoogleFonts.inter(
-                fontSize: 42,
-                fontWeight: FontWeight.w500,
-                color: AppColors.neonGreen,
-                height: 1.2)),
-        const SizedBox(height: 32),
+            style: AppTextStyles.displayHero.copyWith(height: 1.2)),
+        const SizedBox(height: DesignConfig.spacingLg),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -178,37 +180,46 @@ class _BalanceSection extends StatelessWidget {
                     HapticFeedback.lightImpact();
                     context.push('/wallet/topup');
                   },
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: AppColors.background,
+                  ),
                   icon: const Icon(Icons.add_circle_outline, size: 20),
                   label: Text('Top Up',
-                      style: GoogleFonts.inter(
-                          fontSize: 16, fontWeight: FontWeight.w500)),
+                      style: AppTextStyles.cardTitle
+                          .copyWith(color: AppColors.background)),
                 ),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: DesignConfig.spacingMd),
             Expanded(
               child: SizedBox(
                 height: 48,
-                child: OutlinedButton.icon(
+                child: ElevatedButton.icon(
                   onPressed: () {
                     HapticFeedback.lightImpact();
                     context.push('/wallet/withdraw');
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.sale,
+                    foregroundColor: AppColors.background,
+                  ),
                   icon: const Icon(Icons.arrow_circle_down_outlined, size: 20),
                   label: Text('Withdraw',
-                      style: GoogleFonts.inter(
-                          fontSize: 16, fontWeight: FontWeight.w500)),
+                      style: AppTextStyles.cardTitle
+                          .copyWith(color: AppColors.background)),
                 ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: DesignConfig.spacing2xl),
         Container(
-          padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+          padding: const EdgeInsets.symmetric(
+              vertical: DesignConfig.spacingMd,
+              horizontal: DesignConfig.spacingMd),
           decoration: BoxDecoration(
               color: AppColors.softCloud,
-              borderRadius: BorderRadius.circular(16)),
+              borderRadius: BorderRadius.circular(DesignConfig.roundedXl)),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -233,17 +244,9 @@ class _BalanceDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(label,
-            style: GoogleFonts.inter(
-                fontSize: 14,
-                color: AppColors.mute,
-                fontWeight: FontWeight.w500)),
-        const SizedBox(height: 6),
-        Text('Rp ${_formatRupiah(value)}',
-            style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: AppColors.charcoal)),
+        Text(label, style: AppTextStyles.bodySecondaryStrong),
+        const SizedBox(height: DesignConfig.spacingXs),
+        Text('Rp ${_formatRupiah(value)}', style: AppTextStyles.cardTitle),
       ],
     );
   }
@@ -257,50 +260,39 @@ class _TransactionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isCredit = transaction.isCredit;
-    final sign = isCredit ? '+' : '-';
-    final amountColor = isCredit ? AppColors.neonGreen : AppColors.sale;
+    final prefix = transaction.type == TransactionType.depositHold
+        ? 'Rp '
+        : (isCredit ? '+ Rp ' : '- Rp ');
+    final amountColor = transaction.type == TransactionType.depositHold
+        ? AppColors.yellow
+        : (isCredit ? AppColors.neonGreen : AppColors.sale);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 1),
-      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 0),
+      margin: const EdgeInsets.only(bottom: DesignConfig.spacingXxs),
+      padding: const EdgeInsets.symmetric(
+          vertical: DesignConfig.spacingMd, horizontal: DesignConfig.spacingMd),
       decoration: const BoxDecoration(
           border: Border(bottom: BorderSide(color: AppColors.hairline))),
       child: Row(
         children: [
           Icon(transaction.type.icon, size: 22, color: transaction.type.color),
-          const SizedBox(width: 14),
+          const SizedBox(width: DesignConfig.spacingMd),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(transaction.type.label,
-                    style: GoogleFonts.inter(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.charcoal)),
-                if (transaction.description.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(transaction.description,
-                      style: GoogleFonts.inter(
-                          fontSize: 14, color: AppColors.mute),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis),
-                ],
+                Text(transaction.type.label, style: AppTextStyles.cardTitle),
               ],
             ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('$sign Rp ${_formatRupiah(transaction.amount)}',
-                  style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: amountColor)),
-              const SizedBox(height: 2),
+              Text('$prefix${_formatRupiah(transaction.amount)}',
+                  style: AppTextStyles.cardTitle.copyWith(color: amountColor)),
+              const SizedBox(height: DesignConfig.spacingXs),
               Text(_formatDateTime(transaction.createdAt),
-                  style:
-                      GoogleFonts.inter(fontSize: 12, color: AppColors.mute)),
+                  style: AppTextStyles.caption),
             ],
           ),
         ],

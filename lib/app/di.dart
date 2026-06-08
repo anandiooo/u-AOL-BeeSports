@@ -51,10 +51,10 @@ Future<void> initDependencies() async {
   );
 
   sl.registerFactory<CreateLobbyBloc>(
-    () => CreateLobbyBloc(sl<LobbyRepository>()),
+    () => CreateLobbyBloc(sl<LobbyRepository>(), sl<WalletRepository>()),
   );
 
-  sl.registerFactory<WalletBloc>(
+  sl.registerLazySingleton<WalletBloc>(
     () => WalletBloc(sl<WalletRepository>()),
   );
 

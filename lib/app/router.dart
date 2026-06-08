@@ -25,15 +25,10 @@ class AppRouter {
       final authState = authBloc.state;
       final isOnAuthRoute = state.matchedLocation == '/login' ||
           state.matchedLocation == '/register' ||
-          state.matchedLocation == '/otp' ||
           state.matchedLocation == '/onboarding';
 
       if (authState is Unauthenticated || authState is AuthError) {
         return isOnAuthRoute ? null : '/login';
-      }
-
-      if (authState is NeedsOtpVerification) {
-        return '/otp';
       }
 
       if (authState is NeedsOnboarding) {
@@ -65,18 +60,7 @@ class AppRouter {
           ),
         ),
       ),
-      GoRoute(
-        path: '/otp',
-        pageBuilder: (context, state) {
-          final authState = authBloc.state;
-          final email =
-              authState is NeedsOtpVerification ? authState.email : '';
-          return FadeTransitionPage(
-            key: state.pageKey,
-            child: OtpScreen(email: email),
-          );
-        },
-      ),
+
       GoRoute(
         path: '/onboarding',
         pageBuilder: (context, state) {
@@ -165,6 +149,20 @@ class AppRouter {
         ),
       ),
       GoRoute(
+        path: '/map-picker',
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return SlideUpTransitionPage(
+            key: state.pageKey,
+            child: MapPickerScreen(
+              initialLat: extra?['lat'] as double?,
+              initialLng: extra?['lng'] as double?,
+            ),
+          );
+        },
+      ),
+      GoRoute(
         path: '/lobbies/create',
         parentNavigatorKey: _rootNavigatorKey,
         pageBuilder: (context, state) => SlideUpTransitionPage(
@@ -209,10 +207,7 @@ class AppRouter {
         parentNavigatorKey: _rootNavigatorKey,
         pageBuilder: (context, state) => SlideUpTransitionPage(
           key: state.pageKey,
-          child: BlocProvider(
-            create: (_) => sl<WalletBloc>(),
-            child: const TopUpScreen(),
-          ),
+          child: const TopUpScreen(),
         ),
       ),
       GoRoute(
@@ -220,26 +215,10 @@ class AppRouter {
         parentNavigatorKey: _rootNavigatorKey,
         pageBuilder: (context, state) => SlideUpTransitionPage(
           key: state.pageKey,
-          child: BlocProvider(
-            create: (_) => sl<WalletBloc>(),
-            child: const WithdrawScreen(),
-          ),
+          child: const WithdrawScreen(),
         ),
       ),
-      GoRoute(
-        path: '/match/:lobbyId/result',
-        parentNavigatorKey: _rootNavigatorKey,
-        pageBuilder: (context, state) {
-          final lobbyId = state.pathParameters['lobbyId']!;
-          return SlideUpTransitionPage(
-            key: state.pageKey,
-            child: BlocProvider(
-              create: (_) => sl<MatchBloc>(),
-              child: MatchResultScreen(lobbyId: lobbyId),
-            ),
-          );
-        },
-      ),
+
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
         builder: (context, state, child) {
@@ -250,7 +229,10 @@ class AppRouter {
             path: '/home',
             pageBuilder: (context, state) => FadeTransitionPage(
               key: state.pageKey,
-              child: const HomeScreen(),
+              child: BlocProvider(
+                create: (_) => sl<LobbyListBloc>(),
+                child: const HomeScreen(),
+              ),
             ),
           ),
           GoRoute(
@@ -267,10 +249,7 @@ class AppRouter {
             path: '/wallet',
             pageBuilder: (context, state) => FadeTransitionPage(
               key: state.pageKey,
-              child: BlocProvider(
-                create: (_) => sl<WalletBloc>(),
-                child: const WalletScreen(),
-              ),
+              child: const WalletScreen(),
             ),
           ),
           GoRoute(

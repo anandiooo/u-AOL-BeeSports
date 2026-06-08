@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 enum SkillLevel {
   beginner('Beginner'),
   intermediate('Intermediate'),
@@ -8,16 +10,16 @@ enum SkillLevel {
 
   const SkillLevel(this.label);
 
-  String get emoji {
+  IconData get icon {
     switch (this) {
       case SkillLevel.beginner:
-        return '🌱';
+        return Icons.star_border;
       case SkillLevel.intermediate:
-        return '⚡';
+        return Icons.bolt;
       case SkillLevel.advanced:
-        return '🔥';
+        return Icons.local_fire_department;
       case SkillLevel.pro:
-        return '🏆';
+        return Icons.emoji_events;
     }
   }
 

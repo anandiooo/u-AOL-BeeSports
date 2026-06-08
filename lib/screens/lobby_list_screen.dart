@@ -1,6 +1,7 @@
-import 'package:beesports/app/app_colors.dart';
-import 'package:beesports/models/lobby_entity.dart';
+import 'package:beesports/app/app_theme.dart';
 import 'package:beesports/blocs/lobby_list_bloc.dart';
+import 'package:beesports/models/lobby_entity.dart';
+import 'package:beesports/models/lobby_status.dart';
 import 'package:beesports/models/sport_type.dart';
 import 'package:beesports/widgets/empty_states.dart';
 import 'package:beesports/widgets/shimmer_widgets.dart';
@@ -9,7 +10,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class LobbyListScreen extends StatefulWidget {
   const LobbyListScreen({super.key});
@@ -20,7 +20,7 @@ class LobbyListScreen extends StatefulWidget {
 
 class _LobbyListScreenState extends State<LobbyListScreen> {
   SportType? _selectedSport;
-  String _sortBy = 'time';
+  final String _sortBy = 'newest';
   final _searchController = TextEditingController();
 
   @override
@@ -60,198 +60,161 @@ class _LobbyListScreenState extends State<LobbyListScreen> {
         .add(LoadLobbies(sport: sport, sortBy: _sortBy));
   }
 
-  void _onSortChanged(String? value) {
-    if (value == null) return;
-    HapticFeedback.selectionClick();
-    setState(() => _sortBy = value);
-    context
-        .read<LobbyListBloc>()
-        .add(LoadLobbies(sport: _selectedSport, sortBy: value));
-  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Explore Lobbies',
-                      style: GoogleFonts.inter(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.charcoal)),
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: const BoxDecoration(
-                        color: AppColors.softCloud, shape: BoxShape.circle),
-                    child: PopupMenuButton<String>(
-                      icon: const Icon(Icons.sort_rounded,
-                          color: AppColors.neonGreen, size: 20),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24)),
-                      onSelected: _onSortChanged,
-                      itemBuilder: (_) => [
-                        PopupMenuItem(
-                            value: 'time',
-                            child: Text('Next Upcoming',
-                                style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w500))),
-                        PopupMenuItem(
-                            value: 'slots',
-                            child: Text('Most Available Slots',
-                                style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w500))),
-                        PopupMenuItem(
-                            value: 'newest',
-                            child: Text('Newly Created',
-                                style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w500))),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-              child: TextField(
-                controller: _searchController,
-                onChanged: (value) {
-                  context.read<LobbyListBloc>().add(SearchLobbies(
-                        value,
-                        sport: _selectedSport,
-                        sortBy: _sortBy,
-                      ));
-                },
-                style:
-                    GoogleFonts.inter(fontSize: 14, color: AppColors.charcoal),
-                decoration: InputDecoration(
-                  hintText: 'Search by title or description...',
-                  hintStyle:
-                      GoogleFonts.inter(fontSize: 14, color: AppColors.mute),
-                  prefixIcon: const Icon(Icons.search_rounded,
-                      color: AppColors.mute, size: 20),
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: const BorderSide(color: AppColors.hairline),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: const BorderSide(color: AppColors.hairline),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: const BorderSide(color: AppColors.neonGreen),
-                  ),
-                  fillColor: AppColors.softCloud,
-                  filled: true,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(DesignConfig.spacingXl,
+              DesignConfig.spacingXl, DesignConfig.spacingXl, 0),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: DesignConfig.spacingLg),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Explore Lobbies', style: AppTextStyles.sectionTitle),
+                  ],
                 ),
               ),
-            ),
-            Container(
-              height: 44,
-              margin: const EdgeInsets.only(bottom: 12),
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                children: [
-                  _FilterChip(
-                      label: 'All Sports',
-                      selected: _selectedSport == null,
-                      onTap: () => _onSportFilter(null)),
-                  const SizedBox(width: 8),
-                  ...SportType.values.map((sport) => Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: _FilterChip(
-                            label: sport.label,
-                            selected: _selectedSport == sport,
-                            onTap: () => _onSportFilter(sport)),
-                      )),
-                ],
+              Padding(
+                padding: const EdgeInsets.only(bottom: DesignConfig.spacingMd),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (value) {
+                    context.read<LobbyListBloc>().add(SearchLobbies(
+                          value,
+                          sport: _selectedSport,
+                          sortBy: _sortBy,
+                        ));
+                  },
+                  style: AppTextStyles.bodySecondary
+                      .copyWith(color: AppColors.textPrimary),
+                  decoration: InputDecoration(
+                    hintText: 'Search by title or description...',
+                    hintStyle: AppTextStyles.bodySecondary,
+                    prefixIcon: const Icon(Icons.search_rounded,
+                        color: AppColors.textSecondary, size: 20),
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 0, horizontal: DesignConfig.spacingLg),
+                    border: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(DesignConfig.rounded2xl),
+                      borderSide: const BorderSide(color: AppColors.hairline),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(DesignConfig.rounded2xl),
+                      borderSide: const BorderSide(color: AppColors.hairline),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(DesignConfig.rounded2xl),
+                      borderSide: const BorderSide(color: AppColors.neonGreen),
+                    ),
+                    fillColor: AppColors.softCloud,
+                    filled: true,
+                  ),
+                ),
               ),
-            ),
-            Expanded(
-              child: BlocBuilder<LobbyListBloc, LobbyListState>(
-                builder: (context, state) {
-                  if (state is LobbyListLoading) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: ShimmerListView.lobbyCards(count: 4),
-                    );
-                  }
-                  if (state is LobbyListError) {
-                    return Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.error_outline_rounded,
-                              size: 48, color: AppColors.mute),
-                          const SizedBox(height: 18),
-                          Text(state.message,
-                              style: GoogleFonts.inter(
-                                  fontSize: 16, fontWeight: FontWeight.w500)),
-                          const SizedBox(height: 24),
-                          SizedBox(
-                            height: 48,
-                            child: ElevatedButton(
-                              onPressed: () => context
-                                  .read<LobbyListBloc>()
-                                  .add(LoadLobbies(
-                                      sport: _selectedSport, sortBy: _sortBy)),
-                              child: const Text('Retry'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                  if (state is LobbyListLoaded) {
-                    if (state.lobbies.isEmpty) {
-                      return EmptyLobbies(
-                          sportLabel: _selectedSport?.label,
-                          onCreateTap: () => context.push('/lobbies/create'));
+              Container(
+                height: 44,
+                margin: const EdgeInsets.only(bottom: DesignConfig.spacingMd),
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.zero,
+                  children: [
+                    _FilterChip(
+                        label: 'All Sports',
+                        selected: _selectedSport == null,
+                        onTap: () => _onSportFilter(null)),
+                    const SizedBox(width: DesignConfig.spacingSm),
+                    ...SportType.values.map((sport) => Padding(
+                          padding: const EdgeInsets.only(
+                              right: DesignConfig.spacingSm),
+                          child: _FilterChip(
+                              label: sport.label,
+                              selected: _selectedSport == sport,
+                              onTap: () => _onSportFilter(sport)),
+                        )),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: BlocBuilder<LobbyListBloc, LobbyListState>(
+                  builder: (context, state) {
+                    if (state is LobbyListLoading) {
+                      return ShimmerListView.lobbyCards(count: 4);
                     }
-                    return RefreshIndicator(
-                      color: AppColors.neonGreen,
-                      onRefresh: () async {
-                        context.read<LobbyListBloc>().add(LoadLobbies(
-                            sport: _selectedSport, sortBy: _sortBy));
-                      },
-                      child: ListView.builder(
-                        physics: const AlwaysScrollableScrollPhysics(
-                            parent: BouncingScrollPhysics()),
-                        padding: const EdgeInsets.only(
-                            left: 24, right: 24, top: 8, bottom: 100),
-                        itemCount: state.lobbies.length,
-                        itemBuilder: (context, index) =>
-                            _LobbyCard(lobby: state.lobbies[index])
-                                .animate()
-                                .fadeIn(
-                                    delay: (60 * index).ms,
-                                    duration: 350.ms,
-                                    curve: Curves.easeOutCubic)
-                                .slideX(
-                                    begin: 0.05,
-                                    delay: (60 * index).ms,
-                                    duration: 350.ms,
-                                    curve: Curves.easeOutCubic),
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
+                    if (state is LobbyListError) {
+                      return Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.error_outline_rounded,
+                                size: 48, color: AppColors.textSecondary),
+                            const SizedBox(height: DesignConfig.spacingLg),
+                            Text(state.message, style: AppTextStyles.cardTitle),
+                            const SizedBox(height: DesignConfig.spacingXl),
+                            SizedBox(
+                              height: 48,
+                              child: ElevatedButton(
+                                onPressed: () => context
+                                    .read<LobbyListBloc>()
+                                    .add(LoadLobbies(
+                                        sport: _selectedSport,
+                                        sortBy: _sortBy)),
+                                child: const Text('Retry'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    if (state is LobbyListLoaded) {
+                      if (state.lobbies.isEmpty) {
+                        return EmptyLobbies(
+                            sportLabel: _selectedSport?.label,
+                            onCreateTap: () => context.push('/lobbies/create'));
+                      }
+                      return RefreshIndicator(
+                        color: AppColors.neonGreen,
+                        onRefresh: () async {
+                          context.read<LobbyListBloc>().add(LoadLobbies(
+                              sport: _selectedSport, sortBy: _sortBy));
+                        },
+                        child: ListView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(
+                              parent: BouncingScrollPhysics()),
+                          padding: const EdgeInsets.only(
+                              top: DesignConfig.spacingSm,
+                              bottom: DesignConfig.spacing3xl),
+                          itemCount: state.lobbies.length,
+                          itemBuilder: (context, index) =>
+                              LobbyCard(lobby: state.lobbies[index])
+                                  .animate()
+                                  .fadeIn(
+                                      delay: (60 * index).ms,
+                                      duration: 350.ms,
+                                      curve: Curves.easeOutCubic)
+                                  .slideX(
+                                      begin: 0.05,
+                                      delay: (60 * index).ms,
+                                      duration: 350.ms,
+                                      curve: Curves.easeOutCubic),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -262,12 +225,11 @@ class _LobbyListScreenState extends State<LobbyListScreen> {
         icon: const Icon(Icons.add_rounded, size: 20),
         label: Text('New Lobby',
             style:
-                GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500)),
+                AppTextStyles.cardTitle.copyWith(color: AppColors.background)),
       ),
     );
   }
 }
-
 class _FilterChip extends StatelessWidget {
   final String label;
   final bool selected;
@@ -282,23 +244,23 @@ class _FilterChip extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(DesignConfig.rounded2xl),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: const EdgeInsets.symmetric(
+              horizontal: DesignConfig.spacingLg,
+              vertical: DesignConfig.spacingMd),
           decoration: BoxDecoration(
             color: selected ? AppColors.neonGreen : AppColors.canvas,
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(DesignConfig.rounded2xl),
             border: Border.all(
                 color: selected ? AppColors.neonGreen : AppColors.hairline),
           ),
           child: Text(
             label,
-            style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: selected ? AppColors.onPrimary : AppColors.charcoal),
+            style: AppTextStyles.bodySecondaryStrong.copyWith(
+                color: selected ? AppColors.onAccent : AppColors.textPrimary),
           ),
         ),
       ),
@@ -306,16 +268,102 @@ class _FilterChip extends StatelessWidget {
   }
 }
 
-class _LobbyCard extends StatelessWidget {
+class LobbyCard extends StatelessWidget {
   final LobbyEntity lobby;
 
-  const _LobbyCard({required this.lobby});
+  const LobbyCard({super.key, required this.lobby});
 
   @override
   Widget build(BuildContext context) {
     final sport = lobby.sport;
     final timeStr = _formatTime(lobby.scheduledAt);
     final dateStr = _formatDate(lobby.scheduledAt);
+    final isCancelled = lobby.status == LobbyStatus.cancelled;
+
+    Widget cardContent = Container(
+      margin: const EdgeInsets.only(bottom: DesignConfig.spacingSm),
+      padding: const EdgeInsets.all(DesignConfig.spacingXl),
+      decoration: BoxDecoration(
+        color: AppColors.softCloud,
+        borderRadius: BorderRadius.circular(DesignConfig.roundedXl),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(sport.icon, color: AppColors.neonGreen, size: 24),
+              const SizedBox(width: DesignConfig.spacingMd),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Hero(
+                      tag: 'lobby_title_${lobby.id}',
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Text(
+                          lobby.title,
+                          style: AppTextStyles.cardTitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: DesignConfig.spacingXxs),
+                    Text(
+                      'Hosted by ${lobby.hostName ?? '[N/A]'}',
+                      style: AppTextStyles.bodySecondaryStrong,
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: DesignConfig.spacingMd,
+                    vertical: DesignConfig.spacingSm),
+                decoration: BoxDecoration(
+                    color: AppColors.canvas,
+                    borderRadius:
+                        BorderRadius.circular(DesignConfig.rounded2xl)),
+                child: Text(lobby.status.label,
+                    style: AppTextStyles.accentCaption),
+              ),
+            ],
+          ),
+          const SizedBox(height: DesignConfig.spacingLg),
+          const Divider(height: 1, color: AppColors.hairline),
+          const SizedBox(height: DesignConfig.spacingLg),
+          Row(
+            children: [
+              _InfoChip(
+                  icon: Icons.calendar_today_rounded,
+                  text: '$dateStr · $timeStr'),
+              const Spacer(),
+              _InfoChip(
+                  icon: Icons.group_outlined,
+                  text: '${lobby.currentPlayers}/${lobby.maxPlayers}',
+                  isBold: true),
+              if (lobby.hasDeposit) ...[
+                const SizedBox(width: DesignConfig.spacingMd),
+                _InfoChip(
+                    icon: Icons.monetization_on_outlined,
+                    text: 'Rp${lobby.depositAmount.toStringAsFixed(0)}',
+                    color: AppColors.neonGreen,
+                    isBold: true),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+
+    if (isCancelled) {
+      cardContent = Opacity(
+        opacity: 0.4,
+        child: cardContent,
+      );
+    }
 
     return Material(
       color: Colors.transparent,
@@ -324,93 +372,8 @@ class _LobbyCard extends StatelessWidget {
           HapticFeedback.lightImpact();
           context.push('/lobbies/${lobby.id}');
         },
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: AppColors.softCloud,
-            borderRadius: BorderRadius.circular(16),
-            border:
-                Border.all(color: AppColors.hairline.withValues(alpha: 0.5)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(sport.icon, color: AppColors.neonGreen, size: 24),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Hero(
-                          tag: 'lobby_title_${lobby.id}',
-                          child: Material(
-                            color: Colors.transparent,
-                            child: Text(
-                              lobby.title,
-                              style: GoogleFonts.inter(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.charcoal),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Hosted by ${lobby.hostName ?? 'Unknown'}',
-                          style: GoogleFonts.inter(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.mute),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                        color: AppColors.canvas,
-                        borderRadius: BorderRadius.circular(30)),
-                    child: Text(lobby.status.label,
-                        style: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.neonGreen)),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-              const Divider(height: 1, color: AppColors.hairline),
-              const SizedBox(height: 14),
-              Row(
-                children: [
-                  _InfoChip(
-                      icon: Icons.calendar_today_rounded,
-                      text: '$dateStr · $timeStr'),
-                  const Spacer(),
-                  _InfoChip(
-                      icon: Icons.group_outlined,
-                      text: '${lobby.currentPlayers}/${lobby.maxPlayers}',
-                      isBold: true),
-                  if (lobby.hasDeposit) ...[
-                    const SizedBox(width: 12),
-                    _InfoChip(
-                        icon: Icons.monetization_on_outlined,
-                        text: 'Rp${lobby.depositAmount.toStringAsFixed(0)}',
-                        color: AppColors.neonGreen,
-                        isBold: true),
-                  ],
-                ],
-              ),
-            ],
-          ),
-        ),
+        borderRadius: BorderRadius.circular(DesignConfig.roundedXl),
+        child: cardContent,
       ),
     );
   }
@@ -444,15 +407,14 @@ class _InfoChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? AppColors.mute;
+    final c = color ?? AppColors.textSecondary;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 16, color: c),
-        const SizedBox(width: 6),
+        const SizedBox(width: DesignConfig.spacingSm),
         Text(text,
-            style: GoogleFonts.inter(
-                fontSize: 14,
+            style: AppTextStyles.bodySecondary.copyWith(
                 color: c,
                 fontWeight: isBold ? FontWeight.w500 : FontWeight.w400)),
       ],

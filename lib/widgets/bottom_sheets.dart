@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:beesports/app/app_colors.dart';
+import 'package:beesports/app/app_theme.dart';
 
 Future<bool?> showConfirmationSheet(
   BuildContext context, {
@@ -17,10 +17,10 @@ Future<bool?> showConfirmationSheet(
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (context) => Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(DesignConfig.spacingXl),
       decoration: const BoxDecoration(
         color: AppColors.canvas,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(DesignConfig.roundedXl)),
       ),
       child: SafeArea(
         child: Column(
@@ -30,27 +30,27 @@ Future<bool?> showConfirmationSheet(
               Icon(icon,
                   size: 48,
                   color: isDestructive ? AppColors.error : AppColors.neonGreen),
-              const SizedBox(height: 16),
+              const SizedBox(height: DesignConfig.spacingLg),
             ],
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 20,
+              style: TextStyle(
+                fontSize: DesignConfig.bodyLg.fontSize,
                 fontWeight: FontWeight.w600,
                 color: AppColors.charcoal,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: DesignConfig.spacingSm),
             Text(
               message,
-              style: const TextStyle(
-                fontSize: 14,
+              style: TextStyle(
+                fontSize: DesignConfig.bodySm.fontSize,
                 color: AppColors.mute,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: DesignConfig.spacingXl),
             Row(
               children: [
                 Expanded(
@@ -63,7 +63,7 @@ Future<bool?> showConfirmationSheet(
                     child: Text(cancelLabel),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: DesignConfig.spacingMd),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
@@ -91,3 +91,4 @@ Future<bool?> showConfirmationSheet(
     ),
   );
 }
+

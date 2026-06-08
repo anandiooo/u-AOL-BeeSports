@@ -32,14 +32,6 @@ class SignUpRequested extends AuthEvent {
   List<Object?> get props => [email, password, fullName];
 }
 
-class OtpVerificationRequested extends AuthEvent {
-  final String email;
-  final String token;
-  const OtpVerificationRequested({required this.email, required this.token});
-  @override
-  List<Object?> get props => [email, token];
-}
-
 class SignOutRequested extends AuthEvent {}
 
 class OnboardingCompleted extends AuthEvent {
@@ -73,13 +65,6 @@ class NeedsOnboarding extends AuthState {
   List<Object?> get props => [user];
 }
 
-class NeedsOtpVerification extends AuthState {
-  final String email;
-  const NeedsOtpVerification(this.email);
-  @override
-  List<Object?> get props => [email];
-}
-
 class Unauthenticated extends AuthState {}
 
 class AuthError extends AuthState {
@@ -96,7 +81,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthCheckRequested>(_onCheckRequested);
     on<SignInRequested>(_onSignIn);
     on<SignUpRequested>(_onSignUp);
-    on<OtpVerificationRequested>(_onOtpVerification);
     on<SignOutRequested>(_onSignOut);
     on<OnboardingCompleted>(_onOnboardingCompleted);
   }
@@ -157,27 +141,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       fullName: event.fullName,
     );
     result.when(
-      success: (_) {
-        emit(NeedsOtpVerification(event.email));
-      },
-      failure: (f) {
-        emit(AuthError(f.message));
-      },
-    );
-  }
-
-  Future<void> _onOtpVerification(
-    OtpVerificationRequested event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(AuthLoading());
-    final result = await _authRepository.verifyOtp(
-      email: event.email,
-      token: event.token,
-    );
-    result.when(
       success: (user) {
-        emit(NeedsOnboarding(user));
+        if (!user.isOnboarded) {
+          emit(NeedsOnboarding(user));
+        } else {
+          emit(Authenticated(user));
+        }
       },
       failure: (f) {
         emit(AuthError(f.message));

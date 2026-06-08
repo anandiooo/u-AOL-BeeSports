@@ -1,7 +1,7 @@
+import 'package:beesports/app/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:beesports/app/app_colors.dart';
 
 class MainScaffold extends StatelessWidget {
   final Widget child;
@@ -11,9 +11,10 @@ class MainScaffold extends StatelessWidget {
   int _calculateSelectedIndex(BuildContext context) {
     final String location = GoRouterState.of(context).matchedLocation;
     if (location.startsWith('/home')) return 0;
-    if (location.startsWith('/lobbies')) return 1;
-    if (location.startsWith('/wallet')) return 2;
-    if (location.startsWith('/leaderboard')) return 3;
+    if (location.startsWith('/leaderboard')) return 1;
+    if (location.startsWith('/lobbies')) return 2;
+    if (location.startsWith('/wallet')) return 3;
+    if (location.startsWith('/profile')) return 4;
     return 0;
   }
 
@@ -24,13 +25,16 @@ class MainScaffold extends StatelessWidget {
         context.go('/home');
         break;
       case 1:
-        context.go('/lobbies');
+        context.go('/leaderboard');
         break;
       case 2:
-        context.go('/wallet');
+        context.go('/lobbies');
         break;
       case 3:
-        context.go('/leaderboard');
+        context.go('/wallet');
+        break;
+      case 4:
+        context.go('/profile');
         break;
     }
   }
@@ -55,7 +59,7 @@ class MainScaffold extends StatelessWidget {
         child: SafeArea(
           top: false,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: DesignConfig.spacingSm, vertical: DesignConfig.spacingXs),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -69,24 +73,31 @@ class MainScaffold extends StatelessWidget {
                 _NavItem(
                     index: 1,
                     selectedIndex: selectedIndex,
-                    icon: Icons.sports_soccer_outlined,
-                    activeIcon: Icons.sports_soccer,
-                    label: 'Lobbies',
+                    icon: Icons.leaderboard_outlined,
+                    activeIcon: Icons.leaderboard_rounded,
+                    label: 'Rank',
                     onTap: () => _onItemTapped(1, context)),
                 _NavItem(
                     index: 2,
                     selectedIndex: selectedIndex,
-                    icon: Icons.account_balance_wallet_outlined,
-                    activeIcon: Icons.account_balance_wallet_rounded,
-                    label: 'Wallet',
+                    icon: Icons.sports_soccer_outlined,
+                    activeIcon: Icons.sports_soccer,
+                    label: 'Lobbies',
                     onTap: () => _onItemTapped(2, context)),
                 _NavItem(
                     index: 3,
                     selectedIndex: selectedIndex,
-                    icon: Icons.leaderboard_outlined,
-                    activeIcon: Icons.leaderboard_rounded,
-                    label: 'Rank',
+                    icon: Icons.account_balance_wallet_outlined,
+                    activeIcon: Icons.account_balance_wallet_rounded,
+                    label: 'Wallet',
                     onTap: () => _onItemTapped(3, context)),
+                _NavItem(
+                    index: 4,
+                    selectedIndex: selectedIndex,
+                    icon: Icons.person_outline,
+                    activeIcon: Icons.person,
+                    label: 'Profile',
+                    onTap: () => _onItemTapped(4, context)),
               ],
             ),
           ),
@@ -122,11 +133,11 @@ class _NavItem extends StatelessWidget {
     return Expanded(
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(DesignConfig.roundedXl),
         splashColor: AppColors.navSelected.withValues(alpha: 0.1),
         highlightColor: Colors.transparent,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
+          padding: const EdgeInsets.symmetric(vertical: DesignConfig.spacingSm),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -134,12 +145,12 @@ class _NavItem extends StatelessWidget {
                 duration: const Duration(milliseconds: 250),
                 curve: Curves.easeOutCubic,
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    const EdgeInsets.symmetric(horizontal: DesignConfig.spacingLg, vertical: DesignConfig.spacingXs),
                 decoration: BoxDecoration(
                   color: isSelected
                       ? AppColors.navSelected.withValues(alpha: 0.12)
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(DesignConfig.roundedXl),
                 ),
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 200),
@@ -149,11 +160,11 @@ class _NavItem extends StatelessWidget {
                       color: effectiveColor),
                 ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: DesignConfig.spacingXxs),
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 200),
                 style: TextStyle(
-                    fontSize: 12,
+                    fontSize: DesignConfig.caption.fontSize,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                     color: effectiveColor),
                 child: Text(label),
@@ -165,3 +176,5 @@ class _NavItem extends StatelessWidget {
     );
   }
 }
+
+

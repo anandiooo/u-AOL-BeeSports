@@ -97,7 +97,7 @@ class MatchRepositoryImpl implements MatchRepository {
         });
       }
 
-      final matchData = await _client
+      final List<dynamic> insertedMatches = await _client
           .from('matches')
           .insert({
             'lobby_id': lobbyId,
@@ -109,8 +109,9 @@ class MatchRepositoryImpl implements MatchRepository {
             'elo_changes': eloChanges,
             'settled': false,
           })
-          .select()
-          .single();
+          .select();
+      
+      final matchData = insertedMatches.first;
 
       final matchId = matchData['id'] as String;
 
@@ -174,13 +175,15 @@ class MatchRepositoryImpl implements MatchRepository {
   @override
   Future<Result<MatchEntity?>> getMatchByLobby(String lobbyId) async {
     return withRetry(() async {
-      final data = await _client
+      final List<dynamic> data = await _client
           .from('matches')
           .select()
           .eq('lobby_id', lobbyId)
-          .maybeSingle();
-      if (data == null) return null;
-      return MatchEntity.fromMap(data);
+          .order('created_at', ascending: false)
+          .limit(1);
+          
+      if (data.isEmpty) return null;
+      return MatchEntity.fromMap(data.first);
     });
   }
 
@@ -224,20 +227,87 @@ class MatchRepositoryImpl implements MatchRepository {
   }
 
   @override
-  Future<Result<void>> settleMatch(String matchId) async {
+  Future<Result<void>> settleLobby(String lobbyId) async {
     return withRetry(() async {
-      await _client.from('matches').update({'settled': true}).eq('id', matchId);
-
-      final match = await _client
-          .from('matches')
-          .select('lobby_id')
-          .eq('id', matchId)
-          .single();
-
       await _client.from('lobbies').update({
         'status': 'settled',
         'settled_at': DateTime.now().toIso8601String()
-      }).eq('id', match['lobby_id']);
+      }).eq('id', lobbyId);
+
+      // Fetch lobby deposit details
+      final lobby = await _client
+          .from('lobbies')
+          .select('deposit_amount')
+          .eq('id', lobbyId)
+          .single();
+
+      final depositAmount = (lobby['deposit_amount'] as num?)?.toDouble() ?? 0.0;
+      final hasDeposit = depositAmount > 0;
+
+      if (hasDeposit && depositAmount > 0) {
+        // Fetch all participants
+        final participants = await _client
+            .from('lobby_participants')
+            .select('user_id, status, deposit_held')
+            .eq('lobby_id', lobbyId);
+
+        for (final p in participants) {
+          final userId = p['user_id'] as String;
+          final status = p['status'] as String;
+          final depositHeld = p['deposit_held'] as bool? ?? false;
+
+          if (depositHeld) {
+            final walletData = await _client
+                .from('credit_wallets')
+                .select()
+                .eq('user_id', userId)
+                .maybeSingle();
+
+            if (walletData == null) continue; // Skip if no wallet found
+
+            final balance = (walletData['balance'] as num).toDouble();
+            final held = (walletData['held'] as num).toDouble();
+
+            if (status == 'confirmed' || status == 'joined') {
+              // Deduct deposit as payment for playing
+              final newBalance = (balance - depositAmount).clamp(0.0, double.infinity);
+              final newHeld = (held - depositAmount).clamp(0.0, double.infinity);
+              await _client
+                  .from('credit_wallets')
+                  .update({'balance': newBalance, 'held': newHeld})
+                  .eq('user_id', userId);
+
+              await _client.from('credit_transactions').insert({
+                'user_id': userId,
+                'type': 'deposit_forfeit',
+                'amount': depositAmount,
+                'balance_after': newBalance,
+                'reference_id': lobbyId,
+                'description': 'Payment for match participation',
+              });
+            } else if (status == 'no_show') {
+              // Forfeit deposit
+              final newBalance = (balance - depositAmount).clamp(0.0, double.infinity);
+              final newHeld = (held - depositAmount).clamp(0.0, double.infinity);
+              await _client
+                  .from('credit_wallets')
+                  .update({'balance': newBalance, 'held': newHeld})
+                  .eq('user_id', userId);
+
+              await _client.from('credit_transactions').insert({
+                'user_id': userId,
+                'type': 'deposit_forfeit',
+                'amount': depositAmount,
+                'balance_after': newBalance,
+                'reference_id': lobbyId,
+                'description': 'Deposit forfeited for no-show',
+              });
+            }
+
+          }
+        }
+      }
+
     });
   }
 

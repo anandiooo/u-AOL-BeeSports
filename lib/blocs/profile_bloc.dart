@@ -69,6 +69,13 @@ class ProfileUpdateSuccess extends ProfileState {
   List<Object?> get props => [profile];
 }
 
+class ProfileAvatarUploadSuccess extends ProfileState {
+  final ProfileEntity profile;
+  const ProfileAvatarUploadSuccess(this.profile);
+  @override
+  List<Object?> get props => [profile];
+}
+
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final ProfileRepository _profileRepository;
 
@@ -131,7 +138,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         final updateResult = await _profileRepository.updateProfile(updated);
         updateResult.when(
           success: (_) {
-            emit(ProfileUpdateSuccess(updated));
+            emit(ProfileAvatarUploadSuccess(updated));
           },
           failure: (f) {
             emit(ProfileError(f.message));

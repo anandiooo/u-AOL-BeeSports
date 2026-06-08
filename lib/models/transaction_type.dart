@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:beesports/app/app_colors.dart';
+import 'package:beesports/app/app_theme.dart';
 
 enum TransactionType {
   topUp('Top Up', Icons.add_circle, AppColors.success),
-  depositHold('Deposit Hold', Icons.lock, AppColors.accentTeal),
+  depositHold('Deposit Hold', Icons.lock, AppColors.yellow),
   depositRelease('Deposit Release', Icons.lock_open, AppColors.info),
   depositForfeit('Deposit Forfeit', Icons.money_off, AppColors.sale),
   refund('Withdraw', Icons.remove_circle, AppColors.sale);
@@ -49,3 +49,4 @@ enum TransactionType {
     }
   }
 }
+

@@ -1,9 +1,9 @@
+import 'package:beesports/core/result.dart';
+import 'package:beesports/core/retry_helper.dart';
 import 'package:beesports/models/credit_transaction_entity.dart';
 import 'package:beesports/models/wallet_entity.dart';
 import 'package:beesports/repos/wallet_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:beesports/core/result.dart';
-import 'package:beesports/core/retry_helper.dart';
 
 class WalletRepositoryImpl implements WalletRepository {
   final SupabaseClient _client;
@@ -66,7 +66,7 @@ class WalletRepositoryImpl implements WalletRepository {
         'type': 'top_up',
         'amount': amount,
         'balance_after': newBalance,
-        'description': 'Top-up Rp${amount.toStringAsFixed(0)}',
+        'description': '',
       });
     });
   }
@@ -97,7 +97,7 @@ class WalletRepositoryImpl implements WalletRepository {
         'amount': amount,
         'balance_after': wallet.balance,
         'reference_id': lobbyId,
-        'description': 'Deposit held for lobby',
+        'description': '',
       });
 
       await _client
@@ -131,7 +131,7 @@ class WalletRepositoryImpl implements WalletRepository {
         'amount': amount,
         'balance_after': wallet.balance,
         'reference_id': lobbyId,
-        'description': 'Deposit released from lobby',
+        'description': '',
       });
     });
   }
@@ -161,7 +161,7 @@ class WalletRepositoryImpl implements WalletRepository {
         'amount': amount,
         'balance_after': newBalance,
         'reference_id': lobbyId,
-        'description': 'Deposit forfeited (no-show/penalty)',
+        'description': '',
       });
     });
   }
@@ -192,7 +192,7 @@ class WalletRepositoryImpl implements WalletRepository {
         'type': 'refund',
         'amount': amount,
         'balance_after': newBalance,
-        'description': 'Withdrawal Rp${amount.toStringAsFixed(0)}',
+        'description': '',
       });
     });
   }

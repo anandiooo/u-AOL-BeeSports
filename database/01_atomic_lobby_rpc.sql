@@ -9,7 +9,7 @@ SECURITY DEFINER
 AS $$
 DECLARE
   v_lobby record;
-  v_status text;
+  v_status participant_status;
 BEGIN
   -- Lock the row
   SELECT * INTO v_lobby FROM lobbies WHERE id = p_lobby_id FOR UPDATE;

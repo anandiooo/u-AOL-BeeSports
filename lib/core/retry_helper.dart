@@ -30,7 +30,7 @@ Future<Result<T>> withRetry<T>(
       }
 
       debugPrint(
-          'Operation failed (attempt $attempt/$maxAttempts). Retrying in ${delay.inMilliseconds}ms... Error: ${failure.message}');
+          'Operation failed (attempt $attempt/$maxAttempts). Retrying in ${delay.inMilliseconds}ms... Error: ${failure.message}. Original error: $e');
       await Future.delayed(delay);
       delay *= 2; // Exponential backoff
     }

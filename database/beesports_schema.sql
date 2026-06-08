@@ -1,4 +1,4 @@
-﻿-- commit
+-- commit
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -443,13 +443,13 @@ CREATE POLICY "sport_ratings_select_all"
     ON user_sport_ratings FOR SELECT
     USING (true);
 
-CREATE POLICY "sport_ratings_insert_own"
+CREATE POLICY "sport_ratings_insert_authenticated"
     ON user_sport_ratings FOR INSERT
-    WITH CHECK (auth.uid() = user_id);
+    WITH CHECK (true);
 
-CREATE POLICY "sport_ratings_update_own"
+CREATE POLICY "sport_ratings_update_authenticated"
     ON user_sport_ratings FOR UPDATE
-    USING (auth.uid() = user_id);
+    USING (true);
 
 CREATE POLICY "lobbies_select_all"
     ON lobbies FOR SELECT

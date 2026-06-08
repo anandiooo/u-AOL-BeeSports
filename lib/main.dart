@@ -34,6 +34,9 @@ class BeeSportsApp extends StatelessWidget {
         BlocProvider(
           create: (_) => sl<ProfileBloc>(),
         ),
+        BlocProvider(
+          create: (_) => sl<WalletBloc>(),
+        ),
       ],
       child: Builder(
         builder: (context) {

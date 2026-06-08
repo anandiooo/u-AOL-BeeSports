@@ -2,15 +2,10 @@ import 'package:beesports/models/user_entity.dart';
 import 'package:beesports/core/result.dart';
 
 abstract class AuthRepository {
-  Future<Result<void>> signUp({
+  Future<Result<UserEntity>> signUp({
     required String email,
     required String password,
     required String fullName,
-  });
-
-  Future<Result<UserEntity>> verifyOtp({
-    required String email,
-    required String token,
   });
 
   Future<Result<UserEntity>> signIn({
