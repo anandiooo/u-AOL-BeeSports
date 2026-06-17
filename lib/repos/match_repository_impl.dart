@@ -244,9 +244,9 @@ class MatchRepositoryImpl implements MatchRepository {
       final depositAmount = (lobby['deposit_amount'] as num?)?.toDouble() ?? 0.0;
       final hostDepositAmount = (lobby['host_deposit_amount'] as num?)?.toDouble() ?? 0.0;
       final hostId = lobby['host_id'] as String;
-      final hasDeposit = depositAmount > 0;
+      final hasDeposit = depositAmount > 0 || hostDepositAmount > 0;
 
-      if (hasDeposit && depositAmount > 0) {
+      if (hasDeposit) {
         // Fetch all participants
         final participants = await _client
             .from('lobby_participants')
